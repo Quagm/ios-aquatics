@@ -18,7 +18,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold mb-6 text-white">
               About Us
             </h2>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto align-center">
+            <p className="text-white/80 text-lg max-w-2xl mx-auto align-left">
               The IOS Aquatics store contains basic aquarium keeping tools and equipment such as lights and filters, aquascaping materials and hardscapes. Livestock care products like feeds and water medication and of course a variety of livestock and plants.
             </p>
           </div>
