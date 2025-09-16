@@ -1,8 +1,35 @@
 "use client"
+import { useState } from "react"
 
 export default function ContactForm() {
+  const [submitted, setSubmitted] = useState(false)
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const data = new FormData(e.currentTarget)
+    const payload = Object.fromEntries(data.entries())
+    try {
+      const list = JSON.parse(window.localStorage.getItem('contact-submissions') || '[]')
+      list.push({ ...payload, createdAt: new Date().toISOString() })
+      window.localStorage.setItem('contact-submissions', JSON.stringify(list))
+      setSubmitted(true)
+    } catch {}
+  }
+
+  if (submitted) {
+    return (
+      <div className="text-center space-y-4">
+        <h3 className="text-2xl font-semibold text-white">Thanks! We received your inquiry.</h3>
+        <p className="text-white/80">We'll get back to you soon.</p>
+        <button className="bg-[#6c47ff] text-white px-8 py-3 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors" onClick={() => setSubmitted(false)}>
+          Send another message
+        </button>
+      </div>
+    )
+  }
+
   return (
-    <form className="space-y-8">
+    <form className="space-y-8" onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-white mb-3">

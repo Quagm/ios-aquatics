@@ -68,7 +68,7 @@ export default function AdminDashboard() {
     },
     {
       title: 'Total Revenue',
-      value: `$${stats.totalRevenue.toLocaleString()}`,
+      value: `₱${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
       color: 'bg-yellow-500',
       change: '+15%'
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">${order.amount}</p>
+                    <p className="font-semibold text-gray-900">₱{order.amount}</p>
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                       order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
                       order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">${product.revenue}</p>
+                    <p className="font-semibold text-gray-900">₱{product.revenue}</p>
                   </div>
                 </div>
               ))}

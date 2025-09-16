@@ -19,7 +19,7 @@ export default function CartItem({ item, onQuantityChange, onRemove }) {
             {item.name}
           </h3>
           <p className="text-xl font-bold text-[#6c47ff]">
-            ${item.price}
+            ₱{item.price}
           </p>
         </div>
         
@@ -43,7 +43,7 @@ export default function CartItem({ item, onQuantityChange, onRemove }) {
         
         <div className="text-right">
           <p className="text-xl font-bold text-white mb-2">
-            ${(item.price * item.quantity).toFixed(2)}
+            ₱{(item.price * item.quantity).toFixed(2)}
           </p>
           <button 
             className="text-red-400 text-sm hover:text-red-300 font-medium"

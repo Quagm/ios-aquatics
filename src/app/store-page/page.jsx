@@ -2,8 +2,12 @@
 import NavigationBar from "@/components/navigation-bar"
 import Footer from "@/components/footer"
 import ProductCard from "@/components/ProductCard"
+import { useMemo, useState } from "react"
 
 export default function StorePage() {
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [visibleCount, setVisibleCount] = useState(8)
+
   const products = [
     {
       id: 1,
@@ -49,6 +53,17 @@ export default function StorePage() {
     }
   ]
 
+  const categories = ["all", "Fish", "Plants", "Equipment", "Food"]
+
+  const filteredProducts = useMemo(() => {
+    if (selectedCategory === "all") return products
+    return products.filter(p => p.category === selectedCategory)
+  }, [products, selectedCategory])
+
+  const visibleProducts = filteredProducts.slice(0, visibleCount)
+
+  const canLoadMore = visibleCount < filteredProducts.length
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
       {/* Navigation */}
@@ -68,36 +83,34 @@ export default function StorePage() {
           {/* Filter Section */}
           <div className="mb-12">
             <div className="flex flex-wrap justify-center gap-4">
-              <button className="px-8 py-3 bg-[#6c47ff] text-white rounded-full hover:bg-[#5a3ae6] transition-colors font-medium">
-                All Products
-              </button>
-              <button className="px-8 py-3 bg-white/20 text-white rounded-full hover:bg-white/30 transition-colors border border-white/30 font-medium">
-                Fish
-              </button>
-              <button className="px-8 py-3 bg-white/20 text-white rounded-full hover:bg-white/30 transition-colors border border-white/30 font-medium">
-                Plants
-              </button>
-              <button className="px-8 py-3 bg-white/20 text-white rounded-full hover:bg-white/30 transition-colors border border-white/30 font-medium">
-                Equipment
-              </button>
-              <button className="px-8 py-3 bg-white/20 text-white rounded-full hover:bg-white/30 transition-colors border border-white/30 font-medium">
-                Food
-              </button>
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => { setSelectedCategory(cat); setVisibleCount(8) }}
+                  className={`px-8 py-3 rounded-full transition-colors font-medium border border-white/30 ${selectedCategory === cat ? "bg-[#6c47ff] text-white hover:bg-[#5a3ae6]" : "bg-white/20 text-white hover:bg-white/30"}`}
+                >
+                  {cat === "all" ? "All Products" : cat}
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {products.map((product) => (
+            {visibleProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
 
           {/* Load More Button */}
           <div className="text-center mt-16">
-            <button className="bg-white/20 text-white px-12 py-4 rounded-full font-medium hover:bg-white/30 transition-colors border border-white/30 text-lg">
-              Load More Products
-            </button>
+            {canLoadMore ? (
+              <button onClick={() => setVisibleCount(c => c + 8)} className="bg-white/20 text-white px-12 py-4 rounded-full font-medium hover:bg-white/30 transition-colors border border-white/30 text-lg">
+                Load More Products
+              </button>
+            ) : (
+              <p className="text-white/70">No more products to load</p>
+            )}
           </div>
         </div>
       </div>

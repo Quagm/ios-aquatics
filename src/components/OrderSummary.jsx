@@ -11,28 +11,28 @@ export default function OrderSummary({ items, subtotal, shipping, tax, total, sh
         <div className="flex justify-between">
           <span className="text-white/70 text-lg">Subtotal</span>
           <span className="font-medium text-white text-lg">
-            ${subtotal.toFixed(2)}
+            ₱{subtotal.toFixed(2)}
           </span>
         </div>
         
         <div className="flex justify-between">
           <span className="text-white/70 text-lg">Shipping</span>
           <span className="font-medium text-white text-lg">
-            ${shipping.toFixed(2)}
+            ₱{shipping.toFixed(2)}
           </span>
         </div>
         
         <div className="flex justify-between">
           <span className="text-white/70 text-lg">Tax</span>
           <span className="font-medium text-white text-lg">
-            ${tax.toFixed(2)}
+            ₱{tax.toFixed(2)}
           </span>
         </div>
         
         <div className="border-t border-white/30 pt-6">
           <div className="flex justify-between text-xl font-bold">
             <span className="text-white">Total</span>
-            <span className="text-[#6c47ff]">${total.toFixed(2)}</span>
+            <span className="text-[#6c47ff]">₱{total.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function OrderSummary({ items, subtotal, shipping, tax, total, sh
       
       <div className="mt-8 text-center">
         <p className="text-sm text-white/70">
-          Free shipping on orders over $50
+          Free shipping on orders over ₱50
         </p>
       </div>
     </div>

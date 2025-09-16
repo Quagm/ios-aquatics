@@ -35,7 +35,7 @@ export default function OrderHistory({ orders = [] }) {
             </div>
             <p className="text-sm text-white/70 mb-3">{order.items}</p>
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-[#6c47ff]">${order.total.toFixed(2)}</span>
+              <span className="font-semibold text-[#6c47ff]">₱{order.total.toFixed(2)}</span>
               <span className={`text-sm ${order.statusColor} px-3 py-1 rounded-full`}>
                 {order.status}
               </span>

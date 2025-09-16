@@ -261,7 +261,7 @@ export default function OrderManagement() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">${getTotalRevenue().toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-900">₱{getTotalRevenue().toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -368,7 +368,7 @@ export default function OrderManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    ${order.total.toFixed(2)}
+                    ₱{order.total.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
@@ -485,12 +485,12 @@ function OrderDetailModal({ order, onClose, onUpdateStatus }) {
                     <p className="font-medium text-gray-900">{item.name}</p>
                     <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                   </div>
-                  <p className="font-semibold text-gray-900">${item.price.toFixed(2)}</p>
+                  <p className="font-semibold text-gray-900">₱{item.price.toFixed(2)}</p>
                 </div>
               ))}
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                 <p className="text-lg font-semibold text-gray-900">Total</p>
-                <p className="text-lg font-bold text-blue-600">${order.total.toFixed(2)}</p>
+                <p className="text-lg font-bold text-blue-600">₱{order.total.toFixed(2)}</p>
               </div>
             </div>
           </div>

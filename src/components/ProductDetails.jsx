@@ -1,6 +1,8 @@
 "use client"
+import { useCart } from "@/components/CartContext"
 
 export default function ProductDetails({ product }) {
+  const { addItem } = useCart()
   return (
     <div className="space-y-8">
       <div>
@@ -8,13 +10,13 @@ export default function ProductDetails({ product }) {
         <p className="text-xl text-white/70 mb-6">{product.category}</p>
         
         <div className="flex items-center space-x-6 mb-8">
-          <span className="text-4xl font-bold text-[#6c47ff]">${product.price}</span>
+          <span className="text-4xl font-bold text-[#6c47ff]">₱{product.price}</span>
           {product.originalPrice && (
-            <span className="text-2xl text-gray-500 line-through">${product.originalPrice}</span>
+            <span className="text-2xl text-gray-500 line-through">₱{product.originalPrice}</span>
           )}
           {product.originalPrice && (
             <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-              Save ${(product.originalPrice - product.price).toFixed(2)}
+              Save ₱{(product.originalPrice - product.price).toFixed(2)}
             </span>
           )}
         </div>
@@ -67,11 +69,11 @@ export default function ProductDetails({ product }) {
         </div>
         
         <div className="flex space-x-4">
-          <button className="flex-1 bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg">
+          <button className="flex-1 bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg" onClick={() => addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, 1)}>
             Add to Cart
           </button>
           <button className="px-8 py-4 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors text-2xl">
-            ❤️
+            w
           </button>
         </div>
       </div>

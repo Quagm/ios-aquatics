@@ -11,6 +11,7 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { CartProvider } from "@/components/CartContext"
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,7 +34,9 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground font-sans`}>
-          <main className="">{children}</main>
+          <CartProvider>
+            <main className="">{children}</main>
+          </CartProvider>
         </body>
       </html>
     </ClerkProvider>

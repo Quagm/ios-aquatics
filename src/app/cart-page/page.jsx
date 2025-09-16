@@ -4,45 +4,21 @@ import Footer from "@/components/footer"
 import CartItem from "@/components/CartItem"
 import OrderSummary from "@/components/OrderSummary"
 import EmptyCart from "@/components/EmptyCart"
+import { useCart } from "@/components/CartContext"
 
 export default function CartPage() {
-  const cartItems = [
-    {
-      id: 1,
-      name: "Tropical Fish - Neon Tetra",
-      price: 25.00,
-      quantity: 2,
-      image: "/logo-aquatics.jpg"
-    },
-    {
-      id: 2,
-      name: "Aquarium Filter",
-      price: 45.00,
-      quantity: 1,
-      image: "/logo-aquatics.jpg"
-    },
-    {
-      id: 3,
-      name: "Aquatic Plants Bundle",
-      price: 35.00,
-      quantity: 1,
-      image: "/logo-aquatics.jpg"
-    }
-  ]
+  const { items, updateQuantity, removeItem, subtotal } = useCart()
 
-  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0)
-  const shipping = 10.00
+  const shipping = items.length > 0 ? 10.00 : 0
   const tax = subtotal * 0.08
   const total = subtotal + shipping + tax
 
   const handleQuantityChange = (itemId, newQuantity) => {
-    // Handle quantity change logic here
-    console.log(`Item ${itemId} quantity changed to ${newQuantity}`)
+    updateQuantity(itemId, newQuantity)
   }
 
   const handleRemoveItem = (itemId) => {
-    // Handle item removal logic here
-    console.log(`Item ${itemId} removed`)
+    removeItem(itemId)
   }
 
   return (
@@ -57,13 +33,13 @@ export default function CartPage() {
             Shopping Cart
           </h1>
           
-          {cartItems.length === 0 ? (
+          {items.length === 0 ? (
             <EmptyCart />
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-6">
-                {cartItems.map((item) => (
+                {items.map((item) => (
                   <CartItem 
                     key={item.id} 
                     item={item} 
@@ -76,7 +52,7 @@ export default function CartPage() {
               {/* Order Summary */}
               <div className="lg:col-span-1">
                 <OrderSummary 
-                  items={cartItems}
+                  items={items}
                   subtotal={subtotal}
                   shipping={shipping}
                   tax={tax}

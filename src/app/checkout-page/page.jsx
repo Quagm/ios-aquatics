@@ -3,27 +3,12 @@ import NavigationBar from "@/components/navigation-bar"
 import Footer from "@/components/footer"
 import Image from "next/image"
 import OrderSummary from "@/components/OrderSummary"
+import { useCart } from "@/components/CartContext"
 
 export default function CheckoutPage() {
-  const orderItems = [
-    {
-      id: 1,
-      name: "Tropical Fish - Neon Tetra",
-      price: 25.00,
-      quantity: 2,
-      image: "/logo-aquatics.jpg"
-    },
-    {
-      id: 2,
-      name: "Aquarium Filter",
-      price: 45.00,
-      quantity: 1,
-      image: "/logo-aquatics.jpg"
-    }
-  ]
+  const { items, subtotal, clearCart } = useCart()
 
-  const subtotal = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0)
-  const shipping = 10.00
+  const shipping = items.length > 0 ? 10.00 : 0
   const tax = subtotal * 0.08
   const total = subtotal + shipping + tax
 
@@ -197,7 +182,7 @@ export default function CheckoutPage() {
                 
                 {/* Order Items */}
                 <div className="space-y-6 mb-8">
-                  {orderItems.map((item) => (
+                  {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4">
                       <div className="w-16 h-16 relative">
                         <Image
@@ -211,7 +196,7 @@ export default function CheckoutPage() {
                         <p className="font-medium text-white">{item.name}</p>
                         <p className="text-sm text-white/70">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-medium text-white">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-medium text-white">₱{(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   ))}
                 </div>
@@ -220,29 +205,29 @@ export default function CheckoutPage() {
                 <div className="space-y-4 mb-8 border-t border-white/30 pt-6">
                   <div className="flex justify-between">
                     <span className="text-white/70 text-lg">Subtotal</span>
-                    <span className="font-medium text-white text-lg">${subtotal.toFixed(2)}</span>
+                    <span className="font-medium text-white text-lg">₱{subtotal.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between">
                     <span className="text-white/70 text-lg">Shipping</span>
-                    <span className="font-medium text-white text-lg">${shipping.toFixed(2)}</span>
+                    <span className="font-medium text-white text-lg">₱{shipping.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between">
                     <span className="text-white/70 text-lg">Tax</span>
-                    <span className="font-medium text-white text-lg">${tax.toFixed(2)}</span>
+                    <span className="font-medium text-white text-lg">₱{tax.toFixed(2)}</span>
                   </div>
                   
                   <div className="border-t border-white/30 pt-4">
                     <div className="flex justify-between text-xl font-bold">
                       <span className="text-white">Total</span>
-                      <span className="text-[#6c47ff]">${total.toFixed(2)}</span>
+                      <span className="text-[#6c47ff]">₱{total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
                 
                 {/* Place Order Button */}
-                <button className="w-full bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors mb-6">
+                <button className="w-full bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors mb-6" onClick={() => clearCart()}>
                   Place Order
                 </button>
                 

@@ -1,6 +1,30 @@
 "use client"
+import { useEffect, useState } from "react"
 
 export default function AccountForm() {
+  const [form, setForm] = useState({ name: "", email: "", phone: "" })
+
+  useEffect(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('account-info') : null
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        setForm({ name: parsed.name || "", email: parsed.email || "", phone: parsed.phone || "" })
+      }
+    } catch {}
+  }, [])
+
+  const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
+
+  const handleSave = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('account-info', JSON.stringify(form))
+        alert('Account information updated!')
+      }
+    } catch {}
+  }
+
   return (
     <div className="space-y-8">
       <h2 className="text-xl font-semibold text-white border-b border-white/30 pb-3">
@@ -16,6 +40,8 @@ export default function AccountForm() {
             type="text"
             className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
             placeholder="John Doe"
+            value={form.name}
+            onChange={(e) => update('name', e.target.value)}
           />
         </div>
         
@@ -27,6 +53,8 @@ export default function AccountForm() {
             type="email"
             className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
             placeholder="john@example.com"
+            value={form.email}
+            onChange={(e) => update('email', e.target.value)}
           />
         </div>
         
@@ -38,11 +66,13 @@ export default function AccountForm() {
             type="tel"
             className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
             placeholder="+1 (555) 123-4567"
+            value={form.phone}
+            onChange={(e) => update('phone', e.target.value)}
           />
         </div>
       </div>
       
-      <button className="w-full bg-[#6c47ff] text-white py-3 rounded-full hover:bg-[#5a3ae6] transition-colors font-medium">
+      <button className="w-full bg-[#6c47ff] text-white py-3 rounded-full hover:bg-[#5a3ae6] transition-colors font-medium" onClick={handleSave}>
         Update Information
       </button>
     </div>

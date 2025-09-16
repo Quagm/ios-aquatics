@@ -261,7 +261,7 @@ export default function InventoryManagement() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Price:</span>
-                  <span className="text-sm font-medium text-gray-900">${product.price}</span>
+                  <span className="text-sm font-medium text-gray-900">₱{product.price}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Stock:</span>
@@ -379,7 +379,7 @@ function AddProductModal({ onClose, onSave, categories }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Price ($)</label>
+              <label className="block text-sm font-medium text-gray-700">Price (₱)</label>
               <input
                 type="number"
                 step="0.01"
@@ -505,7 +505,7 @@ function EditProductModal({ product, onClose, onSave, categories }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Price ($)</label>
+              <label className="block text-sm font-medium text-gray-700">Price (₱)</label>
               <input
                 type="number"
                 step="0.01"
