@@ -13,33 +13,60 @@ export default function AccountPage() {
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg p-8 border border-white/20">
-            {/* Header Section */}
-            <div className="text-center mb-12">
-              <h1 className="text-3xl font-bold text-white mb-6">
-                My Account
-              </h1>
-              <div className="flex justify-center">
-                <UserButton />
-              </div>
+      <main className="flex-1 py-16 px-6 sm:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-16">
+            <h1 className="text-4xl font-extrabold text-white mb-4">
+              My Account
+            </h1>
+            <p className="text-white/70 text-lg">
+              Manage your profile, orders, and quick actions here.
+            </p>
+            <div className="flex justify-center mt-6">
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    userButtonBox:
+                      "border border-white/20 bg-white/10 p-1 rounded-full shadow-md hover:bg-white/20 transition",
+                  },
+                }}
+              />
             </div>
+          </div>
 
-            {/* Account Content Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {/* Account Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-10">
               {/* Account Information */}
-              <AccountForm />
+              <section className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-white/10 hover:shadow-xl transition">
+                <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
+                  Account Information
+                </h2>
+                <AccountForm />
+              </section>
 
               {/* Order History */}
-              <OrderHistory />
+              <section className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-white/10 hover:shadow-xl transition">
+                <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
+                  Order History
+                </h2>
+                <OrderHistory />
+              </section>
             </div>
 
-            {/* Quick Actions */}
-            <QuickActions />
+            {/* Right Column - Quick Actions */}
+            <aside className="bg-gradient-to-b from-[#12344d] to-[#0a2233] rounded-2xl shadow-lg p-8 border border-white/10 hover:shadow-xl transition">
+              <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
+                Quick Actions
+              </h2>
+              <QuickActions />
+            </aside>
           </div>
         </div>
-      </div>
+      </main>
       
       {/* Footer */}
       <Footer />
