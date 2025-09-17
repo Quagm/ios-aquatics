@@ -65,7 +65,7 @@ export default function AccountForm() {
           <input
             type="tel"
             className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
-            placeholder="+1 (555) 123-4567"
+            placeholder="+63 912 345 6789"
             value={form.phone}
             onChange={(e) => update('phone', e.target.value)}
           />

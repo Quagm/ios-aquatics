@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
+import { fetchOrders, updateOrderStatus as updateOrderStatusDb } from '@/lib/queries'
 import { 
   Search, 
   Filter, 
@@ -26,85 +27,26 @@ export default function OrderManagement() {
   const [selectedOrder, setSelectedOrder] = useState(null)
 
   useEffect(() => {
-    // Simulate data fetching
-    const mockOrders = [
-      {
-        id: 'ORD-001',
-        customer: {
-          name: 'John Doe',
-          email: 'john.doe@email.com',
-          phone: '+1 234-567-8900'
-        },
-        items: [
-          { name: 'Aquarium Filter Pro', quantity: 1, price: 89.99 },
-          { name: 'Fish Food', quantity: 2, price: 24.99 }
-        ],
-        total: 139.97,
-        status: 'processing',
-        paymentStatus: 'paid',
-        shippingAddress: '123 Main St, City, State 12345',
-        orderDate: '2024-01-20',
-        estimatedDelivery: '2024-01-25',
-        trackingNumber: 'TRK123456789'
-      },
-      {
-        id: 'ORD-002',
-        customer: {
-          name: 'Jane Smith',
-          email: 'jane.smith@email.com',
-          phone: '+1 234-567-8901'
-        },
-        items: [
-          { name: 'LED Aquarium Light', quantity: 1, price: 149.99 }
-        ],
-        total: 149.99,
-        status: 'shipped',
-        paymentStatus: 'paid',
-        shippingAddress: '456 Oak Ave, City, State 12345',
-        orderDate: '2024-01-19',
-        estimatedDelivery: '2024-01-24',
-        trackingNumber: 'TRK987654321'
-      },
-      {
-        id: 'ORD-003',
-        customer: {
-          name: 'Mike Johnson',
-          email: 'mike.j@email.com',
-          phone: '+1 234-567-8902'
-        },
-        items: [
-          { name: 'Water Conditioner', quantity: 3, price: 12.99 },
-          { name: 'Aquarium Decorations', quantity: 1, price: 45.99 }
-        ],
-        total: 84.96,
-        status: 'delivered',
-        paymentStatus: 'paid',
-        shippingAddress: '789 Pine St, City, State 12345',
-        orderDate: '2024-01-18',
-        estimatedDelivery: '2024-01-23',
-        trackingNumber: 'TRK456789123'
-      },
-      {
-        id: 'ORD-004',
-        customer: {
-          name: 'Sarah Wilson',
-          email: 'sarah.w@email.com',
-          phone: '+1 234-567-8903'
-        },
-        items: [
-          { name: 'Premium Fish Food', quantity: 1, price: 34.99 }
-        ],
-        total: 34.99,
-        status: 'cancelled',
-        paymentStatus: 'refunded',
-        shippingAddress: '321 Elm St, City, State 12345',
-        orderDate: '2024-01-17',
-        estimatedDelivery: '2024-01-22',
-        trackingNumber: null
-      }
-    ]
-    setOrders(mockOrders)
-    setFilteredOrders(mockOrders)
+    let isMounted = true
+    fetchOrders()
+      .then((data) => {
+        if (!isMounted) return
+        const normalized = data.map((o) => ({
+          id: o.id,
+          items: (o.order_items || []).map((i) => ({ 
+            name: i.products?.name || 'Unknown Product', 
+            quantity: i.quantity, 
+            price: i.price 
+          })),
+          total: o.total,
+          status: o.status,
+          orderDate: o.created_at?.split('T')[0]
+        }))
+        setOrders(normalized)
+        setFilteredOrders(normalized)
+      })
+      .catch(() => {})
+    return () => { isMounted = false }
   }, [])
 
   useEffect(() => {
@@ -113,8 +55,7 @@ export default function OrderManagement() {
     if (searchTerm) {
       filtered = filtered.filter(order =>
         order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+        order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
       )
     }
 
@@ -174,12 +115,11 @@ export default function OrderManagement() {
     }
   }
 
-  const updateOrderStatus = (id, newStatus) => {
-    setOrders(prev => 
-      prev.map(order => 
-        order.id === id ? { ...order, status: newStatus } : order
-      )
-    )
+  const updateOrderStatus = async (id, newStatus) => {
+    try {
+      const updated = await updateOrderStatusDb(id, newStatus)
+      setOrders(prev => prev.map(o => (o.id === id ? { ...o, status: updated.status } : o)))
+    } catch {}
   }
 
   const getTotalRevenue = () => {
@@ -324,10 +264,7 @@ export default function OrderManagement() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
+                  Order ID
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Items
@@ -350,16 +287,7 @@ export default function OrderManagement() {
               {filteredOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{order.id}</div>
-                      <div className="text-sm text-gray-500">{order.paymentStatus}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{order.customer.name}</div>
-                      <div className="text-sm text-gray-500">{order.customer.email}</div>
-                    </div>
+                    <div className="text-sm font-medium text-gray-900">{order.id}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{order.items.length} items</div>
@@ -440,36 +368,22 @@ function OrderDetailModal({ order, onClose, onUpdateStatus }) {
           </div>
         </div>
         <div className="p-6 space-y-6">
-          {/* Customer Information */}
+          {/* Order Information */}
           <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Customer Information</h4>
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">Order Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3">
-                <User className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="font-medium text-gray-900">{order.customer.name}</p>
-                  <p className="text-sm text-gray-600">Customer Name</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="font-medium text-gray-900">{order.customer.email}</p>
-                  <p className="text-sm text-gray-600">Email Address</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="font-medium text-gray-900">{order.customer.phone}</p>
-                  <p className="text-sm text-gray-600">Phone Number</p>
-                </div>
-              </div>
               <div className="flex items-center space-x-3">
                 <Calendar className="w-5 h-5 text-gray-400" />
                 <div>
                   <p className="font-medium text-gray-900">{order.orderDate}</p>
                   <p className="text-sm text-gray-600">Order Date</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Package className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900">{order.id}</p>
+                  <p className="text-sm text-gray-600">Order ID</p>
                 </div>
               </div>
             </div>
@@ -495,21 +409,6 @@ function OrderDetailModal({ order, onClose, onUpdateStatus }) {
             </div>
           </div>
 
-          {/* Shipping Information */}
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Shipping Information</h4>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-900">{order.shippingAddress}</p>
-              {order.trackingNumber && (
-                <p className="text-sm text-gray-600 mt-2">
-                  Tracking Number: {order.trackingNumber}
-                </p>
-              )}
-              <p className="text-sm text-gray-600 mt-2">
-                Estimated Delivery: {order.estimatedDelivery}
-              </p>
-            </div>
-          </div>
 
           {/* Status Update */}
           <div>

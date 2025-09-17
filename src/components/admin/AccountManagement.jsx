@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
+import { supabase } from '@/supabaseClient'
 import { 
   Search, 
   Filter, 
@@ -26,51 +27,24 @@ export default function AccountManagement() {
   const [editingUser, setEditingUser] = useState(null)
 
   useEffect(() => {
-    // Simulate data fetching
-    const mockUsers = [
-      {
-        id: 1,
-        name: 'John Doe',
-        email: 'john.doe@email.com',
-        phone: '+1 234-567-8900',
-        role: 'admin',
-        status: 'active',
-        joinDate: '2024-01-15',
-        lastLogin: '2024-01-20'
-      },
-      {
-        id: 2,
-        name: 'Jane Smith',
-        email: 'jane.smith@email.com',
-        phone: '+1 234-567-8901',
-        role: 'manager',
-        status: 'active',
-        joinDate: '2024-01-10',
-        lastLogin: '2024-01-19'
-      },
-      {
-        id: 3,
-        name: 'Mike Johnson',
-        email: 'mike.j@email.com',
-        phone: '+1 234-567-8902',
-        role: 'staff',
-        status: 'inactive',
-        joinDate: '2024-01-05',
-        lastLogin: '2024-01-15'
-      },
-      {
-        id: 4,
-        name: 'Sarah Wilson',
-        email: 'sarah.w@email.com',
-        phone: '+1 234-567-8903',
-        role: 'staff',
-        status: 'active',
-        joinDate: '2024-01-12',
-        lastLogin: '2024-01-20'
-      }
-    ]
-    setUsers(mockUsers)
-    setFilteredUsers(mockUsers)
+    let isMounted = true
+    supabase.from('profiles').select('*').order('created_at', { ascending: false }).then(({ data, error }) => {
+      if (!isMounted) return
+      if (error) return
+      const normalized = (data || []).map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        role: u.role || 'staff',
+        status: u.status || 'active',
+        joinDate: u.created_at?.split('T')[0],
+        lastLogin: u.last_login || 'Never'
+      }))
+      setUsers(normalized)
+      setFilteredUsers(normalized)
+    })
+    return () => { isMounted = false }
   }, [])
 
   useEffect(() => {
@@ -118,37 +92,63 @@ export default function AccountManagement() {
     }
   }
 
-  const toggleUserStatus = (id) => {
-    setUsers(prev => 
-      prev.map(user => 
-        user.id === id 
-          ? { ...user, status: user.status === 'active' ? 'inactive' : 'active' }
-          : user
-      )
-    )
-  }
-
-  const deleteUser = (id) => {
-    setUsers(prev => prev.filter(user => user.id !== id))
-  }
-
-  const handleAddUser = (userData) => {
-    const newUser = {
-      id: users.length + 1,
-      ...userData,
-      joinDate: new Date().toISOString().split('T')[0],
-      lastLogin: 'Never'
+  const toggleUserStatus = async (id) => {
+    const target = users.find(u => u.id === id)
+    if (!target) return
+    const nextStatus = target.status === 'active' ? 'inactive' : 'active'
+    const { data, error } = await supabase.from('profiles').update({ status: nextStatus }).eq('id', id).select().single()
+    if (!error && data) {
+      setUsers(prev => prev.map(u => (u.id === id ? { ...u, status: data.status } : u)))
     }
-    setUsers(prev => [...prev, newUser])
-    setShowAddModal(false)
   }
 
-  const handleEditUser = (userData) => {
-    setUsers(prev => 
-      prev.map(user => 
-        user.id === editingUser.id ? { ...user, ...userData } : user
-      )
-    )
+  const deleteUser = async (id) => {
+    const { error } = await supabase.from('profiles').delete().eq('id', id)
+    if (!error) setUsers(prev => prev.filter(user => user.id !== id))
+  }
+
+  const handleAddUser = async (userData) => {
+    const { data, error } = await supabase.from('profiles').insert({
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      role: userData.role,
+      status: userData.status
+    }).select().single()
+    if (!error && data) {
+      const normalized = {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        role: data.role,
+        status: data.status,
+        joinDate: data.created_at?.split('T')[0],
+        lastLogin: 'Never'
+      }
+      setUsers(prev => [normalized, ...prev])
+      setShowAddModal(false)
+    }
+  }
+
+  const handleEditUser = async (userData) => {
+    const { data, error } = await supabase.from('profiles').update({
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      role: userData.role,
+      status: userData.status
+    }).eq('id', editingUser.id).select().single()
+    if (!error && data) {
+      setUsers(prev => prev.map(u => (u.id === editingUser.id ? {
+        ...u,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        role: data.role,
+        status: data.status
+      } : u)))
+    }
     setEditingUser(null)
   }
 

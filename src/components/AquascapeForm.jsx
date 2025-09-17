@@ -1,0 +1,247 @@
+"use client"
+import { useState } from "react"
+import { createInquiry } from "@/lib/queries"
+
+export default function AquascapeForm() {
+  const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const data = new FormData(e.currentTarget)
+    const payload = Object.fromEntries(data.entries())
+    setSubmitting(true)
+    setError("")
+    
+    try {
+      // Create a detailed message for aquascape inquiry
+      const aquascapeMessage = `
+Aquascape Inquiry Details:
+- Contact: ${payload.contactNo}
+- Address: ${payload.address}
+- Aquarium Size: ${payload.aquariumSize}
+- Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}
+- Preferences/Suggestions: ${payload.preferences}
+${payload.imageReference ? `- Image Reference: ${payload.imageReference.name}` : ''}
+      `.trim()
+
+      await createInquiry({
+        first_name: payload.firstName,
+        last_name: payload.lastName,
+        email: payload.email,
+        phone: payload.contactNo || null,
+        subject: "Aquascape Inquiry",
+        message: aquascapeMessage,
+        status: "pending"
+      })
+      setSubmitted(true)
+      ;(e.currentTarget).reset()
+    } catch (err) {
+      setError(err.message || "Failed to submit. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (submitted) {
+    return (
+      <div className="text-center space-y-4">
+        <h3 className="text-2xl font-semibold text-white">Thanks! We received your aquascape inquiry.</h3>
+        <p className="text-white/80">Our aquascape specialists will get back to you soon with a customized proposal.</p>
+        <button className="bg-[#6c47ff] text-white px-8 py-3 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors" onClick={() => setSubmitted(false)}>
+          Submit another inquiry
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <form className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
+      {error && (
+        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
+          <p className="text-red-300 text-sm sm:text-base">{error}</p>
+        </div>
+      )}
+      
+      {/* Name Fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <div>
+          <label htmlFor="firstName" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
+            First Name *
+          </label>
+          <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
+            placeholder="Enter your first name"
+            required
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="lastName" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
+            Last Name *
+          </label>
+          <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
+            placeholder="Enter your last name"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Contact Information */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <div>
+          <label htmlFor="contactNo" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
+            Contact Number *
+          </label>
+          <input
+            type="tel"
+            id="contactNo"
+            name="contactNo"
+            className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
+            placeholder="e.g., +63 912 345 6789"
+            required
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="email" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
+            Email Address *
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
+            placeholder="Enter your email address"
+            required
+          />
+        </div>
+      </div>
+      
+      {/* Address */}
+      <div>
+        <label htmlFor="address" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
+          Address *
+        </label>
+        <textarea
+          id="address"
+          name="address"
+          rows={4}
+          className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50 resize-none"
+          placeholder="Please provide your full address for site visit planning"
+          required
+        ></textarea>
+      </div>
+
+      {/* Aquarium Details */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <label htmlFor="aquariumSize" className="block text-sm font-medium text-white mb-3">
+            Aquarium Size *
+          </label>
+          <select
+            id="aquariumSize"
+            name="aquariumSize"
+            className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white"
+            required
+          >
+            <option value="" className="bg-[#051C29] text-white">Select aquarium size</option>
+            <option value="nano-10-20L" className="bg-[#051C29] text-white">Nano (10-20L)</option>
+            <option value="small-20-50L" className="bg-[#051C29] text-white">Small (20-50L)</option>
+            <option value="medium-50-100L" className="bg-[#051C29] text-white">Medium (50-100L)</option>
+            <option value="large-100-200L" className="bg-[#051C29] text-white">Large (100-200L)</option>
+            <option value="xl-200L+" className="bg-[#051C29] text-white">Extra Large (200L+)</option>
+            <option value="custom" className="bg-[#051C29] text-white">Custom Size</option>
+          </select>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-white mb-3">
+            Price Range *
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <input
+                type="number"
+                id="priceMin"
+                name="priceMin"
+                placeholder="Min (₱)"
+                className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
+                min="0"
+                required
+              />
+            </div>
+            <div>
+              <input
+                type="number"
+                id="priceMax"
+                name="priceMax"
+                placeholder="Max (₱)"
+                className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
+                min="0"
+                required
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Preferences/Suggestions */}
+      <div>
+        <label htmlFor="preferences" className="block text-sm font-medium text-white mb-3">
+          Preferences/Suggestions
+        </label>
+        <textarea
+          id="preferences"
+          name="preferences"
+          rows={6}
+          className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
+          placeholder="Tell us about your vision! Include details about:
+• Preferred aquascape style (Nature, Dutch, Iwagumi, etc.)
+• Plant preferences
+• Fish species you'd like to keep
+• Lighting preferences
+• Maintenance level you're comfortable with
+• Any specific themes or inspirations"
+        ></textarea>
+      </div>
+
+      {/* Image Reference */}
+      <div>
+        <label htmlFor="imageReference" className="block text-sm font-medium text-white mb-3">
+          Image Reference Attachment
+        </label>
+        <div className="relative">
+          <input
+            type="file"
+            id="imageReference"
+            name="imageReference"
+            accept="image/*"
+            className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#6c47ff] file:text-white hover:file:bg-[#5a3ae6] file:cursor-pointer"
+          />
+          <p className="text-white/60 text-sm mt-2">
+            Upload reference images of aquascapes you like (optional)
+          </p>
+        </div>
+      </div>
+      
+      <div className="text-center pt-4">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="bg-[#6c47ff] text-white px-12 py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {submitting ? "Submitting Inquiry..." : "Submit Aquascape Inquiry"}
+        </button>
+      </div>
+    </form>
+  )
+}

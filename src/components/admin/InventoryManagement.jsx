@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
+import { fetchProducts, createProduct as createProductDb, updateProduct as updateProductDb, deleteProductById } from '@/lib/queries'
 import { 
   Search, 
   Filter, 
@@ -25,63 +26,19 @@ export default function InventoryManagement() {
   const [editingProduct, setEditingProduct] = useState(null)
 
   useEffect(() => {
-    // Simulate data fetching
-    const mockProducts = [
-      {
-        id: 1,
-        name: 'Aquarium Filter Pro',
-        category: 'Equipment',
-        sku: 'AFP-001',
-        price: 89.99,
-        stock: 15,
-        minStock: 5,
-        status: 'active',
-        description: 'High-quality aquarium filter with 3-stage filtration',
-        image: '/placeholder-product.jpg',
-        dateAdded: '2024-01-15'
-      },
-      {
-        id: 2,
-        name: 'Premium Fish Food',
-        category: 'Food',
-        sku: 'PFF-002',
-        price: 24.99,
-        stock: 3,
-        minStock: 10,
-        status: 'low-stock',
-        description: 'Nutritious fish food for all types of tropical fish',
-        image: '/placeholder-product.jpg',
-        dateAdded: '2024-01-10'
-      },
-      {
-        id: 3,
-        name: 'Water Conditioner',
-        category: 'Chemicals',
-        sku: 'WC-003',
-        price: 12.99,
-        stock: 25,
-        minStock: 5,
-        status: 'active',
-        description: 'Safe water conditioner for aquarium use',
-        image: '/placeholder-product.jpg',
-        dateAdded: '2024-01-12'
-      },
-      {
-        id: 4,
-        name: 'LED Aquarium Light',
-        category: 'Lighting',
-        sku: 'LAL-004',
-        price: 149.99,
-        stock: 0,
-        minStock: 3,
-        status: 'out-of-stock',
-        description: 'Energy-efficient LED lighting for aquariums',
-        image: '/placeholder-product.jpg',
-        dateAdded: '2024-01-08'
-      }
-    ]
-    setProducts(mockProducts)
-    setFilteredProducts(mockProducts)
+    let isMounted = true
+    fetchProducts()
+      .then((data) => {
+        if (!isMounted) return
+        const withStatus = data.map((p) => ({
+          ...p,
+          status: p.status || getStockStatus(p.stock || 0, p.minStock || 0)
+        }))
+        setProducts(withStatus)
+        setFilteredProducts(withStatus)
+      })
+      .catch(() => {})
+    return () => { isMounted = false }
   }, [])
 
   useEffect(() => {
@@ -107,55 +64,37 @@ export default function InventoryManagement() {
   }, [searchTerm, categoryFilter, statusFilter, products])
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800'
-      case 'low-stock':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'out-of-stock':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
+    return 'bg-green-100 text-green-800'
+  }
+
+  const deleteProduct = async (id) => {
+    try {
+      await deleteProductById(id)
+      setProducts(prev => prev.filter(product => product.id !== id))
+    } catch {}
+  }
+
+  const handleAddProduct = async (productData) => {
+    try {
+      const payload = {
+        ...productData,
+        image: productData.image || '/placeholder-product.jpg'
+      }
+      const created = await createProduct(payload)
+      setProducts(prev => [created, ...prev])
+      setShowAddModal(false)
+    } catch (error) {
+      console.error('Error adding product:', error)
     }
   }
 
-  const getStockStatus = (stock, minStock) => {
-    if (stock === 0) return 'out-of-stock'
-    if (stock <= minStock) return 'low-stock'
-    return 'active'
-  }
-
-  const updateProductStatus = (id) => {
-    setProducts(prev => 
-      prev.map(product => {
-        const newStatus = getStockStatus(product.stock, product.minStock)
-        return product.id === id ? { ...product, status: newStatus } : product
-      })
-    )
-  }
-
-  const deleteProduct = (id) => {
-    setProducts(prev => prev.filter(product => product.id !== id))
-  }
-
-  const handleAddProduct = (productData) => {
-    const newProduct = {
-      id: products.length + 1,
-      ...productData,
-      status: getStockStatus(productData.stock, productData.minStock),
-      dateAdded: new Date().toISOString().split('T')[0]
+  const handleEditProduct = async (productData) => {
+    try {
+      const updated = await updateProduct(editingProduct.id, productData)
+      setProducts(prev => prev.map(p => (p.id === updated.id ? updated : p)))
+    } catch (error) {
+      console.error('Error updating product:', error)
     }
-    setProducts(prev => [...prev, newProduct])
-    setShowAddModal(false)
-  }
-
-  const handleEditProduct = (productData) => {
-    setProducts(prev => 
-      prev.map(product => {
-        const updatedProduct = product.id === editingProduct.id ? { ...product, ...productData } : product
-        return { ...updatedProduct, status: getStockStatus(updatedProduct.stock, updatedProduct.minStock) }
-      })
-    )
     setEditingProduct(null)
   }
 
@@ -263,22 +202,12 @@ export default function InventoryManagement() {
                   <span className="text-sm text-gray-600">Price:</span>
                   <span className="text-sm font-medium text-gray-900">₱{product.price}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Stock:</span>
-                  <span className="text-sm font-medium text-gray-900">{product.stock} units</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Min Stock:</span>
-                  <span className="text-sm font-medium text-gray-900">{product.minStock} units</span>
-                </div>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}>
-                  {product.status === 'out-of-stock' && <XCircle className="w-3 h-3 mr-1" />}
-                  {product.status === 'low-stock' && <AlertTriangle className="w-3 h-3 mr-1" />}
-                  {product.status === 'active' && <CheckCircle className="w-3 h-3 mr-1" />}
-                  {product.status.replace('-', ' ')}
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor()}`}>
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  Active
                 </span>
                 <button
                   onClick={() => setEditingProduct(product)}
@@ -319,20 +248,15 @@ function AddProductModal({ onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: '',
     category: 'Equipment',
-    sku: '',
     price: '',
-    stock: '',
-    minStock: '',
-    description: ''
+    image: ''
   })
 
   const handleSubmit = (e) => {
     e.preventDefault()
     onSave({
       ...formData,
-      price: parseFloat(formData.price),
-      stock: parseInt(formData.stock),
-      minStock: parseInt(formData.minStock)
+      price: parseFloat(formData.price)
     })
   }
 
@@ -355,18 +279,6 @@ function AddProductModal({ onClose, onSave, categories }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">SKU</label>
-              <input
-                type="text"
-                required
-                value={formData.sku}
-                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
               <label className="block text-sm font-medium text-gray-700">Category</label>
               <select
                 value={formData.category}
@@ -378,6 +290,8 @@ function AddProductModal({ onClose, onSave, categories }) {
                 ))}
               </select>
             </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Price (₱)</label>
               <input
@@ -390,34 +304,15 @@ function AddProductModal({ onClose, onSave, categories }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Stock</label>
+              <label className="block text-sm font-medium text-gray-700">Image URL</label>
               <input
-                type="number"
-                required
-                value={formData.stock}
-                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                type="url"
+                value={formData.image}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="https://example.com/image.jpg"
               />
             </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Minimum Stock</label>
-            <input
-              type="number"
-              required
-              value={formData.minStock}
-              onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
-            <textarea
-              rows={3}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
           </div>
           <div className="flex justify-end space-x-3 pt-4">
             <button
@@ -445,20 +340,15 @@ function EditProductModal({ product, onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: product.name,
     category: product.category,
-    sku: product.sku,
     price: product.price.toString(),
-    stock: product.stock.toString(),
-    minStock: product.minStock.toString(),
-    description: product.description
+    image: product.image || ''
   })
 
   const handleSubmit = (e) => {
     e.preventDefault()
     onSave({
       ...formData,
-      price: parseFloat(formData.price),
-      stock: parseInt(formData.stock),
-      minStock: parseInt(formData.minStock)
+      price: parseFloat(formData.price)
     })
   }
 
@@ -481,18 +371,6 @@ function EditProductModal({ product, onClose, onSave, categories }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">SKU</label>
-              <input
-                type="text"
-                required
-                value={formData.sku}
-                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
               <label className="block text-sm font-medium text-gray-700">Category</label>
               <select
                 value={formData.category}
@@ -504,6 +382,8 @@ function EditProductModal({ product, onClose, onSave, categories }) {
                 ))}
               </select>
             </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Price (₱)</label>
               <input
@@ -516,34 +396,15 @@ function EditProductModal({ product, onClose, onSave, categories }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Stock</label>
+              <label className="block text-sm font-medium text-gray-700">Image URL</label>
               <input
-                type="number"
-                required
-                value={formData.stock}
-                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                type="url"
+                value={formData.image}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="https://example.com/image.jpg"
               />
             </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Minimum Stock</label>
-            <input
-              type="number"
-              required
-              value={formData.minStock}
-              onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
-            <textarea
-              rows={3}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
           </div>
           <div className="flex justify-end space-x-3 pt-4">
             <button

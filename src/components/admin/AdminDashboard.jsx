@@ -29,12 +29,12 @@ export default function AdminDashboard() {
       totalUsers: 1247,
       totalOrders: 89,
       totalProducts: 156,
-      totalRevenue: 45678,
+      totalRevenue: 125000,
       pendingInquiries: 12,
       recentOrders: [
-        { id: 'ORD-001', customer: 'John Doe', amount: 299.99, status: 'Processing' },
-        { id: 'ORD-002', customer: 'Jane Smith', amount: 149.50, status: 'Shipped' },
-        { id: 'ORD-003', customer: 'Mike Johnson', amount: 89.99, status: 'Delivered' },
+        { id: 'ORD-001', customer: 'Juan Dela Cruz', amount: 1500, status: 'Processing' },
+        { id: 'ORD-002', customer: 'Maria Santos', amount: 2500, status: 'Shipped' },
+        { id: 'ORD-003', customer: 'Pedro Garcia', amount: 1200, status: 'Delivered' },
       ],
       topProducts: [
         { name: 'Aquarium Filter', sales: 45, revenue: 2250 },
@@ -152,7 +152,7 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-4 text-blue-600 hover:text-blue-800 font-medium">
+            <button className="w-full mt-4 text-blue-600 hover:text-blue-800 font-medium" onClick={() => window.location.assign('/admin/order-management')}>
               View All Orders
             </button>
           </div>
@@ -182,7 +182,7 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-4 text-blue-600 hover:text-blue-800 font-medium">
+            <button className="w-full mt-4 text-blue-600 hover:text-blue-800 font-medium" onClick={() => window.location.assign('/admin/inventory-management')}>
               View All Products
             </button>
           </div>
@@ -193,19 +193,19 @@ export default function AdminDashboard() {
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => window.location.assign('/admin/inventory-management')}>
             <Package className="w-5 h-5 mr-2 text-blue-600" />
             Add Product
           </button>
-          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => window.location.assign('/admin/inquiry-management')}>
             <MessageSquare className="w-5 h-5 mr-2 text-green-600" />
             View Inquiries
           </button>
-          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => window.location.assign('/admin/order-management')}>
             <ShoppingCart className="w-5 h-5 mr-2 text-purple-600" />
             Process Orders
           </button>
-          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => window.location.assign('/admin/sales-analytics')}>
             <BarChart3 className="w-5 h-5 mr-2 text-yellow-600" />
             View Reports
           </button>

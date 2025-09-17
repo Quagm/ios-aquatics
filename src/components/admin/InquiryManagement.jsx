@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
+import { fetchInquiries, updateInquiryStatus as updateInquiryStatusDb, deleteInquiryById } from '@/lib/queries'
 import { 
   Search, 
   Filter, 
@@ -22,55 +23,15 @@ export default function InquiryManagement() {
   const [selectedInquiry, setSelectedInquiry] = useState(null)
 
   useEffect(() => {
-    // Simulate data fetching
-    const mockInquiries = [
-      {
-        id: 1,
-        name: 'John Doe',
-        email: 'john.doe@email.com',
-        phone: '+1 234-567-8900',
-        subject: 'Product Availability',
-        message: 'Hi, I\'m interested in the Aquarium Filter Pro. Is it currently in stock?',
-        status: 'pending',
-        date: '2024-01-15',
-        priority: 'medium'
-      },
-      {
-        id: 2,
-        name: 'Jane Smith',
-        email: 'jane.smith@email.com',
-        phone: '+1 234-567-8901',
-        subject: 'Bulk Order Inquiry',
-        message: 'We are a pet store looking to place a bulk order for fish food. Can you provide a quote?',
-        status: 'replied',
-        date: '2024-01-14',
-        priority: 'high'
-      },
-      {
-        id: 3,
-        name: 'Mike Johnson',
-        email: 'mike.j@email.com',
-        phone: '+1 234-567-8902',
-        subject: 'Return Policy',
-        message: 'I received a damaged product. What is your return policy?',
-        status: 'resolved',
-        date: '2024-01-13',
-        priority: 'low'
-      },
-      {
-        id: 4,
-        name: 'Sarah Wilson',
-        email: 'sarah.w@email.com',
-        phone: '+1 234-567-8903',
-        subject: 'Custom Aquarium Setup',
-        message: 'I need help setting up a custom 50-gallon aquarium. Do you offer consultation services?',
-        status: 'pending',
-        date: '2024-01-12',
-        priority: 'high'
-      }
-    ]
-    setInquiries(mockInquiries)
-    setFilteredInquiries(mockInquiries)
+    let isMounted = true
+    fetchInquiries()
+      .then((data) => {
+        if (!isMounted) return
+        setInquiries(data)
+        setFilteredInquiries(data)
+      })
+      .catch(() => {})
+    return () => { isMounted = false }
   }, [])
 
   useEffect(() => {
@@ -117,16 +78,18 @@ export default function InquiryManagement() {
     }
   }
 
-  const updateInquiryStatus = (id, newStatus) => {
-    setInquiries(prev => 
-      prev.map(inquiry => 
-        inquiry.id === id ? { ...inquiry, status: newStatus } : inquiry
-      )
-    )
+  const updateInquiryStatus = async (id, newStatus) => {
+    try {
+      const updated = await updateInquiryStatusDb(id, newStatus)
+      setInquiries(prev => prev.map(i => (i.id === id ? updated : i)))
+    } catch {}
   }
 
-  const deleteInquiry = (id) => {
-    setInquiries(prev => prev.filter(inquiry => inquiry.id !== id))
+  const deleteInquiry = async (id) => {
+    try {
+      await deleteInquiryById(id)
+      setInquiries(prev => prev.filter(inquiry => inquiry.id !== id))
+    } catch {}
   }
 
   return (

@@ -4,13 +4,43 @@ import Footer from "@/components/footer"
 import Image from "next/image"
 import OrderSummary from "@/components/OrderSummary"
 import { useCart } from "@/components/CartContext"
+import { useState } from "react"
+import { createOrder } from "@/lib/queries"
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart()
+  const [placing, setPlacing] = useState(false)
+  const [error, setError] = useState("")
 
   const shipping = items.length > 0 ? 10.00 : 0
   const tax = subtotal * 0.08
   const total = subtotal + shipping + tax
+
+  const handlePlaceOrder = async (e) => {
+    e?.preventDefault?.()
+    setPlacing(true)
+    setError("")
+    try {
+      // Collect minimal fake customer data from form fields later if needed
+      const customer = {
+        name: "Guest",
+        email: "guest@example.com",
+        phone: "",
+        address: "",
+      }
+      await createOrder({
+        customer,
+        items,
+        totals: { subtotal, shipping, tax, total }
+      })
+      clearCart()
+      alert("Order placed successfully!")
+    } catch (err) {
+      setError(err.message || "Failed to place order")
+    } finally {
+      setPlacing(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
@@ -33,7 +63,7 @@ export default function CheckoutPage() {
                   Shipping Information
                 </h2>
                 
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handlePlaceOrder}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -82,21 +112,23 @@ export default function CheckoutPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
-                        State
+                        Province
                       </label>
                       <input
                         type="text"
                         className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., Metro Manila"
                         required
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
-                        ZIP Code
+                        Postal Code
                       </label>
                       <input
                         type="text"
                         className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., 1747"
                         required
                       />
                     </div>
@@ -109,6 +141,7 @@ export default function CheckoutPage() {
                     <input
                       type="tel"
                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="+63 912 345 6789"
                       required
                     />
                   </div>
@@ -121,7 +154,7 @@ export default function CheckoutPage() {
                   Payment Information
                 </h2>
                 
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handlePlaceOrder}>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-3">
                       Card Number
@@ -179,6 +212,7 @@ export default function CheckoutPage() {
                 <h2 className="text-2xl font-semibold text-white mb-8">
                   Order Summary
                 </h2>
+                {error && <p className="text-red-300 mb-4">{error}</p>}
                 
                 {/* Order Items */}
                 <div className="space-y-6 mb-8">
@@ -227,8 +261,8 @@ export default function CheckoutPage() {
                 </div>
                 
                 {/* Place Order Button */}
-                <button className="w-full bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors mb-6" onClick={() => clearCart()}>
-                  Place Order
+                <button className="w-full bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors mb-6 disabled:opacity-60 disabled:cursor-not-allowed" onClick={handlePlaceOrder} disabled={placing || items.length === 0}>
+                  {placing ? "Placing..." : "Place Order"}
                 </button>
                 
                 <p className="text-sm text-white/70 text-center">

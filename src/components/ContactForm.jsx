@@ -1,19 +1,35 @@
 "use client"
 import { useState } from "react"
+import { createInquiry } from "@/lib/queries"
 
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const data = new FormData(e.currentTarget)
     const payload = Object.fromEntries(data.entries())
+    setSubmitting(true)
+    setError("")
     try {
-      const list = JSON.parse(window.localStorage.getItem('contact-submissions') || '[]')
-      list.push({ ...payload, createdAt: new Date().toISOString() })
-      window.localStorage.setItem('contact-submissions', JSON.stringify(list))
+      await createInquiry({
+        first_name: payload.firstName,
+        last_name: payload.lastName,
+        email: payload.email,
+        phone: payload.phone || null,
+        subject: payload.subject,
+        message: payload.message,
+        status: "pending"
+      })
       setSubmitted(true)
-    } catch {}
+      ;(e.currentTarget).reset()
+    } catch (err) {
+      setError(err.message || "Failed to submit. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (submitted) {
@@ -30,6 +46,7 @@ export default function ContactForm() {
 
   return (
     <form className="space-y-8" onSubmit={handleSubmit}>
+      {error && <p className="text-red-300">{error}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-white mb-3">
@@ -119,9 +136,10 @@ export default function ContactForm() {
       <div className="text-center pt-4">
         <button
           type="submit"
-          className="bg-[#6c47ff] text-white px-12 py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg"
+          disabled={submitting}
+          className="bg-[#6c47ff] text-white px-12 py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Send Inquiry
+          {submitting ? "Sending..." : "Send Inquiry"}
         </button>
       </div>
     </form>
