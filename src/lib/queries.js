@@ -3,9 +3,7 @@ import { supabase } from "@/supabaseClient"
 // Products
 export async function fetchProducts({ category } = {}) {
   let query = supabase.from("products").select("*").order("created_at", { ascending: false })
-  if (category && category !== "all") {
-    query = query.eq("category", category)
-  }
+  if (category && category !== "all") query = query.eq("category", category)
   const { data, error } = await query
   if (error) throw error
   return data || []
@@ -46,6 +44,18 @@ export async function deleteInquiryById(inquiryId) {
   if (error) throw error
 }
 
+// Update inquiry status
+export async function updateInquiryStatus(inquiryId, status) {
+  const { data, error } = await supabase
+    .from("inquiries")
+    .update({ status })
+    .eq("id", inquiryId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 // Orders
 export async function fetchOrders() {
   const { data, error } = await supabase
@@ -68,19 +78,13 @@ export async function fetchOrders() {
 }
 
 export async function createOrder({ items, total }) {
-  // Create the order
   const { data: order, error: orderError } = await supabase
     .from("orders")
-    .insert({
-      total: total,
-      status: "processing"
-    })
+    .insert({ total, status: "processing" })
     .select()
     .single()
-  
   if (orderError) throw orderError
 
-  // Create order items
   const orderItems = items.map((item) => ({
     order_id: order.id,
     product_id: item.id,
@@ -90,7 +94,7 @@ export async function createOrder({ items, total }) {
   
   const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
   if (itemsError) throw itemsError
-  
+
   return order
 }
 
@@ -102,35 +106,22 @@ export async function updateOrderStatus(orderId, status) {
 
 // Analytics
 export async function getSalesAnalytics() {
-  // Get total revenue
-  const { data: revenueData, error: revenueError } = await supabase
-    .from("orders")
-    .select("total")
-  
+  const { data: revenueData, error: revenueError } = await supabase.from("orders").select("total")
   if (revenueError) throw revenueError
-  
+
   const totalRevenue = revenueData?.reduce((sum, order) => sum + parseFloat(order.total || 0), 0) || 0
-  
-  // Get total orders
-  const { count: totalOrders, error: ordersError } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-  
+
+  const { count: totalOrders, error: ordersError } = await supabase.from("orders").select("*", { count: "exact", head: true })
   if (ordersError) throw ordersError
-  
-  // Get orders by status
-  const { data: ordersByStatus, error: statusError } = await supabase
-    .from("orders")
-    .select("status")
-  
+
+  const { data: ordersByStatus, error: statusError } = await supabase.from("orders").select("status")
   if (statusError) throw statusError
-  
+
   const statusCounts = ordersByStatus?.reduce((acc, order) => {
     acc[order.status] = (acc[order.status] || 0) + 1
     return acc
   }, {}) || {}
-  
-  // Get top products
+
   const { data: topProducts, error: productsError } = await supabase
     .from("order_items")
     .select(`
@@ -140,24 +131,21 @@ export async function getSalesAnalytics() {
         name
       )
     `)
-  
   if (productsError) throw productsError
-  
+
   const productSales = topProducts?.reduce((acc, item) => {
     const productName = item.products?.name || 'Unknown'
-    if (!acc[productName]) {
-      acc[productName] = { sales: 0, revenue: 0 }
-    }
+    if (!acc[productName]) acc[productName] = { sales: 0, revenue: 0 }
     acc[productName].sales += item.quantity
     acc[productName].revenue += item.quantity * parseFloat(item.price)
     return acc
   }, {}) || {}
-  
+
   const topProductsList = Object.entries(productSales)
     .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5)
-  
+
   return {
     totalRevenue,
     totalOrders: totalOrders || 0,
@@ -166,5 +154,3 @@ export async function getSalesAnalytics() {
     topProducts: topProductsList
   }
 }
-
-

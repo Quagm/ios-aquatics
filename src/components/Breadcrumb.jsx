@@ -1,6 +1,7 @@
-import Link from "next/link"
+import Link from "next/link"      
 
-export default function Breadcrumb({ items }) {
+export default function 
+Breadcrumb({ items }) {
   return (
     <nav className="mb-12">
       <ol className="flex items-center space-x-3 text-sm text-white/70">
