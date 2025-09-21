@@ -1,164 +1,260 @@
-
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { SignedOut, SignInButton, SignUpButton, SignedIn, UserButton } from "@clerk/nextjs"
+import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/nextjs"
 
 export default function NavigationBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileMenuOpen && !event.target.closest('nav')) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isMobileMenuOpen])
+
+  const navLinks = [
+    { href: "#home", label: "Home" },
+    { href: "#about", label: "About" },
+    { href: "#services", label: "Services" },
+    { href: "#contact", label: "Contact" },
+  ]
+
+  const handleSmoothScroll = (e, href) => {
+    e.preventDefault()
+    
+    // If we're not on the home page, navigate to home first
+    if (window.location.pathname !== '/') {
+      window.location.href = `/${href}`
+      return
+    }
+    
+    // If we're on the home page, scroll to the section
+    const element = document.querySelector(href)
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    }
+  }
 
   return (
-    <nav className="sticky top-0 left-0 w-full z-50 bg-gradient-to-r from-[#051C29]/95 to-[#0a2a3a]/95 backdrop-blur-md border-b border-white/10 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          {/* Logo + Title */}
-          <div className="flex items-center space-x-3">
-            <Image 
-              src="/logo-aquatics.jpg" 
-              alt="Web iOS Aquatics Logo" 
-              width={40} 
-              height={40} 
-              className="rounded-full"
-            />
-            <h1 className="text-xl sm:text-2xl font-bold text-white">IOS Aquatics</h1>
-          </div>
+    <nav
+      className={`fixed inset-x-0 top-0 z-50 py-4 transition-all duration-300 ${
+        isScrolled
+          ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-200"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        {/* Logo and Title */}
+        <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <Image
+            src="/logo-aquatics.jpg"
+            alt="IOS Aquatics Logo"
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
+          <h2
+            className={`text-xl font-bold transition-colors ${
+              isScrolled ? "text-slate-800" : "text-white"
+            }`}
+          >
+            IOS Aquatics
+          </h2>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            <Link 
-              href="/" 
-              className="text-white/80 hover:text-white transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-8">
+          {navLinks.map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              onClick={(e) => handleSmoothScroll(e, href)}
+              className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${
+                isScrolled
+                  ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                  : "text-white/90 hover:text-white hover:bg-white/10"
+              }`}
             >
-              Home
-            </Link>
-            <Link 
-              href="/store-page" 
-              className="text-white/80 hover:text-white transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
-            >
-              Store
-            </Link>
-            <Link 
-              href="/inquiry-form" 
-              className="text-white/80 hover:text-white transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
-            >
-              Contact
-            </Link>
-            <Link 
-              href="/cart-page" 
-              className="text-white/80 hover:text-white transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
-            >
-              Cart
-            </Link>
-          </div>
+              {label}
+            </a>
+          ))}
+          <Link
+            href="/store-page"
+            className={`px-3 py-2 rounded-md font-medium transition-colors ${
+              isScrolled
+                ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                : "text-white/90 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            Store
+          </Link>
+          <Link
+            href="/cart-page"
+            className={`px-3 py-2 rounded-md font-medium transition-colors ${
+              isScrolled
+                ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                : "text-white/90 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            Cart
+          </Link>
 
-          {/* Desktop Auth Buttons */}
-          <div className="hidden lg:flex items-center gap-4">
+          {/* Auth Buttons */}
+          <SignedOut>
+            <SignInButton>
+              <button
+                className={`px-4 py-2 rounded-md font-medium transition-all ${
+                  isScrolled
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                }`}
+              >
+                Login
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <Link
+              href="/account-page"
+              className={`px-3 py-2 rounded-md font-medium transition-colors ${
+                isScrolled
+                  ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                  : "text-white/90 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              Account
+            </Link>
+            <Link
+              href="/admin"
+              className={`px-3 py-2 rounded-md font-medium transition-colors ${
+                isScrolled
+                  ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                  : "text-white/90 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              Admin
+            </Link>
+            <UserButton />
+          </SignedIn>
+        </div>
+
+        {/* Mobile Hamburger */}
+        <button
+          className="md:hidden flex flex-col gap-1.5 p-2"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span
+            className={`h-0.5 w-6 transition-all duration-300 ${
+              isScrolled ? "bg-slate-800" : "bg-white"
+            } ${isMobileMenuOpen ? "rotate-45 translate-y-2" : ""}`}
+          />
+          <span
+            className={`h-0.5 w-6 transition-all duration-300 ${
+              isScrolled ? "bg-slate-800" : "bg-white"
+            } ${isMobileMenuOpen ? "opacity-0" : ""}`}
+          />
+          <span
+            className={`h-0.5 w-6 transition-all duration-300 ${
+              isScrolled ? "bg-slate-800" : "bg-white"
+            } ${isMobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`}
+          />
+        </button>
+      </div>
+
+      {/* Mobile Menu Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-30"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+      
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t border-slate-200 transition-all duration-300 z-40 ${
+          isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+      >
+        <div className="px-4 py-6 space-y-4">
+          {navLinks.map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              onClick={(e) => {
+                handleSmoothScroll(e, href)
+                setIsMobileMenuOpen(false)
+              }}
+              className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
+            >
+              {label}
+            </a>
+          ))}
+          <Link
+            href="/store-page"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+          >
+            Store
+          </Link>
+          <Link
+            href="/cart-page"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+          >
+            Cart
+          </Link>
+
+          <div className="pt-4 border-t border-slate-200">
             <SignedOut>
               <SignInButton>
-                <button className="text-white/80 hover:text-white transition-colors font-medium px-4 py-2 rounded-md hover:bg-white/10">
+                <button className="w-full rounded-md bg-blue-600 py-3 px-4 font-medium text-white hover:bg-blue-700 transition-colors">
                   Login
                 </button>
               </SignInButton>
-              <SignUpButton>
-                <button className="bg-[#6c47ff] text-white rounded-lg font-medium px-6 py-2 hover:bg-[#5a3ae6] transition-colors">
-                  Sign Up
-                </button>
-              </SignUpButton>
             </SignedOut>
             <SignedIn>
-              <Link 
-                href="/account-page" 
-                className="text-white/80 hover:text-white transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
-              >
-                Account
-              </Link>
-              <Link 
-                href="/admin" 
-                className="text-white/80 hover:text-white transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
-              >
-                Admin
-              </Link>
-              <UserButton />
-            </SignedIn>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden flex flex-col gap-1.5 p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <span className={`bg-white h-0.5 w-6 transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-            <span className={`bg-white h-0.5 w-6 transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
-            <span className={`bg-white h-0.5 w-6 transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        <div className={`lg:hidden transition-all duration-300 ${isMobileMenuOpen ? "opacity-100 visible max-h-96" : "opacity-0 invisible max-h-0"} overflow-hidden`}>
-          <div className="px-4 py-6 space-y-4 border-t border-white/10">
-            <Link 
-              href="/" 
-              className="block text-white/80 hover:text-white transition-colors font-medium py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link 
-              href="/store-page" 
-              className="block text-white/80 hover:text-white transition-colors font-medium py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Store
-            </Link>
-            <Link 
-              href="/inquiry-form" 
-              className="block text-white/80 hover:text-white transition-colors font-medium py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Contact
-            </Link>
-            <Link 
-              href="/cart-page" 
-              className="block text-white/80 hover:text-white transition-colors font-medium py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Cart
-            </Link>
-            <div className="pt-4 border-t border-white/10 space-y-4">
-              <SignedOut>
-                <SignInButton>
-                  <button className="w-full text-left text-white/80 hover:text-white transition-colors font-medium py-2">
-                    Login
-                  </button>
-                </SignInButton>
-                <SignUpButton>
-                  <button className="w-full bg-[#6c47ff] text-white rounded-lg font-medium py-3 px-4 hover:bg-[#5a3ae6] transition-colors">
-                    Sign Up
-                  </button>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <Link 
-                  href="/account-page" 
-                  className="block text-white/80 hover:text-white transition-colors font-medium py-2"
+              <div className="space-y-2">
+                <Link
+                  href="/account-page"
                   onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
                 >
                   Account
                 </Link>
-                <Link 
-                  href="/admin" 
-                  className="block text-white/80 hover:text-white transition-colors font-medium py-2"
+                <Link
+                  href="/admin"
                   onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
                 >
                   Admin
                 </Link>
-                <div className="flex justify-center">
-                  <UserButton />
-                </div>
-              </SignedIn>
-            </div>
+              </div>
+            </SignedIn>
           </div>
         </div>
       </div>

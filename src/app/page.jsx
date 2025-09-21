@@ -3,7 +3,9 @@ import { useState, useEffect } from "react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Waves, Fish, Leaf, Wrench, Utensils, Pill, Palette, MapPin, Phone, Mail, Clock, Truck, ShoppingCart, CheckCircle, AlertTriangle, Search, Sparkles, Lightbulb, FileText, ArrowRight } from 'lucide-react'
 import Footer from '@/components/footer'
+import NavigationBar from "@/components/navigation-bar"
 
 export default function HomePage(){
   const [isScrolled, setIsScrolled] = useState(false)
@@ -54,6 +56,32 @@ export default function HomePage(){
 
     return () => clearInterval(interval)
   }, [serviceSlides.length])
+
+  // Handle hash navigation when coming from other pages
+  useEffect(() => {
+    const handleHashNavigation = () => {
+      const hash = window.location.hash
+      if (hash) {
+        const element = document.querySelector(hash)
+        if (element) {
+          // Small delay to ensure page is fully loaded
+          setTimeout(() => {
+            element.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+            })
+          }, 100)
+        }
+      }
+    }
+
+    // Handle initial load
+    handleHashNavigation()
+
+    // Handle hash changes
+    window.addEventListener('hashchange', handleHashNavigation)
+    return () => window.removeEventListener('hashchange', handleHashNavigation)
+  }, [])
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length)
@@ -110,149 +138,9 @@ export default function HomePage(){
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Navigation Bar */}
-      <nav className={`${isScrolled ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-200" : "bg-transparent"} fixed inset-x-0 top-0 z-50 py-4 transition-all duration-300`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Image 
-              src="/logo-aquatics.jpg" 
-              alt="IOS Aquatics Logo" 
-              width={40} 
-              height={40} 
-              className="rounded-full"
-            />
-            <h2 className={`${isScrolled ? "text-slate-800" : "text-white"} text-xl font-bold transition-colors`}>
-              IOS Aquatics
-            </h2>
-          </div>
-
-          {/* Desktop menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            {[
-              { href: "#home", label: "Home" },
-              { href: "#about", label: "About" },
-              { href: "#services", label: "Services" },
-              { href: "#contact", label: "Contact" },
-            ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className={`${isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/90 hover:text-white"} font-medium transition-colors px-3 py-2 rounded-md hover:bg-white/10`}
-              >
-                {item.label}
-              </a>
-            ))}
-            <Link
-              href="/store-page"
-              className={`${isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/90 hover:text-white"} font-medium transition-colors px-3 py-2 rounded-md hover:bg-white/10`}
-            >
-              Store
-            </Link>
-            <Link
-              href="/cart-page"
-              className={`${isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/90 hover:text-white"} font-medium transition-colors px-3 py-2 rounded-md hover:bg-white/10`}
-            >
-              Cart
-            </Link>
-            <SignedOut>
-              <SignInButton>
-                <button className={`${isScrolled ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-white/20 hover:bg-white/30 text-white border border-white/30"} font-medium transition-all px-4 py-2 rounded-md`}>
-                  Login
-                </button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <Link
-                href="/account-page"
-                className={`${isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/90 hover:text-white"} font-medium transition-colors px-3 py-2 rounded-md hover:bg-white/10`}
-              >
-                Account
-              </Link>
-              <Link
-                href="/admin"
-                className={`${isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/90 hover:text-white"} font-medium transition-colors px-3 py-2 rounded-md hover:bg-white/10`}
-              >
-                Admin
-              </Link>
-              <UserButton />
-            </SignedIn>
-          </div>
-
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden flex flex-col gap-1.5 p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <span className={`${isScrolled ? "bg-slate-800" : "bg-white"} h-0.5 w-6 transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-            <span className={`${isScrolled ? "bg-slate-800" : "bg-white"} h-0.5 w-6 transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
-            <span className={`${isScrolled ? "bg-slate-800" : "bg-white"} h-0.5 w-6 transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
-          </button>
-        </div>
-
-        {/* Mobile menu */}
-        <div className={`md:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t border-slate-200 transition-all duration-300 ${isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}>
-          <div className="px-4 py-6 space-y-4">
-            {[
-              { href: "#home", label: "Home" },
-              { href: "#about", label: "About" },
-              { href: "#services", label: "Services" },
-              { href: "#contact", label: "Contact" },
-            ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="block text-slate-700 hover:text-slate-900 font-medium py-2 transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {item.label}
-              </a>
-            ))}
-            <Link
-              href="/store-page"
-              className="block text-slate-700 hover:text-slate-900 font-medium py-2 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Store
-            </Link>
-            <Link
-              href="/cart-page"
-              className="block text-slate-700 hover:text-slate-900 font-medium py-2 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Cart
-            </Link>
-            <div className="pt-4 border-t border-slate-200">
-              <SignedOut>
-                <SignInButton>
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors">
-                    Login
-                  </button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <div className="space-y-2">
-                  <Link
-                    href="/account-page"
-                    className="block text-slate-700 hover:text-slate-900 font-medium py-2 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Account
-                  </Link>
-                  <Link
-                    href="/admin"
-                    className="block text-slate-700 hover:text-slate-900 font-medium py-2 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Admin
-                  </Link>
-                </div>
-              </SignedIn>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <NavigationBar />
 
       {/* Hero Section with Slideshow */}
       <section id="home" className="relative h-screen overflow-hidden flex items-center justify-center">
@@ -264,29 +152,35 @@ export default function HomePage(){
               style={{ backgroundImage: `url(${slide})` }}
             />
           ))}
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60" />
 
           {/* Slideshow Controls */}
           <button
-            className="absolute top-1/2 -translate-y-1/2 left-8 text-white text-3xl px-6 py-4 rounded bg-white/20 hover:bg-white/30 backdrop-blur-sm transition z-10"
+            className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
             onClick={prevSlide}
+            aria-label="Previous slide"
           >
-            &#8249;
+            <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
           </button>
           <button
-            className="absolute top-1/2 -translate-y-1/2 right-8 text-white text-3xl px-6 py-4 rounded bg-white/20 hover:bg-white/30 backdrop-blur-sm transition z-10"
+            className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
             onClick={nextSlide}
+            aria-label="Next slide"
           >
-            &#8250;
+            <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
           </button>
 
           {/* Slide Indicators */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 z-10">
+          <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
             {slides.map((_, index) => (
               <button
                 key={index}
                 aria-label={`Go to slide ${index + 1}`}
-                className={`w-3 h-3 rounded-full border-2 transition ${index === currentSlide ? "bg-white border-white" : "border-white/50 hover:bg-white"}`}
+                className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
+                  index === currentSlide 
+                    ? "bg-white border-white scale-125" 
+                    : "border-white/50 hover:bg-white/50 hover:border-white hover:scale-110"
+                }`}
                 onClick={() => goToSlide(index)}
               />
             ))}
@@ -294,22 +188,36 @@ export default function HomePage(){
         </div>
 
         {/* Welcome Message Overlay */}
-        <div className="relative z-10 text-center text-white max-w-4xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 drop-shadow-lg">
-            Welcome to IOS Aquatics
+        <div className="relative z-10 text-center text-white max-w-5xl px-4 sm:px-6 lg:px-8 animate-fade-in">
+          <div className="mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm sm:text-base font-medium border border-white/20 mb-4">
+              <Waves className="w-4 h-4" />
+              Premium Aquatics Store
+            </span>
+          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 leading-tight">
+            <span className="gradient-text">Welcome to</span>
+            <br />
+            <span className="text-white">IOS Aquatics</span>
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl mb-12 opacity-90 drop-shadow max-w-2xl mx-auto leading-relaxed">
-            Experience beautiful Aquascapes
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed font-light">
+            Experience the beauty of <span className="text-blue-300 font-medium">underwater gardens</span> and create stunning aquascapes
           </p>
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
             <Link href="/store-page">
-              <button className="w-full sm:w-auto bg-white/20 text-white border-2 border-white px-8 py-4 text-base sm:text-lg rounded-lg transition-all duration-300 backdrop-blur hover:bg-white hover:text-neutral-800 hover:scale-105 hover:shadow-xl">
+              <button className="group w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 text-base sm:text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
+                <span className="flex items-center justify-center gap-2">
                 Shop Now
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
               </button>
             </Link>
             <Link href="/inquiry-form">
-              <button className="w-full sm:w-auto bg-white/20 text-white border-2 border-white px-8 py-4 text-base sm:text-lg rounded-lg transition-all duration-300 backdrop-blur hover:bg-white hover:text-neutral-800 hover:scale-105 hover:shadow-xl">
+              <button className="group w-full sm:w-auto glass-effect text-white px-8 py-4 text-base sm:text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
+                <span className="flex items-center justify-center gap-2">
                 Aquascape Inquiry
+                  <Lightbulb className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                </span>
               </button>
             </Link>
           </div>
@@ -317,30 +225,95 @@ export default function HomePage(){
       </section>
 
       {/* Content Sections */}
-      <section id="about" className="py-16 sm:py-20 lg:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 sm:mb-12 text-neutral-800">
-            About Us
+      <section id="about" className="py-20 sm:py-24 lg:py-32 bg-gradient-to-b from-slate-800 to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-6">
+              <Fish className="w-4 h-4" />
+              About Our Store
+            </div>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white">
+              <span className="gradient-text">About</span> IOS Aquatics
           </h2>
-          <p className="text-lg sm:text-xl text-neutral-600 leading-relaxed max-w-4xl mx-auto">
-            IOS Aquatics is a home based aquarium and accessories store located in Moonwalk Village, Las Piñas City. It offers variety of fresh water livestocks, plants, fish foods, aquatic equipments and accessories at the lowest price possible.
-          </p>
+            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto">
+              Your trusted partner in creating beautiful underwater ecosystems
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div className="space-y-6">
+              <div className="glass-effect rounded-2xl p-8 border border-white/10">
+                <h3 className="text-2xl font-bold text-white mb-4">Our Story</h3>
+                <p className="text-slate-300 leading-relaxed text-lg">
+                  IOS Aquatics is a home-based aquarium and accessories store located in Moonwalk Village, Las Piñas City. We specialize in providing a wide variety of freshwater livestock, plants, fish foods, aquatic equipment, and accessories at the most competitive prices.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="glass-effect rounded-xl p-6 text-center border border-white/10">
+                  <div className="text-3xl font-bold text-blue-400 mb-2">5+</div>
+                  <div className="text-slate-300">Years Experience</div>
+                </div>
+                <div className="glass-effect rounded-xl p-6 text-center border border-white/10">
+                  <div className="text-3xl font-bold text-blue-400 mb-2">1000+</div>
+                  <div className="text-slate-300">Happy Customers</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="aspect-square rounded-2xl overflow-hidden glass-effect border border-white/10">
+                <Image
+                  src="/logo-aquatics.jpg"
+                  alt="IOS Aquatics Store"
+                  width={500}
+                  height={500}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full opacity-20"></div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section id="services" className="py-16 sm:py-20 lg:py-24 bg-neutral-100">
+      <section id="services" className="py-20 sm:py-24 lg:py-32 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 sm:mb-8 text-neutral-800">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-purple-300 border border-purple-500/20 mb-6">
+              <Waves className="w-4 h-4" />
               Our Services
+            </div>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white">
+              <span className="gradient-text">Premium</span> Aquatics Services
             </h2>
-            <p className="text-lg sm:text-xl text-neutral-600 leading-relaxed max-w-4xl mx-auto">
-              The IOS Aquatics store contains basic aquarium keeping tools and equipment such as lights and filters, aquascaping materials and hardscapes. Livestock care products like feeds and water medication and of course a variety of livestock and plants.
+            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto">
+              From equipment to livestock, we provide everything you need for your aquatic journey
             </p>
           </div>
 
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {[
+              { icon: Fish, title: "Freshwater Livestock", desc: "Healthy fish, shrimp, and aquatic creatures" },
+              { icon: Leaf, title: "Aquatic Plants", desc: "Live plants for natural aquascaping" },
+              { icon: Wrench, title: "Equipment & Tools", desc: "Filters, lights, and maintenance tools" },
+              { icon: Utensils, title: "Fish Food & Nutrition", desc: "Premium feeds and supplements" },
+              { icon: Pill, title: "Water Treatment", desc: "Medications and water conditioners" },
+              { icon: Palette, title: "Aquascaping Materials", desc: "Substrates, rocks, and decorations" }
+            ].map((service, index) => (
+              <div key={index} className="glass-effect rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+                <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <service.icon className="w-12 h-12 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
+                <p className="text-slate-300 leading-relaxed">{service.desc}</p>
+              </div>
+            ))}
+          </div>
+
           {/* Services Slideshow */}
-          <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-2xl shadow-2xl">
+          <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl border border-white/10">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
                 <div
@@ -349,41 +322,47 @@ export default function HomePage(){
                   style={{ backgroundImage: `url(${slide})` }}
                 />
               ))}
-              <div className="absolute inset-0 bg-black/30" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-slate-900/40" />
 
               {/* Slideshow Controls */}
               <button
-                className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition z-10"
+                className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
                 onClick={prevServiceSlide}
+                aria-label="Previous service slide"
               >
-                &#8249;
+                <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
               </button>
               <button
-                className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition z-10"
+                className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
                 onClick={nextServiceSlide}
+                aria-label="Next service slide"
               >
-                &#8250;
+                <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
               </button>
 
               {/* Slide Indicators */}
-              <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-10">
+              <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
                 {serviceSlides.map((_, index) => (
                   <button
                     key={index}
                     aria-label={`Go to service slide ${index + 1}`}
-                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full border-2 transition ${index === currentServiceSlide ? "bg-white border-white" : "border-white/50 hover:bg-white"}`}
+                    className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
+                      index === currentServiceSlide 
+                        ? "bg-white border-white scale-125" 
+                        : "border-white/50 hover:bg-white/50 hover:border-white hover:scale-110"
+                    }`}
                     onClick={() => goToServiceSlide(index)}
                   />
                 ))}
               </div>
 
               {/* Service Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 lg:p-12">
+              <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 lg:p-16">
                 <div className="text-center text-white">
-                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4 drop-shadow-lg">
+                  <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 drop-shadow-lg">
                     {getServiceTitle(currentServiceSlide)}
                   </h3>
-                  <p className="text-sm sm:text-base lg:text-lg opacity-90 drop-shadow max-w-2xl mx-auto">
+                  <p className="text-lg sm:text-xl lg:text-2xl opacity-90 drop-shadow max-w-3xl mx-auto leading-relaxed">
                     {getServiceDescription(currentServiceSlide)}
                   </p>
                 </div>
@@ -393,25 +372,106 @@ export default function HomePage(){
         </div>
       </section>
 
-      <section id="contact" className="py-16 sm:py-20 lg:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 sm:mb-12 text-neutral-800">
-            Contact Us
+      <section id="contact" className="py-20 sm:py-24 lg:py-32 bg-gradient-to-b from-slate-800 to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-green-300 border border-green-500/20 mb-6">
+              <Phone className="w-4 h-4" />
+              Get In Touch
+            </div>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white">
+              <span className="gradient-text">Contact</span> Us
           </h2>
-          <p className="text-lg sm:text-xl text-neutral-600 leading-relaxed max-w-4xl mx-auto mb-12">
-            Get in touch with us for all your aquarium needs. Visit our store in Moonwalk Village, Las Piñas City or contact us through our inquiry form.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
+            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto">
+              Ready to start your aquatic journey? We're here to help you every step of the way
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Contact Info */}
+            <div className="space-y-8">
+              <div className="glass-effect rounded-2xl p-8 border border-white/10">
+                <h3 className="text-2xl font-bold text-white mb-6">Visit Our Store</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold mb-1">Address</h4>
+                      <p className="text-slate-300">Moonwalk Village, Las Piñas City, Philippines</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-6 h-6 text-green-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold mb-1">Phone</h4>
+                      <a href="tel:+639266125840" className="text-blue-300 hover:text-blue-200 transition-colors">
+                        +63 926-612-5840
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold mb-1">Email</h4>
+                      <a href="mailto:irasabanal08@gmail.com" className="text-blue-300 hover:text-blue-200 transition-colors">
+                        irasabanal08@gmail.com
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="glass-effect rounded-xl p-6 text-center border border-white/10">
+                  <Clock className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                  <div className="text-white font-semibold mb-1">Store Hours</div>
+                  <div className="text-slate-300 text-sm">Mon-Sat: 9AM-6PM</div>
+                </div>
+                <div className="glass-effect rounded-xl p-6 text-center border border-white/10">
+                  <Truck className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                  <div className="text-white font-semibold mb-1">Delivery</div>
+                  <div className="text-slate-300 text-sm">Available</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Actions */}
+            <div className="space-y-6">
+              <div className="glass-effect rounded-2xl p-8 border border-white/10 text-center">
+                <h3 className="text-2xl font-bold text-white mb-4">Ready to Get Started?</h3>
+                <p className="text-slate-300 mb-8 leading-relaxed">
+                  Whether you're a beginner or an experienced aquarist, we have everything you need to create beautiful underwater ecosystems.
+                </p>
+                
+                <div className="space-y-4">
             <Link href="/inquiry-form">
-              <button className="w-full sm:w-auto bg-blue-600 text-white px-8 py-4 text-base sm:text-lg rounded-lg transition-all duration-300 hover:bg-blue-700 hover:scale-105 hover:shadow-xl">
-                Contact Us
+                    <button className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
+                      <span className="flex items-center justify-center gap-2">
+                        Send Inquiry
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      </span>
               </button>
             </Link>
-            <Link href="/inquiry-form">
-              <button className="w-full sm:w-auto bg-white/20 text-neutral-800 border-2 border-neutral-300 px-8 py-4 text-base sm:text-lg rounded-lg transition-all duration-300 hover:bg-neutral-100 hover:scale-105 hover:shadow-xl">
-                Inquire
+                  
+                  <Link href="/store-page">
+                    <button className="group w-full glass-effect text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
+                      <span className="flex items-center justify-center gap-2">
+                        Browse Store
+                        <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                      </span>
               </button>
             </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

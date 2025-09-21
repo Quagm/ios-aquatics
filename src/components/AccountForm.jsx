@@ -45,10 +45,10 @@ export default function AccountForm() {
           </label>
           <input
             type="text"
-            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-[#6c47ff] 
-                       text-white placeholder-white/50 transition"
-            placeholder="John Doe"
+            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
+                       text-white placeholder-slate-400 transition-all duration-300"
+            placeholder="James Ygain"
             value={form.name}
             onChange={(e) => update('name', e.target.value)}
           />
@@ -60,9 +60,9 @@ export default function AccountForm() {
           </label>
           <input
             type="email"
-            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-[#6c47ff] 
-                       text-white placeholder-white/50 transition"
+            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
+                       text-white placeholder-slate-400 transition-all duration-300"
             placeholder="john@example.com"
             value={form.email}
             onChange={(e) => update('email', e.target.value)}
@@ -75,9 +75,9 @@ export default function AccountForm() {
           </label>
           <input
             type="tel"
-            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-[#6c47ff] 
-                       text-white placeholder-white/50 transition"
+            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
+                       text-white placeholder-slate-400 transition-all duration-300"
             placeholder="+63 912 345 6789"
             value={form.phone}
             onChange={(e) => update('phone', e.target.value)}
@@ -87,8 +87,8 @@ export default function AccountForm() {
 
       {/* Save Button */}
       <button 
-        className="w-full bg-[#6c47ff] text-white py-3 rounded-lg font-semibold 
-                   hover:bg-[#5a3ae6] transition-colors shadow-md hover:shadow-lg"
+        className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-2xl font-semibold 
+                   hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"
         onClick={handleSave}
       >
         Update Information

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ShoppingCart, Heart, MapPin, Settings } from 'lucide-react'
 
 export default function QuickActions() {
   return (
@@ -13,7 +14,7 @@ export default function QuickActions() {
           className="p-6 rounded-lg border border-white/20 bg-white/5 
                      hover:bg-white/10 transition-all text-center flex flex-col items-center"
         >
-          <div className="text-3xl mb-2">🛒</div>
+          <ShoppingCart className="w-8 h-8 text-blue-400 mb-2" />
           <span className="text-sm font-medium text-white">View Cart</span>
         </Link>
 
@@ -22,7 +23,7 @@ export default function QuickActions() {
           className="p-6 rounded-lg border border-white/20 bg-white/5 
                      hover:bg-white/10 transition-all text-center flex flex-col items-center"
         >
-          <div className="text-3xl mb-2">❤️</div>
+          <Heart className="w-8 h-8 text-red-400 mb-2" />
           <span className="text-sm font-medium text-white">Wishlist</span>
         </Link>
 
@@ -30,7 +31,7 @@ export default function QuickActions() {
           className="p-6 rounded-lg border border-white/20 bg-white/5 
                      hover:bg-white/10 transition-all text-center flex flex-col items-center"
         >
-          <div className="text-3xl mb-2">📍</div>
+          <MapPin className="w-8 h-8 text-green-400 mb-2" />
           <span className="text-sm font-medium text-white">Addresses</span>
         </button>
 
@@ -38,7 +39,7 @@ export default function QuickActions() {
           className="p-6 rounded-lg border border-white/20 bg-white/5 
                      hover:bg-white/10 transition-all text-center flex flex-col items-center"
         >
-          <div className="text-3xl mb-2">⚙️</div>
+          <Settings className="w-8 h-8 text-slate-400 mb-2" />
           <span className="text-sm font-medium text-white">Settings</span>
         </button>
       </div>

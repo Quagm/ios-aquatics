@@ -142,66 +142,73 @@ export default function OrderManagement() {
   const stats = getOrderStats()
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
-        <p className="text-gray-600 mt-2">Manage customer orders and track fulfillment</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center lg:text-left">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
+          <Package className="w-4 h-4" />
+          Order Management
+        </div>
+        <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+          <span className="gradient-text">Order</span> Management
+        </h1>
+        <p className="text-lg text-slate-300 max-w-2xl">Manage customer orders and track fulfillment for your aquatics store.</p>
       </div>
 
       {/* Order Stats */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Package className="w-6 h-6 text-blue-600" />
+            <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
+              <Package className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-sm font-medium text-slate-400">Total Orders</p>
+              <p className="text-2xl font-bold text-white">{stats.total}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="w-6 h-6 text-yellow-600" />
+            <div className="p-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600">
+              <Clock className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Processing</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.processing}</p>
+              <p className="text-sm font-medium text-slate-400">Processing</p>
+              <p className="text-2xl font-bold text-white">{stats.processing}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Truck className="w-6 h-6 text-blue-600" />
+            <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
+              <Truck className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Shipped</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.shipped}</p>
+              <p className="text-sm font-medium text-slate-400">Shipped</p>
+              <p className="text-2xl font-bold text-white">{stats.shipped}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
+              <CheckCircle className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Delivered</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.delivered}</p>
+              <p className="text-sm font-medium text-slate-400">Delivered</p>
+              <p className="text-2xl font-bold text-white">{stats.delivered}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <DollarSign className="w-6 h-6 text-purple-600" />
+            <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600">
+              <DollarSign className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">₱{getTotalRevenue().toFixed(2)}</p>
+              <p className="text-sm font-medium text-slate-400">Revenue</p>
+              <p className="text-2xl font-bold text-white">₱{getTotalRevenue().toFixed(2)}</p>
             </div>
           </div>
         </div>

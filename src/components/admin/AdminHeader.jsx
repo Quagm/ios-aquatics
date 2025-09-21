@@ -1,32 +1,52 @@
 "use client"
 import { UserButton } from '@clerk/nextjs'
-import { Bell, Search } from 'lucide-react'
+import { Bell, Search, Menu, X } from 'lucide-react'
+import { useState } from 'react'
 
 export default function AdminHeader() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="glass-effect border-b border-white/10 backdrop-blur-sm">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-semibold text-gray-800">Admin Dashboard</h1>
+            <button 
+              className="lg:hidden p-2 text-white/70 hover:text-white transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-sm text-slate-300">Manage your aquatics store</p>
+            </div>
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="relative hidden md:block">
+              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Search orders, products, customers..."
+                className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
               />
             </div>
             
-            <button className="relative p-2 text-gray-600 hover:text-gray-800">
-              <Bell className="w-6 h-6" />
-              <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+            <button className="relative p-2 text-white/70 hover:text-white transition-colors group">
+              <Bell className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
             </button>
             
-            <UserButton />
+            <div className="glass-effect rounded-xl p-1">
+              <UserButton 
+                appearance={{
+                  elements: {
+                    avatarBox: "w-8 h-8"
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -9,7 +9,11 @@ import {
   MessageSquare,
   Eye,
   Clock,
-  BarChart3
+  BarChart3,
+  ArrowRight,
+  Activity,
+  Target,
+  Zap
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -49,51 +53,76 @@ export default function AdminDashboard() {
       title: 'Total Users',
       value: stats.totalUsers.toLocaleString(),
       icon: Users,
-      color: 'bg-blue-500',
-      change: '+12%'
+      gradient: 'from-blue-500 to-blue-600',
+      bgGradient: 'from-blue-500/10 to-blue-600/10',
+      change: '+12%',
+      changeType: 'positive',
+      description: 'Active customers'
     },
     {
       title: 'Total Orders',
       value: stats.totalOrders.toLocaleString(),
       icon: ShoppingCart,
-      color: 'bg-green-500',
-      change: '+8%'
+      gradient: 'from-green-500 to-green-600',
+      bgGradient: 'from-green-500/10 to-green-600/10',
+      change: '+8%',
+      changeType: 'positive',
+      description: 'This month'
     },
     {
       title: 'Total Products',
       value: stats.totalProducts.toLocaleString(),
       icon: Package,
-      color: 'bg-purple-500',
-      change: '+5%'
+      gradient: 'from-purple-500 to-purple-600',
+      bgGradient: 'from-purple-500/10 to-purple-600/10',
+      change: '+5%',
+      changeType: 'positive',
+      description: 'In inventory'
     },
     {
       title: 'Total Revenue',
       value: `₱${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
-      color: 'bg-yellow-500',
-      change: '+15%'
+      gradient: 'from-yellow-500 to-yellow-600',
+      bgGradient: 'from-yellow-500/10 to-yellow-600/10',
+      change: '+15%',
+      changeType: 'positive',
+      description: 'This month'
     },
     {
       title: 'Pending Inquiries',
       value: stats.pendingInquiries.toLocaleString(),
       icon: MessageSquare,
-      color: 'bg-red-500',
-      change: '-3%'
+      gradient: 'from-red-500 to-red-600',
+      bgGradient: 'from-red-500/10 to-red-600/10',
+      change: '-3%',
+      changeType: 'negative',
+      description: 'Needs attention'
     },
     {
       title: 'Growth Rate',
       value: '23%',
       icon: TrendingUp,
-      color: 'bg-indigo-500',
-      change: '+2%'
+      gradient: 'from-indigo-500 to-indigo-600',
+      bgGradient: 'from-indigo-500/10 to-indigo-600/10',
+      change: '+2%',
+      changeType: 'positive',
+      description: 'Monthly growth'
     }
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600 mt-2">Welcome back! Here's what's happening with your store.</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center lg:text-left">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
+          <Activity className="w-4 h-4" />
+          Dashboard Overview
+        </div>
+        <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+          <span className="gradient-text">Welcome back!</span>
+        </h1>
+        <p className="text-lg text-slate-300 max-w-2xl">Here's what's happening with your aquatics store today.</p>
       </div>
 
       {/* Stats Grid */}
@@ -101,50 +130,66 @@ export default function AdminDashboard() {
         {statCards.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <div key={index} className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className="text-sm text-green-600 flex items-center mt-1">
-                    <TrendingUp className="w-4 h-4 mr-1" />
-                    {stat.change}
-                  </p>
-                </div>
-                <div className={`p-3 rounded-full ${stat.color}`}>
+            <div key={index} className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.gradient}`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  stat.changeType === 'positive' 
+                    ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
+                    : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                }`}>
+                  {stat.change}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-400 mb-1">{stat.title}</p>
+                <p className="text-3xl font-bold text-white mb-2">{stat.value}</p>
+                <p className="text-xs text-slate-500">{stat.description}</p>
               </div>
             </div>
           )
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Orders */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
+          <div className="p-6 border-b border-white/10">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-400" />
+                Recent Orders
+              </h3>
+              <button 
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center gap-1 group"
+                onClick={() => window.location.assign('/admin/order-management')}
+              >
+                View All
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
           <div className="p-6">
             <div className="space-y-4">
               {stats.recentOrders.map((order, index) => (
-                <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <ShoppingCart className="w-5 h-5 text-blue-600" />
+                <div key={index} className="flex items-center justify-between py-4 border-b border-white/5 last:border-b-0 group hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <ShoppingCart className="w-6 h-6 text-blue-400" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{order.id}</p>
-                      <p className="text-sm text-gray-600">{order.customer}</p>
+                      <p className="font-semibold text-white">{order.id}</p>
+                      <p className="text-sm text-slate-400">{order.customer}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">₱{order.amount}</p>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                      order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
+                    <p className="font-bold text-white text-lg">₱{order.amount}</p>
+                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                      order.status === 'Delivered' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                      order.status === 'Shipped' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                      'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
                     }`}>
                       {order.status}
                     </span>
@@ -152,62 +197,115 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-4 text-blue-600 hover:text-blue-800 font-medium" onClick={() => window.location.assign('/admin/order-management')}>
-              View All Orders
-            </button>
           </div>
         </div>
 
         {/* Top Products */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Top Products</h3>
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
+          <div className="p-6 border-b border-white/10">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <Target className="w-5 h-5 text-purple-400" />
+                Top Products
+              </h3>
+              <button 
+                className="text-purple-400 hover:text-purple-300 text-sm font-medium flex items-center gap-1 group"
+                onClick={() => window.location.assign('/admin/inventory-management')}
+              >
+                View All
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
           <div className="p-6">
             <div className="space-y-4">
               {stats.topProducts.map((product, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Package className="w-4 h-4 text-purple-600" />
+                <div key={index} className="flex items-center justify-between py-4 border-b border-white/5 last:border-b-0 group hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Package className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{product.name}</p>
-                      <p className="text-sm text-gray-600">{product.sales} sales</p>
+                      <p className="font-semibold text-white">{product.name}</p>
+                      <p className="text-sm text-slate-400">{product.sales} sales</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">₱{product.revenue}</p>
+                    <p className="font-bold text-white text-lg">₱{product.revenue}</p>
+                    <div className="w-16 h-2 bg-slate-700 rounded-full mt-1">
+                      <div 
+                        className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500"
+                        style={{ width: `${(product.sales / 78) * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <button className="w-full mt-4 text-blue-600 hover:text-blue-800 font-medium" onClick={() => window.location.assign('/admin/inventory-management')}>
-              View All Products
-            </button>
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => window.location.assign('/admin/inventory-management')}>
-            <Package className="w-5 h-5 mr-2 text-blue-600" />
-            Add Product
+      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-8">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-white flex items-center justify-center gap-2 mb-2">
+            <Zap className="w-6 h-6 text-yellow-400" />
+            Quick Actions
+          </h3>
+          <p className="text-slate-400">Manage your store efficiently</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <button 
+            className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-blue-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            onClick={() => window.location.assign('/admin/inventory-management')}
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Package className="w-8 h-8 text-blue-400" />
+              </div>
+              <h4 className="font-semibold text-white mb-2">Add Product</h4>
+              <p className="text-sm text-slate-400">Add new inventory items</p>
+            </div>
           </button>
-          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => window.location.assign('/admin/inquiry-management')}>
-            <MessageSquare className="w-5 h-5 mr-2 text-green-600" />
-            View Inquiries
+          
+          <button 
+            className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-green-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            onClick={() => window.location.assign('/admin/inquiry-management')}
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <MessageSquare className="w-8 h-8 text-green-400" />
+              </div>
+              <h4 className="font-semibold text-white mb-2">View Inquiries</h4>
+              <p className="text-sm text-slate-400">Manage customer inquiries</p>
+            </div>
           </button>
-          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => window.location.assign('/admin/order-management')}>
-            <ShoppingCart className="w-5 h-5 mr-2 text-purple-600" />
-            Process Orders
+          
+          <button 
+            className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            onClick={() => window.location.assign('/admin/order-management')}
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <ShoppingCart className="w-8 h-8 text-purple-400" />
+              </div>
+              <h4 className="font-semibold text-white mb-2">Process Orders</h4>
+              <p className="text-sm text-slate-400">Manage order fulfillment</p>
+            </div>
           </button>
-          <button className="flex items-center justify-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => window.location.assign('/admin/sales-analytics')}>
-            <BarChart3 className="w-5 h-5 mr-2 text-yellow-600" />
-            View Reports
+          
+          <button 
+            className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-yellow-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            onClick={() => window.location.assign('/admin/sales-analytics')}
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <BarChart3 className="w-8 h-8 text-yellow-400" />
+              </div>
+              <h4 className="font-semibold text-white mb-2">View Reports</h4>
+              <p className="text-sm text-slate-400">Analyze sales data</p>
+            </div>
           </button>
         </div>
       </div>
