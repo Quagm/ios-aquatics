@@ -12,6 +12,7 @@ import {
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { CartProvider } from "@/components/CartContext"
+import CartAnimationWrapper from "@/components/CartAnimationWrapper"
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -36,6 +37,7 @@ export default function RootLayout({ children }) {
         <body className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground font-sans`}>
           <CartProvider>
             <main className="">{children}</main>
+            <CartAnimationWrapper />
           </CartProvider>
         </body>
       </html>

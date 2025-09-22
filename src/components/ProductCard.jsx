@@ -3,9 +3,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { useCart } from "@/components/CartContext"
 import { Eye, Plus } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ProductCard({ product, showAddToCart = true }) {
   const { addItem } = useCart()
+  const [isAdding, setIsAdding] = useState(false)
   return (
     <Link href={`/product-page?id=${product.id}`} className="block group">
       <div className="glass-effect rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 border border-white/10 cursor-pointer group-hover:scale-105 group-hover:border-white/30 group-hover:shadow-blue-500/20">
@@ -45,16 +47,37 @@ export default function ProductCard({ product, showAddToCart = true }) {
             </div>
             {showAddToCart && (
               <button 
-                className="group/btn w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20"
-                onClick={(e) => {
+                className={`group/btn w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20 ${
+                  isAdding ? 'animate-cart-pulse' : ''
+                }`}
+                onClick={async (e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, 1)
+                  
+                  if (isAdding) return; // Prevent multiple clicks
+                  
+                  setIsAdding(true);
+                  addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, 1);
+                  
+                  // Reset button state after animation
+                  setTimeout(() => {
+                    setIsAdding(false);
+                  }, 1000);
                 }}
+                disabled={isAdding}
               >
                 <span className="flex items-center justify-center gap-2">
-                  Add to Cart
-                  <Plus className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
+                  {isAdding ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      Add to Cart
+                      <Plus className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
+                    </>
+                  )}
                 </span>
               </button>
             )}

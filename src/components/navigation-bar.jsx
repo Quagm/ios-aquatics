@@ -3,10 +3,15 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/nextjs"
+import { ShoppingCart } from "lucide-react"
+import { useCart } from "@/components/CartContext"
 
 export default function NavigationBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const { items, animationState } = useCart()
+  
+  const cartItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -114,13 +119,25 @@ export default function NavigationBar() {
           </Link>
           <Link
             href="/cart-page"
-            className={`px-3 py-2 rounded-md font-medium transition-colors ${
+            className={`relative px-3 py-2 rounded-md font-medium transition-colors ${
               isScrolled
                 ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                 : "text-white/90 hover:text-white hover:bg-white/10"
             }`}
           >
-            Cart
+            <div className="flex items-center gap-2">
+              <ShoppingCart className={`w-5 h-5 transition-transform duration-300 ${
+                animationState.isVisible ? 'animate-cart-bounce' : ''
+              }`} />
+              <span>Cart</span>
+              {cartItemCount > 0 && (
+                <span className={`absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-all duration-300 ${
+                  animationState.isVisible ? 'animate-cart-pulse' : ''
+                }`}>
+                  {cartItemCount}
+                </span>
+              )}
+            </div>
           </Link>
 
           {/* Auth Buttons */}
@@ -224,9 +241,21 @@ export default function NavigationBar() {
           <Link
             href="/cart-page"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+            className="relative block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
           >
-            Cart
+            <div className="flex items-center gap-2">
+              <ShoppingCart className={`w-5 h-5 transition-transform duration-300 ${
+                animationState.isVisible ? 'animate-cart-bounce' : ''
+              }`} />
+              <span>Cart</span>
+              {cartItemCount > 0 && (
+                <span className={`bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-all duration-300 ${
+                  animationState.isVisible ? 'animate-cart-pulse' : ''
+                }`}>
+                  {cartItemCount}
+                </span>
+              )}
+            </div>
           </Link>
 
           <div className="pt-4 border-t border-slate-200">

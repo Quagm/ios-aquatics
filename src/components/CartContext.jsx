@@ -5,6 +5,10 @@ const CartContext = createContext(null)
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState([])
+  const [animationState, setAnimationState] = useState({
+    isVisible: false,
+    product: null
+  })
 
   useEffect(() => {
     try {
@@ -34,6 +38,19 @@ export function CartProvider({ children }) {
       }
       return [...prev, { ...product, quantity }]
     })
+
+    // Trigger animation
+    setAnimationState({
+      isVisible: true,
+      product: product
+    })
+  }
+
+  const clearAnimation = () => {
+    setAnimationState({
+      isVisible: false,
+      product: null
+    })
   }
 
   const removeItem = (id) => {
@@ -48,7 +65,16 @@ export function CartProvider({ children }) {
 
   const subtotal = useMemo(() => items.reduce((t, i) => t + i.price * i.quantity, 0), [items])
 
-  const value = useMemo(() => ({ items, addItem, removeItem, updateQuantity, clearCart, subtotal }), [items, subtotal])
+  const value = useMemo(() => ({ 
+    items, 
+    addItem, 
+    removeItem, 
+    updateQuantity, 
+    clearCart, 
+    subtotal,
+    animationState,
+    clearAnimation
+  }), [items, subtotal, animationState])
 
   return (
     <CartContext.Provider value={value}>
