@@ -12,12 +12,21 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState("")
 
+  // Shared input styles matching dark glassmorphism card
+  const inputClass = "w-full px-4 py-3 bg-white/5 text-white placeholder-white/60 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+
   const shipping = items.length > 0 ? 10.00 : 0
   const tax = subtotal * 0.08
   const total = subtotal + shipping + tax
 
   const handlePlaceOrder = async (e) => {
     e?.preventDefault?.()
+    // Guard: prevent placing orders with empty cart
+    if (!items || items.length === 0) {
+      setError("Your cart is empty. Please add items before placing an order.")
+      return
+    }
+
     setPlacing(true)
     setError("")
     try {
@@ -58,42 +67,42 @@ export default function CheckoutPage() {
             {/* Checkout Form */}
             <div className="space-y-12">
               {/* Shipping Information */}
-              <div className="bg-white rounded-lg shadow-md p-8">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-8">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 border border-white/20">
+                <h2 className="text-2xl font-semibold text-white mb-8">
                   Shipping Information
                 </h2>
                 
                 <form className="space-y-6" onSubmit={handlePlaceOrder}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-white/80 mb-3">
                         First Name
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={inputClass}
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-white/80 mb-3">
                         Last Name
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={inputClass}
                         required
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-white/80 mb-3">
                       Address
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={inputClass}
                       placeholder="123 Main Street"
                       required
                     />
@@ -101,33 +110,33 @@ export default function CheckoutPage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-white/80 mb-3">
                         City
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={inputClass}
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-white/80 mb-3">
                         Province
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={inputClass}
                         placeholder="e.g., Metro Manila"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-white/80 mb-3">
                         Postal Code
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={inputClass}
                         placeholder="e.g., 1747"
                         required
                       />
@@ -135,12 +144,12 @@ export default function CheckoutPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-white/80 mb-3">
                       Phone Number
                     </label>
                     <input
                       type="tel"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={inputClass}
                       placeholder="+63 912 345 6789"
                       required
                     />
@@ -149,19 +158,19 @@ export default function CheckoutPage() {
               </div>
 
               {/* Payment Information */}
-              <div className="bg-white rounded-lg shadow-md p-8">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-8">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 border border-white/20">
+                <h2 className="text-2xl font-semibold text-white mb-8">
                   Payment Information
                 </h2>
                 
                 <form className="space-y-6" onSubmit={handlePlaceOrder}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-white/80 mb-3">
                       Card Number
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={inputClass}
                       placeholder="1234 5678 9012 3456"
                       required
                     />
@@ -169,23 +178,23 @@ export default function CheckoutPage() {
                   
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-white/80 mb-3">
                         Expiry Date
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={inputClass}
                         placeholder="MM/YY"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-white/80 mb-3">
                         CVV
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={inputClass}
                         placeholder="123"
                         required
                       />
@@ -193,12 +202,12 @@ export default function CheckoutPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-white/80 mb-3">
                       Name on Card
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={inputClass}
                       required
                     />
                   </div>

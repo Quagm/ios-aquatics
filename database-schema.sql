@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS inquiries (
     phone VARCHAR(20),
     subject VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -62,10 +63,19 @@ ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public access (adjust as needed for your security requirements)
 CREATE POLICY "Allow public read access on products" ON products FOR SELECT USING (true);
+CREATE POLICY "Allow public insert on products" ON products FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update on products" ON products FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete on products" ON products FOR DELETE USING (true);
+
 CREATE POLICY "Allow public insert on inquiries" ON inquiries FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public read access on inquiries" ON inquiries FOR SELECT USING (true);
+CREATE POLICY "Allow public update on inquiries" ON inquiries FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete on inquiries" ON inquiries FOR DELETE USING (true);
+
 CREATE POLICY "Allow public insert on orders" ON orders FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public read access on orders" ON orders FOR SELECT USING (true);
+CREATE POLICY "Allow public update on orders" ON orders FOR UPDATE USING (true);
+
 CREATE POLICY "Allow public insert on order_items" ON order_items FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public read access on order_items" ON order_items FOR SELECT USING (true);
 

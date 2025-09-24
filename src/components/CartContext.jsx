@@ -39,7 +39,6 @@ export function CartProvider({ children }) {
       return [...prev, { ...product, quantity }]
     })
 
-    // Trigger animation
     setAnimationState({
       isVisible: true,
       product: product
