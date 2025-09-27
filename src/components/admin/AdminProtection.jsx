@@ -13,12 +13,14 @@ export default function AdminProtection({ children }) {
       return
     }
 
-    // Optional: Add role-based access control here
-    // For now, any authenticated user can access admin
-    // You can add role checking logic here if needed
-    // if (user && !user.publicMetadata?.isAdmin) {
-    //   router.push('/')
-    // }
+    // Enforce admin-only access from any available metadata source on the client
+    // Prefer publicMetadata; fall back to unsafeMetadata (client-exposed superset) or privateMetadata if present
+    if (user) {
+      const role = user.publicMetadata?.role || user.unsafeMetadata?.role || user.privateMetadata?.role
+      if (role !== 'admin') {
+        router.push('/')
+      }
+    }
   }, [isLoaded, user, router])
 
   if (!isLoaded) {

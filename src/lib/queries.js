@@ -150,7 +150,7 @@ export async function fetchOrders() {
 
 export async function createOrder(payload) {
   try {
-    const { items } = payload || {};
+    const { items, customer } = payload || {};
     // Support both { items, total } and { items, totals: { total } }
     let computedTotal = payload?.total ?? payload?.totals?.total;
 
@@ -180,7 +180,8 @@ export async function createOrder(payload) {
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .insert({ total: Number(computedTotal), status: "processing" })
+      // Requires a 'customer' json/jsonb column on orders (see SQL migration)
+      .insert({ total: Number(computedTotal), status: "processing", customer })
       .select()
       .single()
     if (orderError) handleSupabaseError(orderError, "Create order")
@@ -206,7 +207,7 @@ export async function updateOrderStatus(orderId, status) {
   try {
     if (!orderId) throw new Error("Order ID is required");
     if (!status) throw new Error("Status is required");
-    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    const validStatuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }

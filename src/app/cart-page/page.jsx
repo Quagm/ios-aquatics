@@ -10,9 +10,10 @@ import { ShoppingCart } from 'lucide-react'
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal } = useCart()
 
-  const shipping = items.length > 0 ? 10.00 : 0
-  const tax = subtotal * 0.08
-  const total = subtotal + shipping + tax
+  // Shipping and tax removed from cart calculations
+  const shipping = 0
+  const tax = 0
+  const total = subtotal
 
   const handleQuantityChange = (itemId, newQuantity) => {
     updateQuantity(itemId, newQuantity)
@@ -28,8 +29,8 @@ export default function CartPage() {
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 py-16 px-4">
-        <div className="max-w-6xl mx-auto">
+      <div className="flex-1 page-section">
+        <div className="page-container">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-6">
               <ShoppingCart className="w-4 h-4" />
@@ -44,7 +45,7 @@ export default function CartPage() {
           {items.length === 0 ? (
             <EmptyCart />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-6">
                 {items.map((item) => (

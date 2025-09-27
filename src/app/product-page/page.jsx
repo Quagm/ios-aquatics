@@ -71,26 +71,26 @@ export default function ProductPage() {
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 py-16 px-4">
+      <div className="flex-1 py-20 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
           <Breadcrumb items={breadcrumbItems} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
             {/* Product Image */}
             <ProductImageGallery product={product} />
 
             {/* Product Details */}
-            <div className="space-y-8">
+            <div className="space-y-10">
               <ProductDetails product={product} />
               <ProductSpecifications specifications={product.specifications} />
             </div>
           </div>
 
           {/* Related Products */}
-          <div className="mt-20">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Related Products</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="mt-24">
+            <h2 className="text-3xl font-bold text-white mb-14 text-center">Related Products</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {relatedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

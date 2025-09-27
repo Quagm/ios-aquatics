@@ -11,13 +11,22 @@ export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart()
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState("")
+  // Customer fields
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [address, setAddress] = useState("")
+  const [city, setCity] = useState("")
+  const [province, setProvince] = useState("")
+  const [postalCode, setPostalCode] = useState("")
+  const [phone, setPhone] = useState("")
+  const [email, setEmail] = useState("")
 
   // Shared input styles matching dark glassmorphism card
   const inputClass = "w-full px-4 py-3 bg-white/5 text-white placeholder-white/60 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
 
-  const shipping = items.length > 0 ? 10.00 : 0
-  const tax = subtotal * 0.08
-  const total = subtotal + shipping + tax
+  const shipping = 0
+  const tax = 0
+  const total = subtotal
 
   const handlePlaceOrder = async (e) => {
     e?.preventDefault?.()
@@ -30,12 +39,17 @@ export default function CheckoutPage() {
     setPlacing(true)
     setError("")
     try {
-      // Collect minimal fake customer data from form fields later if needed
+      // Collect customer data from form inputs
       const customer = {
-        name: "Guest",
-        email: "guest@example.com",
-        phone: "",
-        address: "",
+        first_name: firstName,
+        last_name: lastName,
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+        phone,
+        address,
+        city,
+        province,
+        postal_code: postalCode,
       }
       await createOrder({
         customer,
@@ -81,6 +95,8 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         className={inputClass}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
                         required
                       />
                     </div>
@@ -91,6 +107,8 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         className={inputClass}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
                         required
                       />
                     </div>
@@ -103,6 +121,8 @@ export default function CheckoutPage() {
                     <input
                       type="text"
                       className={inputClass}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
                       placeholder="123 Main Street"
                       required
                     />
@@ -116,6 +136,8 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         className={inputClass}
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
                         required
                       />
                     </div>
@@ -126,6 +148,8 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         className={inputClass}
+                        value={province}
+                        onChange={(e) => setProvince(e.target.value)}
                         placeholder="e.g., Metro Manila"
                         required
                       />
@@ -137,6 +161,8 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         className={inputClass}
+                        value={postalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
                         placeholder="e.g., 1747"
                         required
                       />
@@ -150,7 +176,22 @@ export default function CheckoutPage() {
                     <input
                       type="tel"
                       className={inputClass}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                       placeholder="+63 912 345 6789"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-white/80 mb-3">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      className={inputClass}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@example.com"
                       required
                     />
                   </div>
@@ -251,15 +292,7 @@ export default function CheckoutPage() {
                     <span className="font-medium text-white text-lg">₱{subtotal.toFixed(2)}</span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-white/70 text-lg">Shipping</span>
-                    <span className="font-medium text-white text-lg">₱{shipping.toFixed(2)}</span>
-                  </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-white/70 text-lg">Tax</span>
-                    <span className="font-medium text-white text-lg">₱{tax.toFixed(2)}</span>
-                  </div>
                   
                   <div className="border-t border-white/30 pt-4">
                     <div className="flex justify-between text-xl font-bold">

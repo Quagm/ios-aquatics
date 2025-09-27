@@ -3,7 +3,7 @@ import { FileText, ArrowRight, ShoppingCart, Truck } from 'lucide-react'
 
 export default function OrderSummary({ items, subtotal, shipping, tax, total, showCheckoutButton = true }) {
   return (
-    <div className="glass-effect rounded-2xl shadow-xl p-8 sticky top-4 border border-white/10 hover:border-white/20 transition-all duration-300">
+    <div className="glass-effect card-padding rounded-2xl shadow-xl sticky top-4 border border-white/10 hover:border-white/20 transition-all duration-300">
       <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
         <FileText className="w-6 h-6" />
         Order Summary
@@ -14,20 +14,6 @@ export default function OrderSummary({ items, subtotal, shipping, tax, total, sh
           <span className="text-slate-300 text-lg">Subtotal</span>
           <span className="font-semibold text-white text-lg">
             ₱{subtotal.toFixed(2)}
-          </span>
-        </div>
-        
-        <div className="flex justify-between items-center py-2">
-          <span className="text-slate-300 text-lg">Shipping</span>
-          <span className="font-semibold text-white text-lg">
-            ₱{shipping.toFixed(2)}
-          </span>
-        </div>
-        
-        <div className="flex justify-between items-center py-2">
-          <span className="text-slate-300 text-lg">Tax</span>
-          <span className="font-semibold text-white text-lg">
-            ₱{tax.toFixed(2)}
           </span>
         </div>
         
