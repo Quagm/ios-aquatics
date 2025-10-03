@@ -1,6 +1,5 @@
-"use client"
-import AccountManagement from '@/components/admin/AccountManagement'
+import { redirect } from 'next/navigation'
 
 export default function AccountManagementPage() {
-  return <AccountManagement />
+  redirect('/admin')
 }

@@ -3,6 +3,10 @@ import { useCart } from "@/components/CartContext"
 
 export default function ProductDetails({ product }) {
   const { addItem } = useCart()
+  const features = Array.isArray(product?.features) ? product.features : []
+  const description = product?.description || ''
+  const inStock = typeof product?.inStock === 'boolean' ? product.inStock : true
+  const stockCount = typeof product?.stockCount === 'number' ? product.stockCount : undefined
   return (
     <div className="space-y-8">
       <div>
@@ -23,27 +27,31 @@ export default function ProductDetails({ product }) {
       </div>
 
       <div>
-        <p className="text-white/80 leading-relaxed mb-8 text-lg">{product.description}</p>
+        {description && (
+          <p className="text-white/80 leading-relaxed mb-8 text-lg">{description}</p>
+        )}
         
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold text-white mb-4">Key Features:</h3>
-          <ul className="space-y-3">
-            {product.features.map((feature, index) => (
-              <li key={index} className="flex items-center space-x-3">
-                <span className="text-green-400 text-lg">✓</span>
-                <span className="text-white/80 text-lg">{feature}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {features.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-white mb-4">Key Features:</h3>
+            <ul className="space-y-3">
+              {features.map((feature, index) => (
+                <li key={index} className="flex items-center space-x-3">
+                  <span className="text-green-400 text-lg">✓</span>
+                  <span className="text-white/80 text-lg">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Stock Status */}
       <div className="flex items-center space-x-3 mb-8">
-        {product.inStock ? (
+        {inStock ? (
           <>
             <span className="w-4 h-4 bg-green-400 rounded-full"></span>
-            <span className="text-green-300 font-medium text-lg">In Stock ({product.stockCount} available)</span>
+            <span className="text-green-300 font-medium text-lg">In Stock{stockCount != null ? ` (${stockCount} available)` : ''}</span>
           </>
         ) : (
           <>

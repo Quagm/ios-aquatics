@@ -1,0 +1,110 @@
+import { NextResponse } from 'next/server'
+import { getAuth } from '@clerk/nextjs/server'
+import { createClient } from '@supabase/supabase-js'
+
+export const runtime = 'nodejs'
+
+export async function POST(request) {
+  try {
+    // 1) Verify Clerk user (allow unauth in dev like upload route)
+    const { userId, sessionClaims } = getAuth(request)
+    if (!userId) {
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+      }
+      console.warn('[products] Proceeding without Clerk auth in development')
+    }
+
+    // Optional: admin-only guard via Clerk public/unsafe/private metadata
+    // if (userId) {
+    //   const role = sessionClaims?.publicMetadata?.role || sessionClaims?.role
+    //   if (role !== 'admin') {
+    //     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    //   }
+    // }
+
+    // 2) Read JSON body
+    const body = await request.json()
+    const { name, category, price, image, active, description } = body || {}
+
+    if (!name || !category || price == null || Number.isNaN(Number(price))) {
+      return NextResponse.json({ error: 'Missing required fields: name, category, price' }, { status: 400 })
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ error: 'Supabase environment variables missing' }, { status: 500 })
+    }
+
+    // 3) Create Supabase client with service role to bypass RLS
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
+
+    const insertPayload = {
+      name,
+      category,
+      price: Number(price),
+      image: image || null,
+      active: typeof active === 'boolean' ? active : true,
+      description: description ?? null,
+    }
+
+    const { data, error } = await supabase
+      .from('products')
+      .insert(insertPayload)
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
+    return NextResponse.json(data, { status: 200 })
+  } catch (err) {
+    console.error('Create product failed:', err)
+    const message = err?.message || 'Create product failed'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
+export async function PATCH(request) {
+  try {
+    const { userId } = getAuth(request)
+    if (!userId && process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+    if (!userId) console.warn('[products] Proceeding without Clerk auth in development')
+
+    const { id, updates } = await request.json()
+    if (!id) return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
+    if (!updates || typeof updates !== 'object') return NextResponse.json({ error: 'Updates object is required' }, { status: 400 })
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ error: 'Supabase environment variables missing' }, { status: 500 })
+    }
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
+
+    // Whitelist updatable fields
+    const allowed = ['name', 'category', 'price', 'image', 'active', 'description']
+    const safeUpdates = {}
+    for (const k of allowed) if (k in updates) safeUpdates[k] = k === 'price' ? Number(updates[k]) : updates[k]
+    if (Object.keys(safeUpdates).length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
+    }
+
+    const { data, error } = await supabase
+      .from('products')
+      .update(safeUpdates)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json(data, { status: 200 })
+  } catch (err) {
+    console.error('Update product failed:', err)
+    return NextResponse.json({ error: err?.message || 'Update product failed' }, { status: 500 })
+  }
+}

@@ -4,7 +4,7 @@ import Footer from "@/components/footer"
 import ProductCard from "@/components/ProductCard"
 import { useEffect, useMemo, useState } from "react"
 import { fetchProducts } from "@/lib/queries"
-import { ShoppingCart, AlertTriangle, Search, Sparkles, ArrowDown } from 'lucide-react'
+import { ShoppingCart, AlertTriangle, Search, Sparkles, ArrowDown, Fish, Leaf, Wrench, Utensils, Pill, Palette } from 'lucide-react'
 
 export default function StorePage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
@@ -12,6 +12,31 @@ export default function StorePage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // Services slideshow state (ported from HomePage)
+  const [currentServiceSlide, setCurrentServiceSlide] = useState(0)
+  const serviceSlides = [
+    "/services-slides/planted-aquarium.png",
+    "/services-slides/koi-ponds.png",
+    "/services-slides/large-scale-projects.png",
+    "/services-slides/monster-tanks.png",
+    "/services-slides/moss-wall-design.png",
+    "/services-slides/paludarium-system.png",
+    "/services-slides/terrarium-enclosures.png",
+    "/services-slides/slide-img.png",
+    "/services-slides/slide-img1.png"
+  ]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentServiceSlide((prev) => (prev + 1) % serviceSlides.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [serviceSlides.length])
+
+  const nextServiceSlide = () => setCurrentServiceSlide((p) => (p + 1) % serviceSlides.length)
+  const prevServiceSlide = () => setCurrentServiceSlide((p) => (p - 1 + serviceSlides.length) % serviceSlides.length)
+  const goToServiceSlide = (index) => setCurrentServiceSlide(index)
 
   const categories = ["all", "Equipment", "Food", "Chemicals", "Lighting", "Decorations", "Accessories"]
 
@@ -67,6 +92,52 @@ export default function StorePage() {
             <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed">
               Discover our wide selection of freshwater fish, plants, equipment, and accessories at the best prices
             </p>
+          </div>
+
+          {/* Services Slideshow (smaller, no heading) */}
+          <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden rounded-3xl shadow-2xl border border-white/10 mb-12">
+            <div className="absolute inset-0">
+              {serviceSlides.map((slide, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${index === currentServiceSlide ? "opacity-100" : "opacity-0"}`}
+                  style={{ backgroundImage: `url(${slide})` }}
+                />
+              ))}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-slate-900/40" />
+
+              {/* Slideshow Controls */}
+              <button
+                className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
+                onClick={prevServiceSlide}
+                aria-label="Previous service slide"
+              >
+                <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
+              </button>
+              <button
+                className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
+                onClick={nextServiceSlide}
+                aria-label="Next service slide"
+              >
+                <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
+              </button>
+
+              {/* Slide Indicators */}
+              <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+                {serviceSlides.map((_, index) => (
+                  <button
+                    key={index}
+                    aria-label={`Go to service slide ${index + 1}`}
+                    className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
+                      index === currentServiceSlide 
+                        ? "bg-white border-white scale-125" 
+                        : "border-white/50 hover:bg-white/50 hover:border-white hover:scale-110"
+                    }`}
+                    onClick={() => goToServiceSlide(index)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Filter Section */}

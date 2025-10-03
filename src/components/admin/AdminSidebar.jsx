@@ -15,7 +15,6 @@ import {
 const menuItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, badge: null },
   { name: 'Inquiry Management', href: '/admin/inquiry-management', icon: MessageSquare, badge: '12' },
-  { name: 'Account Management', href: '/admin/account-management', icon: Users, badge: null },
   { name: 'Inventory Management', href: '/admin/inventory-management', icon: Package, badge: null },
   { name: 'Order Management', href: '/admin/order-management', icon: ShoppingCart, badge: '5' },
   { name: 'Sales & Analytics', href: '/admin/sales-analytics', icon: BarChart3, badge: null },

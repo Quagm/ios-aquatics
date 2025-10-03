@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useCart } from "@/components/CartContext"
 import { Eye, Plus } from 'lucide-react'
 import { useState } from 'react'
+import { supabase } from '@/supabaseClient'
 
 export default function ProductCard({ product, showAddToCart = true }) {
   const { addItem } = useCart()
@@ -33,9 +34,12 @@ export default function ProductCard({ product, showAddToCart = true }) {
               </span>
             )}
           </div>
-          <h3 className="font-bold text-white mb-3 text-lg line-clamp-2 group-hover:text-blue-300 transition-colors duration-300">
+          <h3 className="font-bold text-white mb-1 text-lg line-clamp-2 group-hover:text-blue-300 transition-colors duration-300">
             {product.name}
           </h3>
+          {product.sku && (
+            <p className="text-xs text-slate-400 mb-3">Code: {product.sku}</p>
+          )}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold text-blue-400">
@@ -56,6 +60,13 @@ export default function ProductCard({ product, showAddToCart = true }) {
                   
                   if (isAdding) return; // Prevent multiple clicks
                   
+                  // Require login before adding to cart
+                  const { data: sessionData } = await supabase.auth.getSession();
+                  if (!sessionData?.session) {
+                    alert('Please log in to add items to your cart.');
+                    return;
+                  }
+
                   setIsAdding(true);
                   addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, 1);
                   

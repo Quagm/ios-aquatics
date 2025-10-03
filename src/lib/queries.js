@@ -2,8 +2,9 @@ import { supabase } from "@/supabaseClient"
 
 // Helper function for consistent error handling
 const handleSupabaseError = (error, operation) => {
-  console.error(`❌ ${operation} failed:`, error);
-  throw new Error(`${operation} failed: ${error.message}`);
+  const msg = error?.message || error?.error_description || error?.hint || JSON.stringify(error) || 'Unknown error'
+  console.error(`❌ ${operation} failed:`, error)
+  throw new Error(`${operation} failed: ${msg}`)
 };
 
 // Helper function for data validation
@@ -14,12 +15,38 @@ const validateRequired = (data, fields, operation) => {
   }
 };
 
+export async function fetchProductById(productId) {
+  try {
+    if (!productId) throw new Error('Product ID is required')
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', productId)
+      .single()
+    if (error) handleSupabaseError(error, 'Fetch product')
+    return data
+  } catch (error) {
+    console.error('Error fetching product:', error)
+    throw error
+  }
+}
+
 // Products
-export async function fetchProducts({ category } = {}) {
+export async function fetchProducts({ category, includeInactive } = {}) {
   try {
     let query = supabase.from("products").select("*").order("created_at", { ascending: false })
+    // By default only show active products (store). Admin can pass includeInactive=true
+    if (!includeInactive) query = query.eq('active', true)
     if (category && category !== "all") query = query.eq("category", category)
-    const { data, error } = await query
+    let { data, error } = await query
+    // If 'active' column doesn't exist yet, retry without the filter so UI still works
+    if (error && (error.message || '').toLowerCase().includes("'active' column")) {
+      let retry = supabase.from('products').select('*').order('created_at', { ascending: false })
+      if (category && category !== 'all') retry = retry.eq('category', category)
+      const r = await retry
+      data = r.data
+      error = r.error
+    }
     if (error) handleSupabaseError(error, "Fetch products")
     return data || []
   } catch (error) {
@@ -31,8 +58,14 @@ export async function fetchProducts({ category } = {}) {
 export async function createProduct(product) {
   try {
     validateRequired(product, ['name', 'price', 'category'], 'Create product');
-    const { data, error } = await supabase.from("products").insert(product).select().single()
-    if (error) handleSupabaseError(error, "Create product")
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(product),
+    })
+    const data = await res.json()
+    if (!res.ok) handleSupabaseError({ message: data?.error || 'Create product failed' }, 'Create product')
     return data
   } catch (error) {
     console.error("Error creating product:", error);
@@ -125,81 +158,110 @@ export async function updateInquiryStatus(inquiryId, status) {
 // Orders
 export async function fetchOrders() {
   try {
-    const { data, error } = await supabase
-      .from("orders")
-      .select(`
-        *,
-        order_items (
-          id,
-          product_id,
-          quantity,
-          price,
-          products (
-            name
-          )
-        )
-      `)
-      .order("created_at", { ascending: false })
-    if (error) handleSupabaseError(error, "Fetch orders")
-    return data || []
+    // 1) Fetch orders only (avoid ambiguous embedding errors)
+    const { data: orders, error: ordersErr } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (ordersErr) handleSupabaseError(ordersErr, 'Fetch orders')
+
+    if (!orders || orders.length === 0) return []
+
+    const orderIds = orders.map(o => o.id)
+
+    // 2) Fetch order items separately (no embedding to avoid ambiguity)
+    const { data: items, error: itemsErr } = await supabase
+      .from('order_items')
+      .select('order_id, product_id, quantity, price')
+      .in('order_id', orderIds)
+    if (itemsErr) handleSupabaseError(itemsErr, 'Fetch order items')
+
+    // 3) Fetch product names and join in memory (preserves shape: item.products?.name)
+    const productIds = Array.from(new Set((items || []).map(i => i.product_id))).filter(Boolean)
+    let productNameById = new Map()
+    if (productIds.length > 0) {
+      const { data: prods, error: prodsErr } = await supabase
+        .from('products')
+        .select('id, name')
+        .in('id', productIds)
+      if (prodsErr) handleSupabaseError(prodsErr, 'Fetch products for items')
+      productNameById = new Map((prods || []).map(p => [p.id, p.name]))
+    }
+
+    const byOrder = new Map()
+    for (const it of items || []) {
+      if (!byOrder.has(it.order_id)) byOrder.set(it.order_id, [])
+      // attach products object with name to mimic embedded shape
+      const withProduct = { ...it, products: { name: productNameById.get(it.product_id) || null } }
+      byOrder.get(it.order_id).push(withProduct)
+    }
+
+    return orders.map(o => ({ ...o, order_items: byOrder.get(o.id) || [] }))
   } catch (error) {
-    console.error("Error fetching orders:", error);
-    throw error;
+    console.error('Error fetching orders:', error)
+    throw error
   }
 }
 
 export async function createOrder(payload) {
   try {
-    const { items, customer } = payload || {};
-    // Support both { items, total } and { items, totals: { total } }
-    let computedTotal = payload?.total ?? payload?.totals?.total;
+    const { items, customer } = payload || {}
+    // total can be provided either as payload.total or payload.totals.total
+    let computedTotal = payload?.total ?? payload?.totals?.total
 
+    // Validate items
     if (!items || !Array.isArray(items) || items.length === 0) {
-      throw new Error("Order must contain at least one item");
+      throw new Error('Order must contain at least one item')
     }
-
-    // Validate each item
     items.forEach((item, index) => {
-      if (!item.id) throw new Error(`Item ${index + 1}: Product ID is required`);
-      if (!item.quantity || item.quantity <= 0) throw new Error(`Item ${index + 1}: Quantity must be greater than 0`);
-      if (!item.price || item.price <= 0) throw new Error(`Item ${index + 1}: Price must be greater than 0`);
-    });
+      if (!item.id) throw new Error(`Item ${index + 1}: Product ID is required`)
+      if (!item.quantity || item.quantity <= 0) throw new Error(`Item ${index + 1}: Quantity must be greater than 0`)
+      if (!item.price || item.price <= 0) throw new Error(`Item ${index + 1}: Price must be greater than 0`)
+    })
 
-    // If total is not provided or invalid, compute from items
+    // Validate customer required fields
+    if (!customer || typeof customer !== 'object') {
+      throw new Error('Customer information is required')
+    }
+    const requiredCustomer = ['name', 'email', 'phone', 'address', 'city', 'province']
+    const missing = requiredCustomer.filter(k => !customer[k] || String(customer[k]).trim() === '')
+    if (missing.length) {
+      throw new Error(`Missing customer fields: ${missing.join(', ')}`)
+    }
+
+    // Compute total if not provided or invalid
     if (computedTotal == null || Number(computedTotal) <= 0) {
-      const itemsSum = items.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0);
-      // Optionally add shipping/tax if present
-      const shipping = Number(payload?.totals?.shipping ?? 0);
-      const tax = Number(payload?.totals?.tax ?? 0);
-      computedTotal = itemsSum + shipping + tax;
+      const itemsSum = items.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0)
+      const shipping = Number(payload?.totals?.shipping ?? 0)
+      const tax = Number(payload?.totals?.tax ?? 0)
+      computedTotal = itemsSum + shipping + tax
     }
-
     if (Number.isNaN(Number(computedTotal)) || Number(computedTotal) <= 0) {
-      throw new Error("Order total must be greater than 0");
+      throw new Error('Order total must be greater than 0')
     }
 
+    // Insert order
     const { data: order, error: orderError } = await supabase
-      .from("orders")
-      // Requires a 'customer' json/jsonb column on orders (see SQL migration)
-      .insert({ total: Number(computedTotal), status: "processing", customer })
+      .from('orders')
+      .insert({ total: Number(computedTotal), status: 'processing', customer })
       .select()
       .single()
-    if (orderError) handleSupabaseError(orderError, "Create order")
+    if (orderError) handleSupabaseError(orderError, 'Create order')
 
+    // Insert order items
     const orderItems = items.map((item) => ({
       order_id: order.id,
       product_id: item.id,
       quantity: item.quantity,
-      price: item.price
+      price: item.price,
     }))
-    
-    const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
-    if (itemsError) handleSupabaseError(itemsError, "Create order items")
+    const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
+    if (itemsError) handleSupabaseError(itemsError, 'Create order items')
 
     return order
   } catch (error) {
-    console.error("Error creating order:", error);
-    throw error;
+    console.error('Error creating order:', error)
+    throw error
   }
 }
 

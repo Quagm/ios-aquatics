@@ -16,15 +16,15 @@ export default function AquascapeForm() {
     
     try {
       // Create a detailed message for aquascape inquiry
-      const aquascapeMessage = `
-Aquascape Inquiry Details:
-- Contact: ${payload.contactNo}
-- Address: ${payload.address}
-- Aquarium Size: ${payload.aquariumSize}
-- Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}
-- Preferences/Suggestions: ${payload.preferences}
-${payload.imageReference ? `- Image Reference: ${payload.imageReference.name}` : ''}
-      `.trim()
+          const aquascapeMessage = `
+    Aquascape Inquiry Details:
+    - Contact: ${payload.contactNo}
+    - Address: ${payload.address}
+    - Aquarium Size: ${payload.aquariumSize}
+    - Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}
+    - Preferences/Suggestions: ${payload.preferences}
+    ${payload.imageReference ? `- Image Reference: ${payload.imageReference.name}` : ''}
+          `.trim()
 
       await createInquiry({
         first_name: payload.firstName,
@@ -47,11 +47,10 @@ ${payload.imageReference ? `- Image Reference: ${payload.imageReference.name}` :
   if (submitted) {
     return (
       <div className="text-center space-y-4">
-        <h3 className="text-2xl font-semibold text-white">Thanks! We received your aquascape inquiry.</h3>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">Aquascape Inquiry</h1>
+        <p className="text-lg sm:text-xl text-white/80">Let us help you create the perfect aquascape for your space!</p>
+        <h3 className="text-2xl font-semibold text-white mt-6">Thanks! We received your aquascape inquiry.</h3>
         <p className="text-white/80">Our aquascape specialists will get back to you soon with a customized proposal.</p>
-        <button className="bg-[#6c47ff] text-white px-8 py-3 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors" onClick={() => setSubmitted(false)}>
-          Submit another inquiry
-        </button>
       </div>
     )
   }

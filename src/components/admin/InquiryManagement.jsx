@@ -1,7 +1,35 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { fetchInquiries, updateInquiryStatus as updateInquiryStatusDb, deleteInquiryById } from '@/lib/queries'
+// Use server API to bypass RLS
+async function apiFetchInquiries() {
+  const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.error || 'Failed to fetch inquiries')
+  return data
+}
+async function apiUpdateInquiryStatus(id, status) {
+  const res = await fetch('/api/inquiries', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ id, status })
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.error || 'Failed to update inquiry')
+  return data
+}
+async function apiDeleteInquiry(id) {
+  const res = await fetch('/api/inquiries', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ id })
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.error || 'Failed to delete inquiry')
+  return data
+}
 import { 
   Search, 
   Filter, 
@@ -25,7 +53,7 @@ export default function InquiryManagement() {
 
   useEffect(() => {
     let isMounted = true
-    fetchInquiries()
+    apiFetchInquiries()
       .then((data) => {
         if (!isMounted) return
         setInquiries(data)
@@ -39,11 +67,15 @@ export default function InquiryManagement() {
     let filtered = inquiries
 
     if (searchTerm) {
-      filtered = filtered.filter(inquiry =>
-        inquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inquiry.subject.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      const q = searchTerm.toLowerCase()
+      filtered = filtered.filter(inquiry => {
+        const fullName = `${inquiry.first_name || ''} ${inquiry.last_name || ''}`.trim().toLowerCase()
+        return (
+          fullName.includes(q) ||
+          (inquiry.email || '').toLowerCase().includes(q) ||
+          (inquiry.subject || '').toLowerCase().includes(q)
+        )
+      })
     }
 
     if (statusFilter !== 'all') {
@@ -73,7 +105,7 @@ export default function InquiryManagement() {
 
   const updateInquiryStatus = async (id, newStatus) => {
     try {
-      const updated = await updateInquiryStatusDb(id, newStatus)
+      const updated = await apiUpdateInquiryStatus(id, newStatus)
       setInquiries(prev => prev.map(i => (i.id === id ? updated : i)))
     } catch (error) {
       console.error("Failed to update inquiry status:", error)
@@ -82,7 +114,7 @@ export default function InquiryManagement() {
 
   const deleteInquiry = async (id) => {
     try {
-      await deleteInquiryById(id)
+      await apiDeleteInquiry(id)
       setInquiries(prev => prev.filter(inquiry => inquiry.id !== id))
     } catch (error) {
       console.error("Failed to delete inquiry:", error)
@@ -91,7 +123,56 @@ export default function InquiryManagement() {
 
   return (
     <div className="space-y-6">
-      {/* ...rest of your JSX remains the same, no other functional changes needed */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex-1 relative">
+          <input
+            type="text"
+            placeholder="Search by name, email, subject..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+        >
+          <option value="all" className="bg-slate-800">All Status</option>
+          <option value="pending" className="bg-slate-800">Pending</option>
+          <option value="in_progress" className="bg-slate-800">In Progress</option>
+          <option value="resolved" className="bg-slate-800">Resolved</option>
+          <option value="closed" className="bg-slate-800">Closed</option>
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        {filteredInquiries.map((inq) => (
+          <div key={inq.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-white">{inq.subject || 'No subject'}</h3>
+                <p className="text-slate-300 text-sm mt-1">
+                  {(inq.first_name || '') + ' ' + (inq.last_name || '')} • {inq.email}
+                </p>
+                <p className="text-slate-300 text-sm mt-2 whitespace-pre-line">{inq.message}</p>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <span className="text-xs px-2 py-1 rounded border border-white/20 text-white/80">{inq.status || 'pending'}</span>
+                <div className="flex gap-2">
+                  <button onClick={() => updateInquiryStatus(inq.id, 'in_progress')} className="px-3 py-2 text-xs rounded bg-white/10 text-white hover:bg-white/20">In Progress</button>
+                  <button onClick={() => updateInquiryStatus(inq.id, 'resolved')} className="px-3 py-2 text-xs rounded bg-green-600/20 text-green-200 hover:bg-green-600/30">Resolve</button>
+                  <button onClick={() => updateInquiryStatus(inq.id, 'closed')} className="px-3 py-2 text-xs rounded bg-slate-600/20 text-slate-200 hover:bg-slate-600/30">Close</button>
+                  <button onClick={() => deleteInquiry(inq.id)} className="px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        {filteredInquiries.length === 0 && (
+          <div className="text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No inquiries found</div>
+        )}
+      </div>
     </div>
   )
 }

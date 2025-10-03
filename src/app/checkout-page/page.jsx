@@ -5,10 +5,12 @@ import Image from "next/image"
 import OrderSummary from "@/components/OrderSummary"
 import { useCart } from "@/components/CartContext"
 import { useState } from "react"
+import { useRouter } from 'next/navigation'
 import { createOrder } from "@/lib/queries"
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart()
+  const router = useRouter()
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState("")
   // Customer fields
@@ -58,6 +60,7 @@ export default function CheckoutPage() {
       })
       clearCart()
       alert("Order placed successfully!")
+      router.push('/store-page')
     } catch (err) {
       setError(err.message || "Failed to place order")
     } finally {

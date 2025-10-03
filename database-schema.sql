@@ -14,6 +14,17 @@ CREATE TABLE IF NOT EXISTS products (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Extend products with richer fields
+ALTER TABLE products
+  ADD COLUMN IF NOT EXISTS description TEXT,
+  ADD COLUMN IF NOT EXISTS stock INTEGER DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS min_stock INTEGER DEFAULT 5,
+  ADD COLUMN IF NOT EXISTS status VARCHAR(50),
+  ADD COLUMN IF NOT EXISTS sku VARCHAR(100);
+
+-- Optional unique index for product code (SKU)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
+
 -- Inquiries table
 CREATE TABLE IF NOT EXISTS inquiries (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

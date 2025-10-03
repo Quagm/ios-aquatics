@@ -1,105 +1,85 @@
 "use client"
 import NavigationBar from "@/components/navigation-bar"
 import Footer from "@/components/footer"
-import ProductCard from "@/components/ProductCard"
 import ProductImageGallery from "@/components/ProductImageGallery"
 import ProductDetails from "@/components/ProductDetails"
 import ProductSpecifications from "@/components/ProductSpecifications"
 import Breadcrumb from "@/components/Breadcrumb"
+import Link from "next/link"
+import { ArrowLeft } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { fetchProductById } from '@/lib/queries'
 
 export default function ProductPage() {
-  const product = {
-    id: 1,
-    name: "Tropical Fish - Neon Tetra",
-    price: 25.00,
-    originalPrice: 30.00,
-    image: "/logo-aquatics.jpg",
-    category: "Fish",
-    description: "Beautiful and vibrant neon tetras that add color and life to your aquarium. These peaceful fish are perfect for community tanks and are easy to care for.",
-    features: [
-      "Peaceful temperament",
-      "Easy to care for",
-      "Great for beginners",
-      "Community tank friendly",
-      "Vibrant colors"
-    ],
-    specifications: {
-      "Size": "1-1.5 inches",
-      "Lifespan": "5-8 years",
-      "Water Temperature": "70-81°F",
-      "pH Level": "6.0-7.0",
-      "Diet": "Omnivore"
-    },
-    inStock: true,
-    stockCount: 15
-  }
+  const searchParams = useSearchParams()
+  const id = searchParams.get('id')
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const relatedProducts = [
-    {
-      id: 2,
-      name: "Guppy Fish - Assorted",
-      price: 20.00,
-      image: "/logo-aquatics.jpg",
-      category: "Fish"
-    },
-    {
-      id: 3,
-      name: "Cardinal Tetra",
-      price: 28.00,
-      image: "/logo-aquatics.jpg",
-      category: "Fish"
-    },
-    {
-      id: 4,
-      name: "Glowlight Tetra",
-      price: 22.00,
-      image: "/logo-aquatics.jpg",
-      category: "Fish"
+  useEffect(() => {
+    let isMounted = true
+    async function load() {
+      setLoading(true)
+      setError('')
+      try {
+        if (!id) throw new Error('Missing product id')
+        const p = await fetchProductById(id)
+        if (!isMounted) return
+        setProduct(p)
+      } catch (e) {
+        if (!isMounted) return
+        setError(e.message || 'Failed to load product')
+      } finally {
+        if (!isMounted) return
+        setLoading(false)
+      }
     }
-  ]
+    load()
+    return () => { isMounted = false }
+  }, [id])
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     { label: "Store", href: "/store-page" },
-    { label: "Fish", href: "/store-page" },
-    { label: product.name, isActive: true }
+    { label: product?.category || 'Product', href: "/store-page" },
+    { label: product?.name || 'Loading...', isActive: true }
   ]
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
-      {/* Navigation */}
       <NavigationBar />
-      
-      {/* Main Content */}
       <div className="flex-1 py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Breadcrumb */}
           <Breadcrumb items={breadcrumbItems} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-            {/* Product Image */}
-            <ProductImageGallery product={product} />
-
-            {/* Product Details */}
-            <div className="space-y-10">
-              <ProductDetails product={product} />
-              <ProductSpecifications specifications={product.specifications} />
-            </div>
+          <div className="mt-4 mb-8">
+            <Link href="/store-page" className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-lg border border-white/20 text-white/90 hover:bg-white/20 transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Store</span>
+            </Link>
           </div>
 
-          {/* Related Products */}
-          <div className="mt-24">
-            <h2 className="text-3xl font-bold text-white mb-14 text-center">Related Products</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-              {relatedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+          {loading ? (
+            <div className="text-white/80">Loading...</div>
+          ) : error ? (
+            <div className="text-red-300">{error}</div>
+          ) : !product ? (
+            <div className="text-white/80">Product not found</div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+              <ProductImageGallery product={product} />
+              <div className="space-y-10">
+                <ProductDetails product={product} />
+                {product.specifications && (
+                  <ProductSpecifications specifications={product.specifications} />
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
-      
-      {/* Footer */}
       <Footer />
     </div>
   )

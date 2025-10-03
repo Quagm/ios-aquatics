@@ -1,0 +1,90 @@
+import { NextResponse } from 'next/server'
+import { getAuth } from '@clerk/nextjs/server'
+import { createClient } from '@supabase/supabase-js'
+
+export const runtime = 'nodejs'
+
+function getServiceClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase environment variables missing')
+  }
+  return createClient(supabaseUrl, serviceRoleKey)
+}
+
+async function ensureAuth(request) {
+  const { userId } = getAuth(request)
+  if (!userId && process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+  }
+  if (!userId) {
+    console.warn('[inquiries] Proceeding without Clerk auth in development')
+  }
+  return null
+}
+
+export async function GET(request) {
+  try {
+    const authErr = await ensureAuth(request)
+    if (authErr) return authErr
+
+    const supabase = getServiceClient()
+    const { data, error } = await supabase
+      .from('inquiries')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json(data, { status: 200 })
+  } catch (err) {
+    console.error('Fetch inquiries failed:', err)
+    return NextResponse.json({ error: err?.message || 'Fetch inquiries failed' }, { status: 500 })
+  }
+}
+
+export async function PATCH(request) {
+  try {
+    const authErr = await ensureAuth(request)
+    if (authErr) return authErr
+
+    const body = await request.json()
+    const { id, status } = body || {}
+    if (!id) return NextResponse.json({ error: 'Inquiry ID is required' }, { status: 400 })
+    const validStatuses = ['pending', 'in_progress', 'resolved', 'closed']
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` }, { status: 400 })
+    }
+
+    const supabase = getServiceClient()
+    const { data, error } = await supabase
+      .from('inquiries')
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json(data, { status: 200 })
+  } catch (err) {
+    console.error('Update inquiry failed:', err)
+    return NextResponse.json({ error: err?.message || 'Update inquiry failed' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request) {
+  try {
+    const authErr = await ensureAuth(request)
+    if (authErr) return authErr
+
+    const body = await request.json()
+    const { id } = body || {}
+    if (!id) return NextResponse.json({ error: 'Inquiry ID is required' }, { status: 400 })
+
+    const supabase = getServiceClient()
+    const { error } = await supabase.from('inquiries').delete().eq('id', id)
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json({ success: true }, { status: 200 })
+  } catch (err) {
+    console.error('Delete inquiry failed:', err)
+    return NextResponse.json({ error: err?.message || 'Delete inquiry failed' }, { status: 500 })
+  }
+}

@@ -8,7 +8,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "your-project-id.supabase.co", // Supabase Storage
+        hostname: "twrgiobaconoezsgstwz.supabase.co", // Supabase Storage
       },
       {
         protocol: "https",

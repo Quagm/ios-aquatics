@@ -208,14 +208,13 @@ export default function HomePage(){
               <button className="group w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 text-base sm:text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
                 <span className="flex items-center justify-center gap-2">
                 Shop Now
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </button>
             </Link>
             <Link href="/inquiry-form">
               <button className="group w-full sm:w-auto glass-effect text-white px-8 py-4 text-base sm:text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
                 <span className="flex items-center justify-center gap-2">
-                Aquascape Inquiry
+                Inqure Aquascape
                   <Lightbulb className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
                 </span>
               </button>
@@ -280,37 +279,16 @@ export default function HomePage(){
       <section id="services" className="py-20 sm:py-24 lg:py-32 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-purple-300 border border-purple-500/20 mb-6">
-              <Waves className="w-4 h-4" />
-              Our Services
-            </div>
+            
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white">
-              <span className="gradient-text">Premium</span> Aquatics Services
+              <span className="gradient-text">IOS Aquatics</span> Services
             </h2>
             <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto">
               From equipment to livestock, we provide everything you need for your aquatic journey
             </p>
           </div>
 
-          {/* Services Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {[
-              { icon: Fish, title: "Freshwater Livestock", desc: "Healthy fish, shrimp, and aquatic creatures" },
-              { icon: Leaf, title: "Aquatic Plants", desc: "Live plants for natural aquascaping" },
-              { icon: Wrench, title: "Equipment & Tools", desc: "Filters, lights, and maintenance tools" },
-              { icon: Utensils, title: "Fish Food & Nutrition", desc: "Premium feeds and supplements" },
-              { icon: Pill, title: "Water Treatment", desc: "Medications and water conditioners" },
-              { icon: Palette, title: "Aquascaping Materials", desc: "Substrates, rocks, and decorations" }
-            ].map((service, index) => (
-              <div key={index} className="glass-effect rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
-                <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <service.icon className="w-12 h-12 text-blue-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
-                <p className="text-slate-300 leading-relaxed">{service.desc}</p>
-              </div>
-            ))}
-          </div>
+          
 
           {/* Services Slideshow */}
           <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl border border-white/10">
@@ -357,16 +335,7 @@ export default function HomePage(){
               </div>
 
               {/* Service Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 lg:p-16">
-                <div className="text-center text-white">
-                  <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 drop-shadow-lg">
-                    {getServiceTitle(currentServiceSlide)}
-                  </h3>
-                  <p className="text-lg sm:text-xl lg:text-2xl opacity-90 drop-shadow max-w-3xl mx-auto leading-relaxed">
-                    {getServiceDescription(currentServiceSlide)}
-                  </p>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -375,10 +344,7 @@ export default function HomePage(){
       <section id="contact" className="py-20 sm:py-24 lg:py-32 bg-gradient-to-b from-slate-800 to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-green-300 border border-green-500/20 mb-6">
-              <Phone className="w-4 h-4" />
-              Get In Touch
-            </div>
+            
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white">
               <span className="gradient-text">Contact</span> Us
           </h2>

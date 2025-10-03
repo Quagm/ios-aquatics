@@ -170,8 +170,6 @@ function Footer() {
               © {new Date().getFullYear()} IOS Aquatics. All rights reserved.
             </p>
             <div className="flex items-center gap-6 text-sm text-slate-400">
-              <span className="flex items-center gap-1">Made with <Heart className="w-4 h-4 text-red-400" /> for aquarists</span>
-              <div className="w-1 h-1 bg-slate-500 rounded-full"></div>
               <span>Las Piñas, Philippines</span>
             </div>
           </div>

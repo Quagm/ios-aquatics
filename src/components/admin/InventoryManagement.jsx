@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
-import { fetchProducts, createProduct as createProductDb, updateProduct as updateProductDb, deleteProductById } from '@/lib/queries'
+import { supabase } from '@/supabaseClient'
+import { fetchProducts, updateProduct as updateProductDb, deleteProductById } from '@/lib/queries'
 import { 
   Search, 
   Filter, 
@@ -16,6 +17,16 @@ import {
   XCircle
 } from 'lucide-react'
 
+// Helper to upload file via server-side API (avoids client RLS issues)
+async function uploadViaApi(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.error || 'Upload failed')
+  return data.url
+}
+
 export default function InventoryManagement() {
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
@@ -25,30 +36,63 @@ export default function InventoryManagement() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
 
+  // Basic stock status helper (placeholder until DB has stock fields)
+  const getStockStatus = (stock = 0, minStock = 0) => {
+    if (stock <= 0) return 'out-of-stock'
+    if (stock <= minStock) return 'low-stock'
+    return 'active'
+  }
+
+  // Server API update for toggling active
+  async function apiUpdateProduct(id, updates) {
+    const res = await fetch('/api/products', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id, updates })
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data?.error || 'Update product failed')
+    return data
+  }
+
+  const toggleActive = async (product) => {
+    const next = !Boolean(product.active)
+    try {
+      const updated = await apiUpdateProduct(product.id, { active: next })
+      setProducts(prev => prev.map(p => (p.id === product.id ? { ...p, ...updated } : p)))
+    } catch (e) {
+      alert(e?.message || 'Failed to update product status')
+    }
+  }
+
   useEffect(() => {
-    let isMounted = true
-    fetchProducts()
-      .then((data) => {
-        if (!isMounted) return
-        const withStatus = data.map((p) => ({
-          ...p,
-          status: p.status || getStockStatus(p.stock || 0, p.minStock || 0)
-        }))
-        setProducts(withStatus)
-        setFilteredProducts(withStatus)
-      })
-      .catch(() => {})
-    return () => { isMounted = false }
-  }, [])
+  let isMounted = true
+  // Admin view: include inactive products
+  fetchProducts({ includeInactive: true })
+    .then((data) => {
+      if (!isMounted) return
+      const withStatus = data.map((p) => ({
+        ...p,
+        status: p.status || getStockStatus(p.stock || 0, p.minStock || 0),
+        active: p.active || false
+      }))
+      setProducts(withStatus)
+      setFilteredProducts(withStatus)
+    })
+    .catch(() => {})
+  return () => { isMounted = false }
+}, [])
 
   useEffect(() => {
     let filtered = products
 
     if (searchTerm) {
+      const q = searchTerm.toLowerCase()
       filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase())
+        (product?.name || '').toLowerCase().includes(q) ||
+        (product?.sku || '').toLowerCase().includes(q) ||
+        (product?.category || '').toLowerCase().includes(q)
       )
     }
 
@@ -57,14 +101,23 @@ export default function InventoryManagement() {
     }
 
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(product => product.status === statusFilter)
+      filtered = filtered.filter(product => (product.status || 'active') === statusFilter)
     }
 
     setFilteredProducts(filtered)
   }, [searchTerm, categoryFilter, statusFilter, products])
 
   const getStatusColor = (status) => {
-    return 'bg-green-100 text-green-800'
+    switch (status) {
+      case 'active':
+        return 'bg-green-500/20 text-green-300 border border-green-500/30'
+      case 'low-stock':
+        return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+      case 'out-of-stock':
+        return 'bg-red-500/20 text-red-300 border border-red-500/30'
+      default:
+        return 'bg-slate-500/20 text-slate-300 border border-slate-500/30'
+    }
   }
 
   const deleteProduct = async (id) => {
@@ -76,24 +129,54 @@ export default function InventoryManagement() {
 
   const handleAddProduct = async (productData) => {
     try {
+      let imageUrl = productData.image || '/placeholder-product.jpg'
+      // If a file was provided, upload to Supabase Storage
+      if (productData.imageFile) {
+        imageUrl = await uploadViaApi(productData.imageFile)
+      }
+
       const payload = {
         ...productData,
-        image: productData.image || '/placeholder-product.jpg'
+        image: imageUrl,
+        price: Number(productData.price)
       }
-      const created = await createProduct(payload)
+      delete payload.imageFile
+      delete payload.sku
+      // Create via server API to bypass RLS
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      })
+      const created = await res.json()
+      if (!res.ok) throw new Error(created?.error || 'Create product failed')
       setProducts(prev => [created, ...prev])
       setShowAddModal(false)
     } catch (error) {
       console.error('Error adding product:', error)
+      alert(`Add product failed: ${error?.message || 'Unknown error'}`)
     }
   }
 
   const handleEditProduct = async (productData) => {
     try {
-      const updated = await updateProduct(editingProduct.id, productData)
+      let imageUrl = productData.image || editingProduct.image || '/placeholder-product.jpg'
+      if (productData.imageFile) {
+        imageUrl = await uploadViaApi(productData.imageFile)
+      }
+
+      const updates = {
+        ...productData,
+        image: imageUrl,
+        price: Number(productData.price)
+      }
+      delete updates.sku
+      const updated = await updateProductDb(editingProduct.id, updates)
       setProducts(prev => prev.map(p => (p.id === updated.id ? updated : p)))
     } catch (error) {
       console.error('Error updating product:', error)
+      alert(`Update product failed: ${error?.message || 'Unknown error'}`)
     }
     setEditingProduct(null)
   }
@@ -214,10 +297,18 @@ export default function InventoryManagement() {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30">
+                <button
+                  onClick={() => toggleActive(product)}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border transition-colors 
+                    ${product.active !== false 
+                      ? 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30 hover:border-green-500/40'
+                      : 'bg-slate-600/20 text-slate-200 border-slate-500/30 hover:bg-slate-600/30 hover:border-slate-500/40'}
+                  `}
+                  title={product.active !== false ? 'Set Inactive (hide from store)' : 'Set Active (show in store)'}
+                >
                   <CheckCircle className="w-3 h-3 mr-1" />
-                  Active
-                </span>
+                  {product.active !== false ? 'Active (Shown in Store)' : 'Inactive (Hidden)'}
+                </button>
                 <button
                   onClick={() => setEditingProduct(product)}
                   className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
@@ -256,9 +347,12 @@ export default function InventoryManagement() {
 function AddProductModal({ onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: '',
+    sku: '',
     category: 'Equipment',
     price: '',
-    image: ''
+    image: '',
+    description: '',
+    imageFile: null
   })
 
   const handleSubmit = (e) => {
@@ -289,6 +383,16 @@ function AddProductModal({ onClose, onSave, categories }) {
               />
             </div>
             <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Product Code (SKU)</label>
+              <input
+                type="text"
+                value={formData.sku}
+                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                placeholder="e.g., FLTR-001"
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Category</label>
               <select
                 value={formData.category}
@@ -300,6 +404,16 @@ function AddProductModal({ onClose, onSave, categories }) {
                 ))}
               </select>
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
+            <textarea
+              rows={4}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm resize-none"
+              placeholder="Write a short product description"
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -315,14 +429,22 @@ function AddProductModal({ onClose, onSave, categories }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Image URL</label>
-              <input
-                type="url"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
-                placeholder="https://example.com/image.jpg"
-              />
+              <label className="block text-sm font-medium text-slate-300 mb-2">Image</label>
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFormData({ ...formData, imageFile: e.target.files?.[0] || null })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:cursor-pointer"
+                />
+                <input
+                  type="url"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                  placeholder="Or paste an image URL"
+                />
+              </div>
             </div>
           </div>
           <div className="flex justify-end space-x-3 pt-4">
@@ -350,9 +472,12 @@ function AddProductModal({ onClose, onSave, categories }) {
 function EditProductModal({ product, onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: product.name,
+    sku: product.sku || '',
     category: product.category,
     price: product.price.toString(),
-    image: product.image || ''
+    image: product.image || '',
+    description: product.description || '',
+    imageFile: null
   })
 
   const handleSubmit = (e) => {
@@ -395,6 +520,16 @@ function EditProductModal({ product, onClose, onSave, categories }) {
               </select>
             </div>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
+            <textarea
+              rows={4}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm resize-none"
+              placeholder="Write a short product description"
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Price (₱)</label>
@@ -409,14 +544,22 @@ function EditProductModal({ product, onClose, onSave, categories }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Image URL</label>
-              <input
-                type="url"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
-                placeholder="https://example.com/image.jpg"
-              />
+              <label className="block text-sm font-medium text-slate-300 mb-2">Image</label>
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFormData({ ...formData, imageFile: e.target.files?.[0] || null })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:cursor-pointer"
+                />
+                <input
+                  type="url"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                  placeholder="Or paste an image URL"
+                />
+              </div>
             </div>
           </div>
           <div className="flex justify-end space-x-3 pt-4">

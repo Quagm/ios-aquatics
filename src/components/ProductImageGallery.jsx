@@ -12,20 +12,6 @@ export default function ProductImageGallery({ product }) {
           className="object-cover"
         />
       </div>
-      
-      {/* Thumbnail Images */}
-      <div className="grid grid-cols-4 gap-3">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="aspect-square relative bg-white/10 backdrop-blur-md rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow border border-white/20">
-            <Image
-              src={product.image}
-              alt={`${product.name} ${i}`}
-              fill
-              className="object-cover"
-            />
-          </div>
-        ))}
-      </div>
     </div>
   )
 }

@@ -36,9 +36,9 @@ export default function AdminDashboard() {
       totalRevenue: 125000,
       pendingInquiries: 12,
       recentOrders: [
-        { id: 'ORD-001', customer: 'Juan Dela Cruz', amount: 1500, status: 'Processing' },
-        { id: 'ORD-002', customer: 'Maria Santos', amount: 2500, status: 'Shipped' },
-        { id: 'ORD-003', customer: 'Pedro Garcia', amount: 1200, status: 'Delivered' },
+        { id: 'ORD-001', customer: 'Julius Dela Cruz', amount: 1500, status: 'Processing' },
+        { id: 'ORD-002', customer: 'Xavier Santos', amount: 2500, status: 'Shipped' },
+        { id: 'ORD-003', customer: 'John Christopher Garcia', amount: 1200, status: 'Delivered' },
       ],
       topProducts: [
         { name: 'Aquarium Filter', sales: 45, revenue: 2250 },
