@@ -269,14 +269,30 @@ export async function updateOrderStatus(orderId, status) {
   try {
     if (!orderId) throw new Error("Order ID is required");
     if (!status) throw new Error("Status is required");
-    const validStatuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }
 
-    const { data, error } = await supabase.from("orders").update({ status }).eq("id", orderId).select().single()
+    // Use maybeSingle to avoid coercion error when the database returns an array
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ status })
+      .eq("id", orderId)
+      .select()
+      .maybeSingle()
     if (error) handleSupabaseError(error, "Update order status")
-    return data
+
+    if (data) return data
+
+    // Fallback: fetch the updated row explicitly
+    const { data: one, error: fetchErr } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single()
+    if (fetchErr) handleSupabaseError(fetchErr, 'Fetch updated order')
+    return one
   } catch (error) {
     console.error("Error updating order status:", error);
     throw error;

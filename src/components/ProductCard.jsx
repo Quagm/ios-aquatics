@@ -26,7 +26,7 @@ export default function ProductCard({ product, showAddToCart = true }) {
             </div>
           </div>
         </div>
-        <div className="p-6">
+        <div className="p-6 sm:p-8">
           <div className="mb-3">
             {product.category && (
               <span className="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30">
@@ -40,7 +40,7 @@ export default function ProductCard({ product, showAddToCart = true }) {
           {product.sku && (
             <p className="text-xs text-slate-400 mb-3">Code: {product.sku}</p>
           )}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold text-blue-400">
                 ₱{product.price}

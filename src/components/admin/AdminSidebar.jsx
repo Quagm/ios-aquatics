@@ -1,10 +1,10 @@
 "use client"
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
   LayoutDashboard, 
   MessageSquare, 
-  Users, 
   Package, 
   ShoppingCart, 
   BarChart3,
@@ -15,8 +15,10 @@ import {
 const menuItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, badge: null },
   { name: 'Inquiry Management', href: '/admin/inquiry-management', icon: MessageSquare, badge: '12' },
+  { name: 'Inquiry History', href: '/admin/inquiry-history', icon: MessageSquare, badge: null },
   { name: 'Inventory Management', href: '/admin/inventory-management', icon: Package, badge: null },
   { name: 'Order Management', href: '/admin/order-management', icon: ShoppingCart, badge: '5' },
+  { name: 'Order History', href: '/admin/order-history', icon: Package, badge: null },
   { name: 'Sales & Analytics', href: '/admin/sales-analytics', icon: BarChart3, badge: null },
 ]
 

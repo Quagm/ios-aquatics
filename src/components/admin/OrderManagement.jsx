@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
+import { useToast } from '@/components/ui/ToastProvider'
 import { fetchOrders, updateOrderStatus as updateOrderStatusDb } from '@/lib/queries'
 import { 
   Search, 
@@ -25,28 +26,35 @@ export default function OrderManagement() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all')
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const { push } = useToast()
+
+  const normalize = (data) => (data || []).map((o) => ({
+    id: o.id,
+    items: (o.order_items || []).map((i) => ({ 
+      name: i.products?.name || 'Unknown Product', 
+      quantity: i.quantity, 
+      price: i.price 
+    })),
+    total: o.total,
+    status: o.status,
+    orderDate: o.created_at?.split('T')[0],
+    customer: o.customer || {}
+  }))
+
+  const loadOrders = async () => {
+    try {
+      const data = await fetchOrders()
+      const normalized = normalize(data)
+      setOrders(normalized)
+      setFilteredOrders(normalized)
+    } catch (e) {
+      push({ title: 'Load failed', description: e?.message || 'Could not load orders', variant: 'error' })
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
-    fetchOrders()
-      .then((data) => {
-        if (!isMounted) return
-        const normalized = data.map((o) => ({
-          id: o.id,
-          items: (o.order_items || []).map((i) => ({ 
-            name: i.products?.name || 'Unknown Product', 
-            quantity: i.quantity, 
-            price: i.price 
-          })),
-          total: o.total,
-          status: o.status,
-          orderDate: o.created_at?.split('T')[0],
-          customer: o.customer || {}
-        }))
-        setOrders(normalized)
-        setFilteredOrders(normalized)
-      })
-      .catch(() => {})
+    loadOrders().catch(() => {})
     return () => { isMounted = false }
   }, [])
 
@@ -59,6 +67,12 @@ export default function OrderManagement() {
         order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
       )
     }
+
+    // Always exclude completed/delivered orders from the active management view (case-insensitive)
+    filtered = filtered.filter(order => {
+      const s = String(order.status || '').toLowerCase()
+      return s !== 'completed' && s !== 'delivered'
+    })
 
     if (statusFilter !== 'all') {
       filtered = filtered.filter(order => order.status === statusFilter)
@@ -92,6 +106,8 @@ export default function OrderManagement() {
         return 'bg-yellow-100 text-yellow-800'
       case 'shipped':
         return 'bg-blue-100 text-blue-800'
+      case 'delivered':
+        return 'bg-green-100 text-green-800'
       case 'completed':
         return 'bg-green-100 text-green-800'
       case 'cancelled':
@@ -107,6 +123,8 @@ export default function OrderManagement() {
         return <Clock className="w-4 h-4" />
       case 'shipped':
         return <Truck className="w-4 h-4" />
+      case 'delivered':
+        return <CheckCircle className="w-4 h-4" />
       case 'completed':
         return <CheckCircle className="w-4 h-4" />
       case 'cancelled':
@@ -118,9 +136,25 @@ export default function OrderManagement() {
 
   const updateOrderStatus = async (id, newStatus) => {
     try {
+      // Confirm when archiving-like statuses
+      if ((newStatus || '').toLowerCase() === 'completed' || (newStatus || '').toLowerCase() === 'delivered') {
+        const ok = window.confirm('Mark this order as finished? It will be moved to Order History and removed from active orders.')
+        if (!ok) return
+      }
       const updated = await updateOrderStatusDb(id, newStatus)
-      setOrders(prev => prev.map(o => (o.id === id ? { ...o, status: updated.status } : o)))
-    } catch {}
+      // Refetch to ensure both active and history views reflect the change
+      await loadOrders()
+      const us = String(updated?.status || '').toLowerCase()
+      // Debug/visibility toast
+      push({ title: 'Status updated', description: `Order ${id} new status: ${updated?.status}`, variant: 'default' })
+      if (us === 'completed' || us === 'delivered') {
+        push({ title: 'Order archived', description: `Order ${id} moved to history.`, variant: 'success' })
+      } else {
+        push({ title: 'Order updated', description: `Order ${id} set to ${updated?.status}.`, variant: 'success' })
+      }
+    } catch (e) {
+      push({ title: 'Update failed', description: e?.message || 'Could not update order status', variant: 'error' })
+    }
   }
 
   const getTotalRevenue = () => {
@@ -239,7 +273,7 @@ export default function OrderManagement() {
               <option value="all">All Status</option>
               <option value="processing">Processing</option>
               <option value="shipped">Shipped</option>
-              <option value="completed">Completed</option>
+              <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </select>
             <select
@@ -466,6 +500,7 @@ function OrderDetailModal({ order, onClose, onUpdateStatus }) {
               >
                 <option value="processing">Processing</option>
                 <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
               </select>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useToast } from '@/components/ui/ToastProvider'
 // Use server API to bypass RLS
 async function apiFetchInquiries() {
   const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
@@ -50,16 +51,21 @@ export default function InquiryManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedInquiry, setSelectedInquiry] = useState(null)
+  const { push } = useToast()
+
+  const loadInquiries = async () => {
+    try {
+      const data = await apiFetchInquiries()
+      setInquiries(data)
+      setFilteredInquiries(data)
+    } catch (e) {
+      push({ title: 'Load failed', description: e?.message || 'Could not load inquiries', variant: 'error' })
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
-    apiFetchInquiries()
-      .then((data) => {
-        if (!isMounted) return
-        setInquiries(data)
-        setFilteredInquiries(data)
-      })
-      .catch((error) => console.error("Failed to fetch inquiries:", error))
+    loadInquiries().catch(() => {})
     return () => { isMounted = false }
   }, [])
 
@@ -77,6 +83,9 @@ export default function InquiryManagement() {
         )
       })
     }
+
+    // Exclude archived (resolved/closed) from active by default
+    filtered = filtered.filter(inquiry => inquiry.status !== 'resolved' && inquiry.status !== 'closed')
 
     if (statusFilter !== 'all') {
       filtered = filtered.filter(inquiry => inquiry.status === statusFilter)
@@ -105,19 +114,31 @@ export default function InquiryManagement() {
 
   const updateInquiryStatus = async (id, newStatus) => {
     try {
+      if (newStatus === 'resolved' || newStatus === 'closed') {
+        const ok = window.confirm('Mark this inquiry as finished? It will be moved to Inquiry History and removed from active inquiries.')
+        if (!ok) return
+      }
       const updated = await apiUpdateInquiryStatus(id, newStatus)
-      setInquiries(prev => prev.map(i => (i.id === id ? updated : i)))
+      await loadInquiries()
+      if (updated.status === 'resolved' || updated.status === 'closed') {
+        push({ title: 'Inquiry archived', description: `Inquiry ${id} moved to history.`, variant: 'success' })
+      } else {
+        push({ title: 'Inquiry updated', description: `Inquiry ${id} set to ${updated.status}.`, variant: 'success' })
+      }
     } catch (error) {
-      console.error("Failed to update inquiry status:", error)
+      push({ title: 'Update failed', description: error?.message || 'Failed to update inquiry', variant: 'error' })
     }
   }
 
   const deleteInquiry = async (id) => {
     try {
+      const ok = window.confirm('Delete this inquiry? This action cannot be undone.')
+      if (!ok) return
       await apiDeleteInquiry(id)
-      setInquiries(prev => prev.filter(inquiry => inquiry.id !== id))
+      await loadInquiries()
+      push({ title: 'Inquiry deleted', description: `Inquiry ${id} has been deleted.`, variant: 'success' })
     } catch (error) {
-      console.error("Failed to delete inquiry:", error)
+      push({ title: 'Delete failed', description: error?.message || 'Failed to delete inquiry', variant: 'error' })
     }
   }
 

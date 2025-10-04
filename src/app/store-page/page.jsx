@@ -78,10 +78,10 @@ export default function StorePage() {
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
-          <div className="text-center mb-16 sm:mb-20 lg:mb-24">
+          <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-6">
               <ShoppingCart className="w-4 h-4" />
               Our Store
@@ -141,7 +141,7 @@ export default function StorePage() {
           </div>
 
           {/* Filter Section */}
-          <div className="mb-12 sm:mb-16 lg:mb-20">
+          <div className="mb-12">
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
               {categories.map(cat => (
                 <button
@@ -170,7 +170,7 @@ export default function StorePage() {
             </div>
           )}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="glass-effect rounded-2xl overflow-hidden border border-white/10">
                   <div className="aspect-square skeleton"></div>
@@ -186,7 +186,7 @@ export default function StorePage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
               {visibleProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
