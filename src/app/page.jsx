@@ -15,7 +15,6 @@ export default function HomePage(){
 
   const slides = [
     "/bg-image.png",
-    "/logo-aquatics.jpg",
     "/slide-img/slide-img.png",
     "/slide-img/slide-img1.png"
   ]

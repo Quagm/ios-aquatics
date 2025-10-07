@@ -45,9 +45,6 @@ export default function ProductCard({ product, showAddToCart = true }) {
               <span className="text-2xl font-bold text-blue-400">
                 ₱{product.price}
               </span>
-              <span className="text-sm text-slate-400 line-through opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                ₱{Math.round(product.price * 1.2)}
-              </span>
             </div>
             {showAddToCart && (
               <button 

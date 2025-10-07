@@ -12,6 +12,7 @@ export default function StorePage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [query, setQuery] = useState("")
 
   // Services slideshow state (ported from HomePage)
   const [currentServiceSlide, setCurrentServiceSlide] = useState(0)
@@ -64,9 +65,18 @@ export default function StorePage() {
   }, [selectedCategory])
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategory === "all") return products
-    return products.filter(p => p.category === selectedCategory)
-  }, [products, selectedCategory])
+    let list = selectedCategory === "all" ? products : products.filter(p => p.category === selectedCategory)
+    if (query.trim()) {
+      const q = query.trim().toLowerCase()
+      list = list.filter(p => (
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.sku || '').toLowerCase().includes(q) ||
+        (p.category || '').toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q)
+      ))
+    }
+    return list
+  }, [products, selectedCategory, query])
 
   const visibleProducts = filteredProducts.slice(0, visibleCount)
 
@@ -140,8 +150,20 @@ export default function StorePage() {
             </div>
           </div>
 
-          {/* Filter Section */}
-          <div className="mb-12">
+          {/* Search + Filter Section */}
+          <div className="mb-12 space-y-6">
+            <div className="max-w-xl mx-auto">
+              <div className="relative">
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                />
+              </div>
+            </div>
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
               {categories.map(cat => (
                 <button

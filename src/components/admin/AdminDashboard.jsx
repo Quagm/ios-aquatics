@@ -15,6 +15,7 @@ import {
   Target,
   Zap
 } from 'lucide-react'
+import { fetchProducts, fetchOrders } from '@/lib/queries'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -28,24 +29,52 @@ export default function AdminDashboard() {
   })
 
   useEffect(() => {
-    // Simulate data fetching
-    setStats({
-      totalUsers: 1247,
-      totalOrders: 89,
-      totalProducts: 156,
-      totalRevenue: 125000,
-      pendingInquiries: 12,
-      recentOrders: [
-        { id: 'ORD-001', customer: 'Julius Dela Cruz', amount: 1500, status: 'Processing' },
-        { id: 'ORD-002', customer: 'Xavier Santos', amount: 2500, status: 'Shipped' },
-        { id: 'ORD-003', customer: 'John Christopher Garcia', amount: 1200, status: 'Delivered' },
-      ],
-      topProducts: [
-        { name: 'Aquarium Filter', sales: 45, revenue: 2250 },
-        { name: 'Fish Food', sales: 78, revenue: 1560 },
-        { name: 'Water Conditioner', sales: 32, revenue: 960 },
-      ]
-    })
+    let mounted = true
+    const load = async () => {
+      try {
+        const [products, orders] = await Promise.all([
+          fetchProducts({ includeInactive: true }).catch(() => []),
+          fetchOrders().catch(() => [])
+        ])
+        // Optional: load inquiries count via API (matches InquiryManagement)
+        let pendingInquiries = 0
+        try {
+          const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
+          const data = await res.json()
+          if (Array.isArray(data)) {
+            pendingInquiries = data.filter(i => i.status === 'pending' || i.status === 'in_progress').length
+          }
+        } catch {}
+
+        const totalRevenue = (orders || [])
+          .filter(o => String(o.status || '').toLowerCase() !== 'cancelled')
+          .reduce((sum, o) => sum + (o.total || 0), 0)
+
+        const recentOrders = (orders || [])
+          .slice()
+          .sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 5)
+          .map(o => ({
+            id: o.id,
+            customer: o.customer?.name || o.customer?.email || 'Customer',
+            amount: o.total || 0,
+            status: o.status || 'processing'
+          }))
+
+        if (!mounted) return
+        setStats({
+          totalUsers: 0, // Not tracked; integrate auth user count if desired
+          totalOrders: (orders || []).length,
+          totalProducts: (products || []).length,
+          totalRevenue,
+          pendingInquiries,
+          recentOrders,
+          topProducts: [] // No sales aggregation yet; can be implemented later
+        })
+      } catch {}
+    }
+    load()
+    return () => { mounted = false }
   }, [])
 
   const statCards = [
@@ -55,8 +84,6 @@ export default function AdminDashboard() {
       icon: Users,
       gradient: 'from-blue-500 to-blue-600',
       bgGradient: 'from-blue-500/10 to-blue-600/10',
-      change: '+12%',
-      changeType: 'positive',
       description: 'Active customers'
     },
     {
@@ -65,9 +92,7 @@ export default function AdminDashboard() {
       icon: ShoppingCart,
       gradient: 'from-green-500 to-green-600',
       bgGradient: 'from-green-500/10 to-green-600/10',
-      change: '+8%',
-      changeType: 'positive',
-      description: 'This month'
+      description: 'All time'
     },
     {
       title: 'Total Products',
@@ -75,8 +100,6 @@ export default function AdminDashboard() {
       icon: Package,
       gradient: 'from-purple-500 to-purple-600',
       bgGradient: 'from-purple-500/10 to-purple-600/10',
-      change: '+5%',
-      changeType: 'positive',
       description: 'In inventory'
     },
     {
@@ -85,9 +108,7 @@ export default function AdminDashboard() {
       icon: DollarSign,
       gradient: 'from-yellow-500 to-yellow-600',
       bgGradient: 'from-yellow-500/10 to-yellow-600/10',
-      change: '+15%',
-      changeType: 'positive',
-      description: 'This month'
+      description: 'All time'
     },
     {
       title: 'Pending Inquiries',
@@ -95,19 +116,15 @@ export default function AdminDashboard() {
       icon: MessageSquare,
       gradient: 'from-red-500 to-red-600',
       bgGradient: 'from-red-500/10 to-red-600/10',
-      change: '-3%',
-      changeType: 'negative',
       description: 'Needs attention'
     },
     {
       title: 'Growth Rate',
-      value: '23%',
+      value: '—',
       icon: TrendingUp,
       gradient: 'from-indigo-500 to-indigo-600',
       bgGradient: 'from-indigo-500/10 to-indigo-600/10',
-      change: '+2%',
-      changeType: 'positive',
-      description: 'Monthly growth'
+      description: 'Coming soon'
     }
   ]
 
@@ -219,6 +236,9 @@ export default function AdminDashboard() {
           </div>
           <div className="p-6">
             <div className="space-y-4">
+              {stats.topProducts.length === 0 && (
+                <div className="text-slate-300 text-sm">No top products yet.</div>
+              )}
               {stats.topProducts.map((product, index) => (
                 <div key={index} className="flex items-center justify-between py-4 border-b border-white/5 last:border-b-0 group hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors">
                   <div className="flex items-center space-x-4">

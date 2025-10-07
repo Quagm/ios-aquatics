@@ -35,6 +35,7 @@ export default function InventoryManagement() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
+  const [stockEdits, setStockEdits] = useState({})
 
   // Basic stock status helper (placeholder until DB has stock fields)
   const getStockStatus = (stock = 0, minStock = 0) => {
@@ -75,10 +76,13 @@ export default function InventoryManagement() {
       const withStatus = data.map((p) => ({
         ...p,
         status: p.status || getStockStatus(p.stock || 0, p.minStock || 0),
-        active: p.active || false
+        active: p.active || false,
+        stock: typeof p.stock === 'number' ? p.stock : 0,
+        minStock: typeof p.minStock === 'number' ? p.minStock : 0,
       }))
       setProducts(withStatus)
       setFilteredProducts(withStatus)
+      setStockEdits(Object.fromEntries(withStatus.map(p => [p.id, p.stock || 0])))
     })
     .catch(() => {})
   return () => { isMounted = false }
@@ -125,6 +129,25 @@ export default function InventoryManagement() {
       await deleteProductById(id)
       setProducts(prev => prev.filter(product => product.id !== id))
     } catch {}
+  }
+
+  const updateStockValue = (id, value) => {
+    setStockEdits(prev => ({ ...prev, [id]: Math.max(0, Number(value) || 0) }))
+  }
+
+  const saveStock = async (product) => {
+    try {
+      const newStock = Math.max(0, Number(stockEdits[product.id] ?? product.stock ?? 0))
+      const updated = await apiUpdateProduct(product.id, { stock: newStock })
+      const next = {
+        ...product,
+        ...updated,
+      }
+      next.status = getStockStatus(next.stock || 0, next.minStock || 0)
+      setProducts(prev => prev.map(p => (p.id === product.id ? next : p)))
+    } catch (e) {
+      alert(e?.message || 'Failed to update stock')
+    }
   }
 
   const handleAddProduct = async (productData) => {
@@ -294,6 +317,34 @@ export default function InventoryManagement() {
                   <span className="text-sm text-slate-400">Price:</span>
                   <span className="text-sm font-medium text-white">₱{product.price}</span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-400">Status:</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(product.status)}`}>{product.status}</span>
+                </div>
+                <div className="flex justify-between items-center gap-3">
+                  <span className="text-sm text-slate-400">Stock:</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20"
+                      onClick={() => updateStockValue(product.id, (stockEdits[product.id] ?? product.stock ?? 0) - 1)}
+                    >-</button>
+                    <input
+                      type="number"
+                      value={stockEdits[product.id] ?? product.stock ?? 0}
+                      onChange={(e) => updateStockValue(product.id, e.target.value)}
+                      className="w-20 px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-xs"
+                      min={0}
+                    />
+                    <button
+                      className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20"
+                      onClick={() => updateStockValue(product.id, (stockEdits[product.id] ?? product.stock ?? 0) + 1)}
+                    >+</button>
+                    <button
+                      className="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
+                      onClick={() => saveStock(product)}
+                    >Save</button>
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center justify-between">
@@ -352,6 +403,8 @@ function AddProductModal({ onClose, onSave, categories }) {
     price: '',
     image: '',
     description: '',
+    stock: 0,
+    minStock: 0,
     imageFile: null
   })
 

@@ -14,10 +14,10 @@ import {
 
 const menuItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, badge: null },
-  { name: 'Inquiry Management', href: '/admin/inquiry-management', icon: MessageSquare, badge: '12' },
+  { name: 'Inquiry Management', href: '/admin/inquiry-management', icon: MessageSquare, badge: null },
   { name: 'Inquiry History', href: '/admin/inquiry-history', icon: MessageSquare, badge: null },
   { name: 'Inventory Management', href: '/admin/inventory-management', icon: Package, badge: null },
-  { name: 'Order Management', href: '/admin/order-management', icon: ShoppingCart, badge: '5' },
+  { name: 'Order Management', href: '/admin/order-management', icon: ShoppingCart, badge: null },
   { name: 'Order History', href: '/admin/order-history', icon: Package, badge: null },
   { name: 'Sales & Analytics', href: '/admin/sales-analytics', icon: BarChart3, badge: null },
 ]
@@ -68,19 +68,7 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      <div className="absolute bottom-6 left-4 right-4">
-        <div className="glass-effect rounded-xl p-4 border border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-              <Settings className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">Settings</p>
-              <p className="text-xs text-slate-400">System configuration</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Settings card removed as requested */}
     </div>
   )
 }

@@ -35,14 +35,7 @@ export default function AdminHeader() {
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
             </Link>
-            <div className="relative hidden md:block">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search orders, products, customers..."
-                className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
-              />
-            </div>
+            {/* Search bar removed as requested */}
             
             <button className="relative p-2 text-white/70 hover:text-white transition-colors group">
               <Bell className="w-6 h-6 group-hover:scale-110 transition-transform" />
