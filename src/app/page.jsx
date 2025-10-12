@@ -262,7 +262,7 @@ export default function HomePage(){
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden glass-effect border border-white/10">
                 <Image
-                  src="/logo-aquatics.jpg"
+                  src="/store-front-image.jpg"
                   alt="IOS Aquatics Store"
                   width={500}
                   height={500}
