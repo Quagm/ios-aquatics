@@ -53,14 +53,32 @@ export default function CheckoutPage() {
         province,
         postal_code: postalCode,
       }
-      await createOrder({
+      const order = await createOrder({
         customer,
         items,
         totals: { subtotal, shipping, tax, total }
       })
-      clearCart()
-      alert("Order placed successfully!")
-      router.push('/store-page')
+
+      // Create PayMongo payment link (amount in centavos)
+      const cents = Math.max(1, Math.round(total * 100))
+      const resp = await fetch('/api/paymongo/create-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: cents,
+          description: `Order ${order?.id || ''}`.trim(),
+          email,
+          name: `${firstName} ${lastName}`.trim(),
+          orderId: order?.id,
+        })
+      })
+      const data = await resp.json()
+      if (!resp.ok) throw new Error(typeof data?.error === 'string' ? data.error : 'Failed to create payment link')
+      const url = data?.checkout_url
+      if (!url) throw new Error('Payment link missing checkout URL')
+
+      // Redirect to PayMongo to complete payment
+      window.location.href = url
     } catch (err) {
       setError(err.message || "Failed to place order")
     } finally {
