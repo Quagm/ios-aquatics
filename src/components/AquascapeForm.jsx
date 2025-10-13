@@ -56,7 +56,9 @@ export default function AquascapeForm() {
   }
 
   return (
-    <form className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
+    <form
+   onSubmit={handleSubmit} className="w-full">
+  <div className="mx-auto w-full max-w-6xl px-6 sm:px-10 lg:px-16 xl:px-20 py-10 space-y-8">
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
           <p className="text-red-300 text-sm sm:text-base">{error}</p>
@@ -64,7 +66,7 @@ export default function AquascapeForm() {
       )}
       
       {/* Name Fields */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
         <div>
           <label htmlFor="firstName" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
             First Name *
@@ -95,7 +97,7 @@ export default function AquascapeForm() {
       </div>
 
       {/* Contact Information */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
         <div>
           <label htmlFor="contactNo" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
             Contact Number *
@@ -141,7 +143,7 @@ export default function AquascapeForm() {
       </div>
 
       {/* Aquarium Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
         <div>
           <label htmlFor="aquariumSize" className="block text-sm font-medium text-white mb-3">
             Aquarium Size *
@@ -240,6 +242,7 @@ export default function AquascapeForm() {
         >
           {submitting ? "Submitting Inquiry..." : "Submit Aquascape Inquiry"}
         </button>
+      </div>
       </div>
     </form>
   )
