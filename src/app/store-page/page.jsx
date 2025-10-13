@@ -85,6 +85,7 @@ export default function StorePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Navigation */}
+      <div className="h-24 sm:h-28 lg:h-32"></div>
       <NavigationBar />
       
       {/* Main Content */}

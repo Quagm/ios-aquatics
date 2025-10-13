@@ -4,12 +4,12 @@ import Footer from "@/components/footer"
 import { UserButton } from "@clerk/nextjs"
 import AccountForm from "@/components/AccountForm"
 import OrderHistory from "@/components/OrderHistory"
-import QuickActions from "@/components/QuickActions"
 
 export default function AccountPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
       {/* Navigation */}
+      <div className="h-24 sm:h-28 lg:h-32"></div>
       <NavigationBar />
       
       {/* Main Content */}
@@ -36,35 +36,24 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Account Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-10">
-              {/* Account Information */}
-              <section className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-white/10 hover:shadow-xl transition">
-                <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
-                  Account Information
-                </h2>
-                <AccountForm />
-              </section>
+          {/* Account Content */}
+<div className="space-y-12 w-full px-4 sm:px-8 lg:px-16">
+  {/* Account Information */}
+  <section className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-10 border border-white/10 hover:shadow-xl transition">
+    <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
+      Account Information
+    </h2>
+    <AccountForm />
+  </section>
 
-              {/* Order History */}
-              <section className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-white/10 hover:shadow-xl transition">
-                <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
-                  Order History
-                </h2>
-                <OrderHistory />
-              </section>
-            </div>
-
-            {/* Right Column - Quick Actions */}
-            <aside className="bg-gradient-to-b from-[#12344d] to-[#0a2233] rounded-2xl shadow-lg p-8 border border-white/10 hover:shadow-xl transition">
-              <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
-                Quick Actions
-              </h2>
-              <QuickActions />
-            </aside>
-          </div>
+  {/* Order History */}
+  <section className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-10 border border-white/10 hover:shadow-xl transition">
+    <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
+      Order History
+    </h2>
+    <OrderHistory />
+  </section>
+</div>
         </div>
       </main>
       

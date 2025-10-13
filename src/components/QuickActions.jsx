@@ -8,7 +8,7 @@ export default function QuickActions() {
         Quick Actions
       </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="flex justify-center gap-6">
         <Link 
           href="/cart-page" 
           className="p-6 rounded-lg border border-white/20 bg-white/5 

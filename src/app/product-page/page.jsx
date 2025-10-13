@@ -82,6 +82,7 @@ function ProductPageContent() {
 export default function ProductPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
+      <div className="h-24 sm:h-28 lg:h-32"></div>
       <NavigationBar />
       <div className="flex-1 py-20 px-4">
         <Suspense fallback={<div className="text-white/80 max-w-7xl mx-auto">Loading...</div>}>
