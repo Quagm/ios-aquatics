@@ -139,6 +139,7 @@ export default function HomePage(){
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Navigation Bar */}
+
       <NavigationBar />
 
       {/* Hero Section with Slideshow */}
@@ -224,91 +225,104 @@ export default function HomePage(){
 
       {/* Content Sections */}
       <section id="about" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-slate-800 to-slate-900">
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-4 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-6">
-              <Fish className="w-4 h-4" />
+        <div className="max-w-[1600px] mx-auto sm:px-4 lg:px-6">
+          <div className="w-full flex flex-col items-center text-center mb-12">
+      <div className="inline-flex items-center gap-4 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-6">
+         <Fish className="w-4 h-4" />
               About Our Store
-            </div>
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white">
-              <span className="gradient-text">About</span> IOS Aquatics
-          </h2>
-            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto">
-              Your trusted partner in creating beautiful underwater ecosystems
-            </p>
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="space-y-6">
-              <div className="glass-effect rounded-2xl p-8 sm:p-10 border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">Our Story</h3>
-                <p className="text-slate-300 leading-relaxed text-lg">
-                  IOS Aquatics is a home-based aquarium and accessories store located in Moonwalk Village, Las Piñas City. We specialize in providing a wide variety of freshwater livestock, plants, fish foods, aquatic equipment, and accessories at the most competitive prices.
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-6">
-                <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
-                  <div className="text-3xl font-bold text-blue-400 mb-1">5+</div>
-                  <div className="text-slate-300">Years Experience</div>
-                </div>
-                <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
-                  <div className="text-3xl font-bold text-blue-400 mb-1">1000+</div>
-                  <div className="text-slate-300">Happy Customers</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden glass-effect border border-white/10">
-                <Image
-                  src="/store-front-image.jpg"
-                  alt="IOS Aquatics Store"
-                  width={500}
-                  height={500}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full opacity-20"></div>
-            </div>
-          </div>
-        </div>
+
+      <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white text-center">
+         <span className="gradient-text">About</span> IOS Aquatics
+              </h2>
+      <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed text-center max-w-5xl px-8">
+          Your trusted partner in creating beautiful underwater ecosystems
+               </p>
+                </div> 
+          <div className="w-full flex justify-center">
+  <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 lg:gap-10 items-center w-full max-w-7xl px-6 sm:px-10 lg:px-16">
+    
+    {/* Left: Our Story */}
+    <div className="space-y-6 lg:pl-16 xl:pl-28 lg:translate-x-12 xl:translate-x-18 transition-all duration-300">
+  <div className="glass-effect rounded-2xl p-8 sm:p-10 border border-white/10">
+    <h3 className="text-2xl font-bold text-white mb-4">Our Story</h3>
+    <p className="text-slate-300 leading-relaxed text-lg">
+      IOS Aquatics is a home-based aquarium and accessories store located in Moonwalk Village,
+      Las Piñas City. We specialize in providing a wide variety of freshwater livestock, plants,
+      fish foods, aquatic equipment, and accessories at the most competitive prices.
+    </p>
+  </div>
+
+  <div className="grid grid-cols-2 gap-6">
+    <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
+      <div className="text-3xl font-bold text-blue-400 mb-1">5+</div>
+      <div className="text-slate-300">Years Experience</div>
+    </div>
+    <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
+      <div className="text-3xl font-bold text-blue-400 mb-1">1000+</div>
+      <div className="text-slate-300">Happy Customers</div>
+    </div>
+  </div>
+</div>
+
+    {/* Right: Image */}
+    <div className="relative flex justify-center lg:justify-end -translate-x-2 lg:-translate-x-6">
+      <div className="aspect-square w-[85%] sm:w-[80%] md:w-[70%] lg:w-[75%] xl:w-[70%] rounded-2xl overflow-hidden glass-effect border border-white/10">
+        <Image
+          src="/store-front-image.jpg"
+          alt="IOS Aquatics Store"
+          width={500}
+          height={500}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full opacity-20"></div>
+    </div>
+  </div>
+</div>
+</div>
       </section>
 
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="text-center mb-8">
-            
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white">
-              <span className="gradient-text">IOS Aquatics</span> Services
-            </h2>
-            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto">
-              From equipment to livestock, we provide everything you need for your aquatic journey
-            </p>
-          </div>
+          <div className="text-center mb-8 flex flex-col items-center">
+  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white text-center">
+    <span className="gradient-text">IOS Aquatics</span> Services
+  </h2>
+  <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed text-center max-w-5xl px-6">
+    From equipment to livestock, we provide everything you need for your aquatic journey
+  </p>
+</div>
 
           {/* Services Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          <div className="w-full flex justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16 w-full max-w-6xl px-6 sm:px-8 lg:px-12">
             {[
-              { icon: Fish, title: "Freshwater Livestock", desc: "Healthy fish, shrimp, and aquatic creatures" },
-              { icon: Leaf, title: "Aquatic Plants", desc: "Live plants for natural aquascaping" },
-              { icon: Wrench, title: "Equipment & Tools", desc: "Filters, lights, and maintenance tools" },
-              { icon: Utensils, title: "Fish Food & Nutrition", desc: "Premium feeds and supplements" },
-              { icon: Pill, title: "Water Treatment", desc: "Medications and water conditioners" },
-              { icon: Palette, title: "Aquascaping Materials", desc: "Substrates, rocks, and decorations" }
-            ].map((service, index) => (
-              <div key={index} className="glass-effect rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
-                <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <service.icon className="w-12 h-12 text-blue-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
-                <p className="text-slate-300 leading-relaxed">{service.desc}</p>
-              </div>
-            ))}
+      { icon: Fish, title: "Freshwater Livestock", desc: "Healthy fish, shrimp, and aquatic creatures" },
+      { icon: Leaf, title: "Aquatic Plants", desc: "Live plants for natural aquascaping" },
+      { icon: Wrench, title: "Equipment & Tools", desc: "Filters, lights, and maintenance tools" },
+      { icon: Utensils, title: "Fish Food & Nutrition", desc: "Premium feeds and supplements" },
+      { icon: Pill, title: "Water Treatment", desc: "Medications and water conditioners" },
+      { icon: Palette, title: "Aquascaping Materials", desc: "Substrates, rocks, and decorations" },
+    ].map((service, index) => (
+      <div
+        key={index}
+        className="glass-effect rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105"
+      >
+        <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
+          <service.icon className="w-12 h-12 text-blue-400" />
+        </div>
+        <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
+        <p className="text-slate-300 leading-relaxed">{service.desc}</p>
+           </div>
+           ))}
+           </div>
           </div>
 
+          <div className="h-16 sm:h-20"></div>
+
           {/* Services Slideshow */}
-          <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl border border-white/10">
+          <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl border border-white/10 mt-12 sm:mt-16">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
                 <div
