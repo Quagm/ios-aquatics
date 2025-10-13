@@ -92,13 +92,13 @@ export default function NavigationBar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center gap-6">
           {navLinks.map(({ href, label }) => (
             <a
               key={href}
               href={href}
               onClick={(e) => handleSmoothScroll(e, href)}
-              className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${
+              className={`px-4 py-2 rounded-md font-medium transition-colors cursor-pointer ${
                 isScrolled
                   ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                   : "text-white/90 hover:text-white hover:bg-white/10"
@@ -109,7 +109,7 @@ export default function NavigationBar() {
           ))}
           <Link
             href="/store-page"
-            className={`px-3 py-2 rounded-md font-medium transition-colors ${
+            className={`px-4 py-2 rounded-md font-medium transition-colors ${
               isScrolled
                 ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                 : "text-white/90 hover:text-white hover:bg-white/10"
@@ -119,7 +119,7 @@ export default function NavigationBar() {
           </Link>
           <Link
             href="/cart-page"
-            className={`relative px-3 py-2 rounded-md font-medium transition-colors ${
+            className={`relative px-4 py-2 rounded-md font-medium transition-colors ${
               isScrolled
                 ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                 : "text-white/90 hover:text-white hover:bg-white/10"
@@ -141,42 +141,46 @@ export default function NavigationBar() {
           </Link>
 
           {/* Auth Buttons */}
-          <SignedOut>
-            <SignInButton>
-              <button
-                className={`px-4 py-2 rounded-md font-medium transition-all ${
-                  isScrolled
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-white/20 hover:bg-white/30 text-white border border-white/30"
-                }`}
-              >
-                Login
-              </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <Link
-              href="/account-page"
-              className={`px-3 py-2 rounded-md font-medium transition-colors ${
-                isScrolled
-                  ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                  : "text-white/90 hover:text-white hover:bg-white/10"
-              }`}
-            >
-              Account
-            </Link>
-            <Link
-              href="/admin"
-              className={`px-3 py-2 rounded-md font-medium transition-colors ${
-                isScrolled
-                  ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                  : "text-white/90 hover:text-white hover:bg-white/10"
-              }`}
-            >
-              Admin
-            </Link>
-            <UserButton />
-          </SignedIn>
+          <div className="ml-2">
+            <SignedOut>
+              <SignInButton>
+                <button
+                  className={`px-6 py-3 rounded-md font-medium text-sm transition-all ${
+                    isScrolled
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                  }`}
+                >
+                  Login
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/account-page"
+                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                    isScrolled
+                      ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                      : "text-white/90 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  Account
+                </Link>
+                <Link
+                  href="/admin"
+                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                    isScrolled
+                      ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                      : "text-white/90 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  Admin
+                </Link>
+                <UserButton />
+              </div>
+            </SignedIn>
+          </div>
         </div>
 
         {/* Mobile Hamburger */}
