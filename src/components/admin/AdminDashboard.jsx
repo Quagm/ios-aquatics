@@ -1,11 +1,11 @@
 "use client"
 import { useState, useEffect } from 'react'
-import { 
-  Users, 
-  ShoppingCart, 
-  Package, 
-  DollarSign, 
-  TrendingUp, 
+import {
+  Users,
+  ShoppingCart,
+  Package,
+  DollarSign,
+  TrendingUp,
   MessageSquare,
   Eye,
   Clock,
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
           if (Array.isArray(data)) {
             pendingInquiries = data.filter(i => i.status === 'pending' || i.status === 'in_progress').length
           }
-        } catch {}
+        } catch { }
 
         const totalRevenue = (orders || [])
           .filter(o => String(o.status || '').toLowerCase() !== 'cancelled')
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
 
         const recentOrders = (orders || [])
           .slice()
-          .sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           .slice(0, 5)
           .map(o => ({
             id: o.id,
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
           recentOrders,
           topProducts: [] // No sales aggregation yet; can be implemented later
         })
-      } catch {}
+      } catch { }
     }
     load()
     return () => { mounted = false }
@@ -152,11 +152,10 @@ export default function AdminDashboard() {
                 <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.gradient}`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  stat.changeType === 'positive' 
-                    ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
+                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${stat.changeType === 'positive'
+                    ? 'bg-green-500/20 text-green-300 border border-green-500/30'
                     : 'bg-red-500/20 text-red-300 border border-red-500/30'
-                }`}>
+                  }`}>
                   {stat.change}
                 </div>
               </div>
@@ -179,7 +178,7 @@ export default function AdminDashboard() {
                 <Clock className="w-5 h-5 text-blue-400" />
                 Recent Orders
               </h3>
-              <button 
+              <button
                 className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center gap-1 group"
                 onClick={() => window.location.assign('/admin/order-management')}
               >
@@ -203,11 +202,10 @@ export default function AdminDashboard() {
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-white text-lg">₱{order.amount}</p>
-                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-                      order.status === 'Delivered' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
-                      order.status === 'Shipped' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
-                      'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                    }`}>
+                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${order.status === 'Delivered' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                        order.status === 'Shipped' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                          'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                      }`}>
                       {order.status}
                     </span>
                   </div>
@@ -225,7 +223,7 @@ export default function AdminDashboard() {
                 <Target className="w-5 h-5 text-purple-400" />
                 Top Products
               </h3>
-              <button 
+              <button
                 className="text-purple-400 hover:text-purple-300 text-sm font-medium flex items-center gap-1 group"
                 onClick={() => window.location.assign('/admin/inventory-management')}
               >
@@ -253,7 +251,7 @@ export default function AdminDashboard() {
                   <div className="text-right">
                     <p className="font-bold text-white text-lg">₱{product.revenue}</p>
                     <div className="w-16 h-2 bg-slate-700 rounded-full mt-1">
-                      <div 
+                      <div
                         className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500"
                         style={{ width: `${(product.sales / 78) * 100}%` }}
                       ></div>
@@ -276,7 +274,7 @@ export default function AdminDashboard() {
           <p className="text-slate-400">Manage your store efficiently</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <button 
+          <button
             className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-blue-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"
             onClick={() => window.location.assign('/admin/inventory-management')}
           >
@@ -288,8 +286,8 @@ export default function AdminDashboard() {
               <p className="text-sm text-slate-400">Add new inventory items</p>
             </div>
           </button>
-          
-          <button 
+
+          <button
             className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-green-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"
             onClick={() => window.location.assign('/admin/inquiry-management')}
           >
@@ -301,8 +299,8 @@ export default function AdminDashboard() {
               <p className="text-sm text-slate-400">Manage customer inquiries</p>
             </div>
           </button>
-          
-          <button 
+
+          <button
             className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"
             onClick={() => window.location.assign('/admin/order-management')}
           >
@@ -314,8 +312,8 @@ export default function AdminDashboard() {
               <p className="text-sm text-slate-400">Manage order fulfillment</p>
             </div>
           </button>
-          
-          <button 
+
+          <button
             className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-yellow-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"
             onClick={() => window.location.assign('/admin/sales-analytics')}
           >

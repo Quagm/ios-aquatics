@@ -49,11 +49,37 @@ export async function POST(request) {
       description: description ?? null,
     }
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('products')
       .insert(insertPayload)
       .select()
       .single()
+
+    // If the schema doesn't have 'description' yet, retry without it
+    if (error && (error.message || '').toLowerCase().includes("'description' column")) {
+      const fallbackPayload = { ...insertPayload }
+      delete fallbackPayload.description
+      const retry = await supabase
+        .from('products')
+        .insert(fallbackPayload)
+        .select()
+        .single()
+      data = retry.data
+      error = retry.error
+    }
+
+    // If the schema doesn't have 'active' yet, retry without it
+    if (error && (error.message || '').toLowerCase().includes("'active' column")) {
+      const fallbackPayload2 = { ...insertPayload }
+      delete fallbackPayload2.active
+      const retry2 = await supabase
+        .from('products')
+        .insert(fallbackPayload2)
+        .select()
+        .single()
+      data = retry2.data
+      error = retry2.error
+    }
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
