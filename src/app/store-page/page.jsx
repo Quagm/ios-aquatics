@@ -39,7 +39,18 @@ export default function StorePage() {
   const prevServiceSlide = () => setCurrentServiceSlide((p) => (p - 1 + serviceSlides.length) % serviceSlides.length)
   const goToServiceSlide = (index) => setCurrentServiceSlide(index)
 
-  const categories = ["all", "Equipment", "Food", "Chemicals", "Lighting", "Decorations", "Accessories"]
+  const categories = [
+    "all",
+    "AQUARIUMS",
+    "C02",
+    "SUBSTRATE/HARDSCAPE",
+    "FERTILIZER/BACTERIA",
+    "AIR PUMP",
+    "LIGHTS",
+    "FILTER",
+    "HEATER",
+    "Submersible Pump"
+  ]
 
   useEffect(() => {
     let isMounted = true

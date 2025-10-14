@@ -204,7 +204,7 @@ export default function InventoryManagement() {
     setEditingProduct(null)
   }
 
-  const categories = ['Equipment', 'Food', 'Chemicals', 'Lighting', 'Decorations', 'Accessories']
+  const categories = ['AQUARIUMS', 'C02', 'SUBSTRATE/HARDSCAPE', 'FERTILIZER/BACTERIA', 'AIR PUMP', 'LIGHTS', 'FILTER', 'HEATER', 'Submersible Pump']
 
   return (
     <div className="space-y-8">
@@ -399,7 +399,7 @@ function AddProductModal({ onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
-    category: 'Equipment',
+    category: 'AQUARIUMS',
     price: '',
     image: '',
     description: '',
