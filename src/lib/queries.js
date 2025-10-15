@@ -76,8 +76,15 @@ export async function createProduct(product) {
 export async function updateProduct(productId, updates) {
   try {
     if (!productId) throw new Error("Product ID is required");
-    const { data, error } = await supabase.from("products").update(updates).eq("id", productId).select().single()
-    if (error) handleSupabaseError(error, "Update product")
+    // Use server API (service role) to bypass RLS and handle column compatibility
+    const res = await fetch('/api/products', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id: productId, updates })
+    })
+    const data = await res.json()
+    if (!res.ok) handleSupabaseError({ message: data?.error || 'Update product failed' }, 'Update product')
     return data
   } catch (error) {
     console.error("Error updating product:", error);

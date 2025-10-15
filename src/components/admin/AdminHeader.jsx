@@ -37,10 +37,6 @@ export default function AdminHeader() {
             </Link>
             {/* Search bar removed as requested */}
             
-            <button className="relative p-2 text-white/70 hover:text-white transition-colors group">
-              <Bell className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
-            </button>
             
             <div className="glass-effect rounded-xl p-1">
               <UserButton 
@@ -48,7 +44,7 @@ export default function AdminHeader() {
                   elements: {
                     avatarBox: "w-8 h-8"
                   }
-                }}
+                }}bell
               />
             </div>
           </div>

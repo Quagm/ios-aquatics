@@ -75,17 +75,64 @@ export default function InventoryManagement() {
       if (!isMounted) return
       const withStatus = data.map((p) => ({
         ...p,
-        status: p.status || getStockStatus(p.stock || 0, p.minStock || 0),
-        active: p.active || false,
+        // normalize minStock from either camelCase or snake_case
+        minStock: typeof p.minStock === 'number' ? p.minStock : (typeof p.min_stock === 'number' ? p.min_stock : 0),
         stock: typeof p.stock === 'number' ? p.stock : 0,
-        minStock: typeof p.minStock === 'number' ? p.minStock : 0,
+        active: p.active || false,
+        status: p.status || getStockStatus(
+          typeof p.stock === 'number' ? p.stock : 0,
+          typeof p.minStock === 'number' ? p.minStock : (typeof p.min_stock === 'number' ? p.min_stock : 0)
+        ),
       }))
       setProducts(withStatus)
       setFilteredProducts(withStatus)
-      setStockEdits(Object.fromEntries(withStatus.map(p => [p.id, p.stock || 0])))
+      setStockEdits(Object.fromEntries(withStatus.map(p => [p.id, String(p.stock || 0)])))
     })
     .catch(() => {})
   return () => { isMounted = false }
+}, [])
+
+// Live updates via Supabase Realtime
+useEffect(() => {
+  const channel = supabase
+    .channel('products-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+      const type = payload.eventType
+      if (type === 'INSERT' || type === 'UPDATE') {
+        const row = payload.new || {}
+        const stock = typeof row.stock === 'number' ? row.stock : 0
+        const minStockNorm = typeof row.min_stock === 'number' ? row.min_stock : (typeof row.minStock === 'number' ? row.minStock : 0)
+        const normalized = {
+          ...row,
+          stock,
+          minStock: minStockNorm,
+          status: row.status || getStockStatus(stock, minStockNorm),
+          active: row.active ?? false,
+        }
+        setProducts((prev) => {
+          const exists = prev.some(p => p.id === normalized.id)
+          const next = exists
+            ? prev.map(p => (p.id === normalized.id ? { ...p, ...normalized } : p))
+            : [normalized, ...prev]
+          return next
+        })
+        setStockEdits((prev) => ({ ...prev, [normalized.id]: normalized.stock || 0 }))
+      } else if (type === 'DELETE') {
+        const id = payload.old?.id
+        if (!id) return
+        setProducts((prev) => prev.filter(p => p.id !== id))
+        setStockEdits((prev) => {
+          const copy = { ...prev }
+          delete copy[id]
+          return copy
+        })
+      }
+    })
+    .subscribe()
+
+  return () => {
+    try { supabase.removeChannel(channel) } catch {}
+  }
 }, [])
 
   useEffect(() => {
@@ -132,18 +179,22 @@ export default function InventoryManagement() {
   }
 
   const updateStockValue = (id, value) => {
-    setStockEdits(prev => ({ ...prev, [id]: Math.max(0, Number(value) || 0) }))
+    // store raw string so typing/backspacing works smoothly; normalize on save
+    setStockEdits(prev => ({ ...prev, [id]: value }))
   }
 
   const saveStock = async (product) => {
     try {
-      const newStock = Math.max(0, Number(stockEdits[product.id] ?? product.stock ?? 0))
+      const raw = stockEdits[product.id]
+      const parsed = parseInt(String(raw ?? product.stock ?? '0'), 10)
+      const newStock = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
       const updated = await apiUpdateProduct(product.id, { stock: newStock })
       const next = {
         ...product,
         ...updated,
       }
-      next.status = getStockStatus(next.stock || 0, next.minStock || 0)
+      const minForStatus = typeof next.minStock === 'number' ? next.minStock : (typeof next.min_stock === 'number' ? next.min_stock : 0)
+      next.status = getStockStatus(next.stock || 0, minForStatus || 0)
       setProducts(prev => prev.map(p => (p.id === product.id ? next : p)))
     } catch (e) {
       alert(e?.message || 'Failed to update stock')
@@ -267,10 +318,6 @@ export default function InventoryManagement() {
               <option value="low-stock" className="bg-slate-800">Low Stock</option>
               <option value="out-of-stock" className="bg-slate-800">Out of Stock</option>
             </select>
-            <button className="flex items-center px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl hover:from-slate-700 hover:to-slate-800 transition-all duration-300 hover:scale-105 border border-slate-500/20">
-              <Filter className="w-5 h-5 mr-2" />
-              Filter
-            </button>
           </div>
         </div>
       </div>
@@ -278,13 +325,16 @@ export default function InventoryManagement() {
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
-          <div key={product.id} className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden hover:scale-105 group">
+          <div key={product.id} className="glass-effect border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden group">
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Package className="w-6 h-6 text-blue-400" />
-                  </div>
+                  <img
+                    src={product.image || '/placeholder-product.jpg'}
+                    alt={product.name}
+                    className="w-12 h-12 rounded-xl object-cover border border-white/10"
+                    onError={(e) => { e.currentTarget.src = '/placeholder-product.jpg' }}
+                  />
                   <div>
                     <h3 className="text-lg font-semibold text-white">{product.name}</h3>
                     <p className="text-sm text-slate-400">{product.sku}</p>
@@ -325,21 +375,25 @@ export default function InventoryManagement() {
                   <span className="text-sm text-slate-400">Stock:</span>
                   <div className="flex items-center gap-2">
                     <button
+                      type="button"
                       className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20"
                       onClick={() => updateStockValue(product.id, (stockEdits[product.id] ?? product.stock ?? 0) - 1)}
                     >-</button>
                     <input
                       type="number"
-                      value={stockEdits[product.id] ?? product.stock ?? 0}
+                      value={stockEdits[product.id] ?? String(product.stock ?? 0)}
                       onChange={(e) => updateStockValue(product.id, e.target.value)}
                       className="w-20 px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-xs"
                       min={0}
+                      step={1}
                     />
                     <button
+                      type="button"
                       className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20"
                       onClick={() => updateStockValue(product.id, (stockEdits[product.id] ?? product.stock ?? 0) + 1)}
                     >+</button>
                     <button
+                      type="button"
                       className="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
                       onClick={() => saveStock(product)}
                     >Save</button>
@@ -403,8 +457,8 @@ function AddProductModal({ onClose, onSave, categories }) {
     price: '',
     image: '',
     description: '',
-    stock: 0,
-    minStock: 0,
+    stock: '0',
+    minStock: '0',
     imageFile: null
   })
 
@@ -412,7 +466,9 @@ function AddProductModal({ onClose, onSave, categories }) {
     e.preventDefault()
     onSave({
       ...formData,
-      price: parseFloat(formData.price)
+      price: parseFloat(formData.price),
+      stock: Math.max(0, parseInt(String(formData.stock || '0'), 10) || 0),
+      minStock: Math.max(0, parseInt(String(formData.minStock || '0'), 10) || 0)
     })
   }
 
@@ -500,6 +556,32 @@ function AddProductModal({ onClose, onSave, categories }) {
               </div>
             </div>
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Stock</label>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Minimum Stock Threshold</label>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={formData.minStock}
+                onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                placeholder="0"
+              />
+            </div>
+          </div>
           <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
@@ -530,6 +612,8 @@ function EditProductModal({ product, onClose, onSave, categories }) {
     price: product.price.toString(),
     image: product.image || '',
     description: product.description || '',
+    stock: typeof product.stock === 'number' ? String(product.stock) : '0',
+    minStock: typeof product.minStock === 'number' ? String(product.minStock) : (typeof product.min_stock === 'number' ? String(product.min_stock) : '0'),
     imageFile: null
   })
 
@@ -537,7 +621,9 @@ function EditProductModal({ product, onClose, onSave, categories }) {
     e.preventDefault()
     onSave({
       ...formData,
-      price: parseFloat(formData.price)
+      price: parseFloat(formData.price),
+      stock: Math.max(0, parseInt(String(formData.stock || '0'), 10) || 0),
+      minStock: Math.max(0, parseInt(String(formData.minStock || '0'), 10) || 0)
     })
   }
 

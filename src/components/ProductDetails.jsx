@@ -1,8 +1,12 @@
 "use client"
+import { useState } from 'react'
 import { useCart } from "@/components/CartContext"
+import { supabase } from '@/supabaseClient'
 
 export default function ProductDetails({ product }) {
   const { addItem } = useCart()
+  const [qty, setQty] = useState(1)
+  const [isAdding, setIsAdding] = useState(false)
   const features = Array.isArray(product?.features) ? product.features : []
   const description = product?.description || ''
   const inStock = typeof product?.inStock === 'boolean' ? product.inStock : true
@@ -66,22 +70,43 @@ export default function ProductDetails({ product }) {
         <div className="flex items-center space-x-6">
           <label className="font-medium text-white text-lg">Quantity:</label>
           <div className="flex items-center space-x-3">
-            <button className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white text-lg">
+            <button
+              type="button"
+              className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white text-lg"
+              onClick={() => setQty((q) => Math.max(1, q - 1))}
+              aria-label="Decrease quantity"
+            >
               -
             </button>
-            <span className="w-16 text-center text-white text-lg font-medium">1</span>
-            <button className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white text-lg">
+            <span className="w-16 text-center text-white text-lg font-medium" aria-live="polite">{qty}</span>
+            <button
+              type="button"
+              className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white text-lg"
+              onClick={() => setQty((q) => q + 1)}
+              aria-label="Increase quantity"
+            >
               +
             </button>
           </div>
         </div>
         
         <div className="flex space-x-4">
-          <button className="flex-1 bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg" onClick={() => addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, 1)}>
-            Add to Cart
-          </button>
-          <button className="px-8 py-4 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors text-2xl">
-            w
+          <button
+            className="flex-1 bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            onClick={async () => {
+              if (isAdding) return
+              const { data: sessionData } = await supabase.auth.getSession()
+              if (!sessionData?.session) {
+                alert('Please log in to add items to your cart.')
+                return
+              }
+              setIsAdding(true)
+              addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, qty)
+              setTimeout(() => setIsAdding(false), 1000)
+            }}
+            disabled={isAdding}
+          >
+            {isAdding ? 'Adding…' : 'Add to Cart'}
           </button>
         </div>
       </div>

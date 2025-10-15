@@ -113,12 +113,22 @@ export async function PATCH(request) {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
 
-    // Whitelist updatable fields
-    const allowed = ['name', 'category', 'price', 'image', 'active', 'description']
+    // Normalize field names and types before whitelisting
+    const normalized = { ...updates }
+    if ('minStock' in normalized && !('min_stock' in normalized)) {
+      normalized.min_stock = normalized.minStock
+      delete normalized.minStock
+    }
+    if ('price' in normalized) normalized.price = Number(normalized.price)
+    if ('stock' in normalized) normalized.stock = Number(normalized.stock)
+    if ('min_stock' in normalized) normalized.min_stock = Number(normalized.min_stock)
+
+    // Whitelist updatable fields (extend for admin operations)
+    const allowed = ['name', 'category', 'price', 'image', 'active', 'description', 'stock', 'min_stock', 'status', 'sku']
     const safeUpdates = {}
-    for (const k of allowed) if (k in updates) safeUpdates[k] = k === 'price' ? Number(updates[k]) : updates[k]
+    for (const k of allowed) if (k in normalized) safeUpdates[k] = normalized[k]
     if (Object.keys(safeUpdates).length === 0) {
-      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
+      return NextResponse.json({ error: `No valid fields to update. Allowed: ${allowed.join(', ')}` }, { status: 400 })
     }
 
     const { data, error } = await supabase
