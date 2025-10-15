@@ -138,8 +138,7 @@ export default function HomePage(){
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Navigation Bar */}
-
+      
       <NavigationBar />
 
       {/* Hero Section with Slideshow */}
@@ -242,30 +241,30 @@ export default function HomePage(){
           <div className="w-full flex justify-center">
   <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 lg:gap-10 items-center w-full max-w-7xl px-6 sm:px-10 lg:px-16">
     
-    {/* Left: Our Story */}
-    <div className="space-y-6 lg:pl-16 xl:pl-28 lg:translate-x-12 xl:translate-x-18 transition-all duration-300">
-  <div className="glass-effect rounded-2xl p-8 sm:p-10 border border-white/10">
+    
+    <div className="space-y-6 lg:pl-16 xl:pl-28 lg:translate-x-12 xl:translate-x-18 transition-all duration-300 ">
+  <div className="glass-effect rounded-2xl sm:p-12 text-justify border border-white/10">
     <h3 className="text-2xl font-bold text-white mb-4">Our Story</h3>
-    <p className="text-slate-300 leading-relaxed text-lg">
+    <p className="text-slate-300 leading-relaxed text-lg ">
       IOS Aquatics is a home-based aquarium and accessories store located in Moonwalk Village,
       Las Piñas City. We specialize in providing a wide variety of freshwater livestock, plants,
       fish foods, aquatic equipment, and accessories at the most competitive prices.
     </p>
   </div>
 
-  <div className="grid grid-cols-2 gap-6">
-    <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
-      <div className="text-3xl font-bold text-blue-400 mb-1">5+</div>
-      <div className="text-slate-300">Years Experience</div>
-    </div>
-    <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
-      <div className="text-3xl font-bold text-blue-400 mb-1">1000+</div>
-      <div className="text-slate-300">Happy Customers</div>
-    </div>
+  <div className="grid grid-cols-2 gap-6 pt-10 relative top-6">
+  <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
+    <div className="text-3xl font-bold text-blue-400 mb-1">5+</div>
+    <div className="text-slate-300">Years Experience</div>
+  </div>
+  <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
+    <div className="text-3xl font-bold text-blue-400 mb-1">1000+</div>
+    <div className="text-slate-300">Happy Customers</div>
   </div>
 </div>
+</div>
 
-    {/* Right: Image */}
+    
     <div className="relative flex justify-center lg:justify-end -translate-x-2 lg:-translate-x-6">
       <div className="aspect-square w-[85%] sm:w-[80%] md:w-[70%] lg:w-[75%] xl:w-[70%] rounded-2xl overflow-hidden glass-effect border border-white/10">
         <Image
@@ -426,7 +425,7 @@ export default function HomePage(){
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 relative top-6">
                 <div className="glass-effect rounded-xl p-6 text-center border border-white/10">
                   <Clock className="w-8 h-8 text-blue-400 mx-auto mb-2" />
                   <div className="text-white font-semibold mb-1">Store Hours</div>

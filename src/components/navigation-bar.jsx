@@ -66,24 +66,24 @@ export default function NavigationBar() {
 
   return (
     <nav
-      className={`fixed inset-x-0 top-0 z-50 py-4 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 py-2 sm:py-3 lg:py-4 transition-all duration-300 ${
         isScrolled
           ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-200"
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div className="w-full mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 flex items-center justify-between gap-2 sm:gap-4 max-w-[95vw] xl:max-w-7xl">
         {/* Logo and Title */}
-        <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+        <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity flex-shrink-0">
           <Image
             src="/logo-aquatics.jpg"
             alt="IOS Aquatics Logo"
             width={40}
             height={40}
-            className="rounded-full"
+            className="rounded-full w-8 h-8 sm:w-10 sm:h-10"
           />
           <h2
-            className={`text-xl font-bold transition-colors ${
+            className={`text-base sm:text-lg lg:text-xl font-bold transition-colors ${
               isScrolled ? "text-slate-800" : "text-white"
             }`}
           >
@@ -92,13 +92,13 @@ export default function NavigationBar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-2 lg:gap-4 xl:gap-6 flex-wrap justify-end">
           {navLinks.map(({ href, label }) => (
             <a
               key={href}
               href={href}
               onClick={(e) => handleSmoothScroll(e, href)}
-              className={`px-4 py-2 rounded-md font-medium transition-colors cursor-pointer ${
+              className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors cursor-pointer ${
                 isScrolled
                   ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                   : "text-white/90 hover:text-white hover:bg-white/10"
@@ -109,7 +109,7 @@ export default function NavigationBar() {
           ))}
           <Link
             href="/store-page"
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+            className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
               isScrolled
                 ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                 : "text-white/90 hover:text-white hover:bg-white/10"
@@ -119,7 +119,7 @@ export default function NavigationBar() {
           </Link>
           <Link
             href="/cart-page"
-            className={`relative px-4 py-2 rounded-md font-medium transition-colors ${
+            className={`relative px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
               isScrolled
                 ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                 : "text-white/90 hover:text-white hover:bg-white/10"
@@ -141,11 +141,11 @@ export default function NavigationBar() {
           </Link>
 
           {/* Auth Buttons */}
-          <div className="ml-2">
+          <div className="ml-1 lg:ml-2">
             <SignedOut>
               <SignInButton>
                 <button
-                  className={`px-6 py-3 rounded-md font-medium text-sm transition-all ${
+                  className={`px-3 lg:px-4 xl:px-6 py-2 lg:py-3 rounded-md font-medium text-xs lg:text-sm transition-all ${
                     isScrolled
                       ? "bg-blue-600 hover:bg-blue-700 text-white"
                       : "bg-white/20 hover:bg-white/30 text-white border border-white/30"
@@ -156,10 +156,10 @@ export default function NavigationBar() {
               </SignInButton>
             </SignedOut>
             <SignedIn>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 lg:gap-3 xl:gap-4">
                 <Link
                   href="/account-page"
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
                     isScrolled
                       ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                       : "text-white/90 hover:text-white hover:bg-white/10"
@@ -169,7 +169,7 @@ export default function NavigationBar() {
                 </Link>
                 <Link
                   href="/admin"
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
                     isScrolled
                       ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
                       : "text-white/90 hover:text-white hover:bg-white/10"
