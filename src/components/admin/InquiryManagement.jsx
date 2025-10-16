@@ -143,7 +143,7 @@ export default function InquiryManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ml-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex-1 relative">
           <input

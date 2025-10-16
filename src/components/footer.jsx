@@ -4,13 +4,13 @@ import { Waves, MapPin, Phone, Mail, ArrowRight, Facebook, Youtube, Heart} from 
 
 function Footer() {
   return (
-    <footer className="mt-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-t border-white/10 py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
+    <footer className="relative z-0 mt-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-t border-white/10 py-8 sm:py-10 px-4 sm:px-6 lg:px-8">
       {/* Top Section */}
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 text-white">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 text-white">
           
           {/* Logo + Socials */}
-          <div className="flex flex-col items-center sm:items-start space-y-6 sm:space-y-8">
+          <div className="flex flex-col items-center sm:items-start space-y-4">
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Image 
@@ -63,7 +63,7 @@ function Footer() {
           </div>
 
           {/* Support */}
-          <div className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-4">
             <h2 className="font-semibold text-xl text-white mb-2">Contact Info</h2>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
@@ -107,7 +107,7 @@ function Footer() {
           </div>
 
           {/* Account */}
-          <div className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-4">
             <h2 className="font-semibold text-xl text-white mb-2">Account</h2>
             <ul className="space-y-3">
               <li>
@@ -138,7 +138,7 @@ function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-4">
             <h2 className="font-semibold text-xl text-white mb-2">Quick Links</h2>
             <ul className="space-y-3">
               <li>
@@ -164,7 +164,7 @@ function Footer() {
         </div>
 
         {/* Bottom Info */}
-        <div className="text-center mt-16 sm:mt-20 border-t border-white/10 pt-8 sm:pt-12">
+        <div className="text-center mt-8 sm:mt-10 border-t border-white/10 pt-6 sm:pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-slate-400 text-sm sm:text-base">
               © {new Date().getFullYear()} IOS Aquatics. All rights reserved.

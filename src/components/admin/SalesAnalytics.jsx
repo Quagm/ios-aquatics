@@ -243,7 +243,7 @@ export default function SalesAnalytics() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 ml-6">
       {/* Header */}
       <div className="text-center lg:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">

@@ -129,7 +129,7 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="text-center lg:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
@@ -143,14 +143,14 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-6">
         {statCards.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <div key={index} className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.gradient}`}>
-                  <Icon className="w-6 h-6 text-white" />
+            <div key={index} className="glass-effect rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`p-2 rounded-lg bg-gradient-to-r ${stat.gradient}`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
                 <div className={`px-3 py-1 rounded-full text-xs font-semibold ${stat.changeType === 'positive'
                     ? 'bg-green-500/20 text-green-300 border border-green-500/30'
@@ -160,8 +160,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-400 mb-1">{stat.title}</p>
-                <p className="text-3xl font-bold text-white mb-2">{stat.value}</p>
+                <p className="text-xs font-medium text-slate-400 mb-1">{stat.title}</p>
+                <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
                 <p className="text-xs text-slate-500">{stat.description}</p>
               </div>
             </div>
@@ -169,7 +169,7 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ml-6">
         {/* Recent Orders */}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
           <div className="p-6 border-b border-white/10">
