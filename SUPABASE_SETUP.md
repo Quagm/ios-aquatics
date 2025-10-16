@@ -163,3 +163,4 @@ Your `queries.js` file provides these functions:
 - [Supabase Documentation](https://supabase.com/docs)
 - [Supabase Discord Community](https://discord.supabase.com)
 - Check the browser console for detailed error messages
+                                                      

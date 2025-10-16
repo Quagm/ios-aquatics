@@ -22,6 +22,7 @@ export default function CheckoutPage() {
   const [postalCode, setPostalCode] = useState("")
   const [phone, setPhone] = useState("")
   const [email, setEmail] = useState("")
+  const [paymentMethod, setPaymentMethod] = useState('gcash')
 
   // Shared input styles matching dark glassmorphism card
   const inputClass = "w-full px-4 py-3 bg-white/5 text-white placeholder-white/60 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
@@ -70,6 +71,7 @@ export default function CheckoutPage() {
           email,
           name: `${firstName} ${lastName}`.trim(),
           orderId: order?.id,
+          paymentMethod,
         })
       })
       const data = await resp.json()
@@ -219,61 +221,32 @@ export default function CheckoutPage() {
                 </form>
               </div>
 
-              {/* Payment Information */}
+              {/* Payment Method */}
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 border border-white/20">
                 <h2 className="text-2xl font-semibold text-white mb-8">
-                  Payment Information
+                  Payment Method
                 </h2>
-                
-                <form className="space-y-6" onSubmit={handlePlaceOrder}>
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      className={inputClass}
-                      placeholder="1234 5678 9012 3456"
-                      required
-                    />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('gcash')}
+                      className={`w-full px-4 py-3 rounded-md border transition ${paymentMethod === 'gcash' ? 'border-blue-400 bg-blue-500/10 text-white' : 'border-white/30 text-white/80 hover:border-white/50 hover:bg-white/10'}`}
+                    >
+                      GCash
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('card')}
+                      className={`w-full px-4 py-3 rounded-md border transition ${paymentMethod === 'card' ? 'border-blue-400 bg-blue-500/10 text-white' : 'border-white/30 text-white/80 hover:border-white/50 hover:bg-white/10'}`}
+                    >
+                      Credit/Debit Card
+                    </button>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-3">
-                        Expiry Date
-                      </label>
-                      <input
-                        type="text"
-                        className={inputClass}
-                        placeholder="MM/YY"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-3">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        className={inputClass}
-                        placeholder="123"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
-                      Name on Card
-                    </label>
-                    <input
-                      type="text"
-                      className={inputClass}
-                      required
-                    />
-                  </div>
-                </form>
+                  <p className="text-sm text-white/70">
+                    You will be redirected to PayMongo to securely complete your {paymentMethod === 'gcash' ? 'GCash' : 'Card'} payment.
+                  </p>
+                </div>
               </div>
             </div>
 

@@ -10,7 +10,7 @@ export async function POST(req) {
     }
 
     const body = await req.json().catch(() => ({}))
-    let { amount, description, email, name, orderId, successUrl, cancelUrl } = body || {}
+    let { amount, description, email, name, orderId, successUrl, cancelUrl, paymentMethod } = body || {}
 
     if (!amount || isNaN(Number(amount))) {
       return new Response(JSON.stringify({ error: 'amount (in centavos) is required' }), { status: 400 })
@@ -24,6 +24,15 @@ export async function POST(req) {
     if (!successUrl && baseUrl) successUrl = `${baseUrl}/store-page?payment=success`
     if (!cancelUrl && baseUrl) cancelUrl = `${baseUrl}/cart-page?payment=cancelled`
 
+    // Determine payment methods allowed based on selection
+    let payment_method_types = ['card', 'gcash']
+    const method = (paymentMethod || '').toLowerCase()
+    if (method === 'gcash') {
+      payment_method_types = ['gcash']
+    } else if (method === 'card' || method === 'credit' || method === 'debit') {
+      payment_method_types = ['card']
+    }
+
     const payload = {
       data: {
         attributes: {
@@ -32,7 +41,7 @@ export async function POST(req) {
           description: description || `Order ${orderId || ''}`.trim(),
           remarks: 'IOS Aquatics Checkout',
           checkout_url: null,
-          payment_method_types: ['card', 'paymaya', 'gcash'],
+          payment_method_types,
           // Optional redirection URLs if enabled in PayMongo
           // Note: PayMongo Payment Links may not support per-link redirect; if unsupported, manage in dashboard
           // We'll still include metadata to reconcile later (via webhook or admin view)

@@ -49,14 +49,6 @@ export default function OrderSummary({ items, subtotal, shipping, tax, total, sh
         </div>
       )}
       
-      <div className="mt-8 text-center">
-        <div className="glass-effect rounded-xl p-4 border border-green-500/20">
-          <p className="text-sm text-green-300 font-medium">
-            <Truck className="w-4 h-4 inline mr-2" />
-            Free shipping on orders over ₱50
-          </p>
-        </div>
-      </div>
     </div>
   )
 }

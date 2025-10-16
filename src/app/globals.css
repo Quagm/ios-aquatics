@@ -227,7 +227,7 @@ body {
   background: var(--secondary-500);
 }
 
-                                    /* Selection styles */
+/* Selection styles */
 ::selection {
   background: var(--primary-500);
   color: white;
