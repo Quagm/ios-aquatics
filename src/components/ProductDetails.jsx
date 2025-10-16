@@ -1,10 +1,11 @@
 "use client"
 import { useState } from 'react'
 import { useCart } from "@/components/CartContext"
-import { supabase } from '@/supabaseClient'
+import { useUser } from '@clerk/nextjs'
 
 export default function ProductDetails({ product }) {
   const { addItem } = useCart()
+  const { isSignedIn, isLoaded } = useUser()
   const [qty, setQty] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
   const features = Array.isArray(product?.features) ? product.features : []
@@ -95,8 +96,8 @@ export default function ProductDetails({ product }) {
             className="flex-1 bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg disabled:opacity-70 disabled:cursor-not-allowed"
             onClick={async () => {
               if (isAdding) return
-              const { data: sessionData } = await supabase.auth.getSession()
-              if (!sessionData?.session) {
+              if (!isLoaded) return
+              if (!isSignedIn) {
                 alert('Please log in to add items to your cart.')
                 return
               }
@@ -104,7 +105,7 @@ export default function ProductDetails({ product }) {
               addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, qty)
               setTimeout(() => setIsAdding(false), 1000)
             }}
-            disabled={isAdding}
+            disabled={isAdding || !isLoaded}
           >
             {isAdding ? 'Adding…' : 'Add to Cart'}
           </button>

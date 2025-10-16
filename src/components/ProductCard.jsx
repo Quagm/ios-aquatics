@@ -4,11 +4,12 @@ import Link from "next/link"
 import { useCart } from "@/components/CartContext"
 import { Eye, Plus } from 'lucide-react'
 import { useState } from 'react'
-import { supabase } from '@/supabaseClient'
+import { useUser } from '@clerk/nextjs'
 
 export default function ProductCard({ product, showAddToCart = true }) {
   const { addItem } = useCart()
   const [isAdding, setIsAdding] = useState(false)
+  const { isSignedIn, isLoaded } = useUser()
   return (
     <Link href={`/product-page?id=${product.id}`} className="block group">
       <div className="glass-effect rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 border border-white/10 cursor-pointer group-hover:scale-105 group-hover:border-white/30 group-hover:shadow-blue-500/20">
@@ -56,10 +57,8 @@ export default function ProductCard({ product, showAddToCart = true }) {
                   e.stopPropagation();
                   
                   if (isAdding) return; // Prevent multiple clicks
-                  
-                  // Require login before adding to cart
-                  const { data: sessionData } = await supabase.auth.getSession();
-                  if (!sessionData?.session) {
+                  if (!isLoaded) return; // Wait for Clerk
+                  if (!isSignedIn) {
                     alert('Please log in to add items to your cart.');
                     return;
                   }
@@ -72,7 +71,7 @@ export default function ProductCard({ product, showAddToCart = true }) {
                     setIsAdding(false);
                   }, 1000);
                 }}
-                disabled={isAdding}
+                disabled={isAdding || !isLoaded}
               >
                 <span className="flex items-center justify-center gap-2">
                   {isAdding ? (
