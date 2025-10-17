@@ -4,7 +4,7 @@ import Footer from "@/components/footer"
 import Image from "next/image"
 import OrderSummary from "@/components/OrderSummary"
 import { useCart } from "@/components/CartContext"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import { createOrder } from "@/lib/queries"
 
@@ -13,19 +13,23 @@ export default function CheckoutPage() {
   const router = useRouter()
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState("")
-  // Customer fields
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [address, setAddress] = useState("")
-  const [city, setCity] = useState("")
-  const [province, setProvince] = useState("")
-  const [postalCode, setPostalCode] = useState("")
-  const [phone, setPhone] = useState("")
-  const [email, setEmail] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState('gcash')
+  // Saved account info (name, email, phone, address, city, province, postal)
+  const [account, setAccount] = useState(null)
 
-  // Shared input styles matching dark glassmorphism card
-  const inputClass = "w-full px-4 py-3 bg-white/5 text-white placeholder-white/60 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+  // Load saved account info from localStorage
+  useEffect(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('account-info') : null
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        setAccount(parsed)
+      } else {
+        setAccount(null)
+      }
+    } catch {
+      setAccount(null)
+    }
+  }, [])
 
   const shipping = 0
   const tax = 0
@@ -39,20 +43,35 @@ export default function CheckoutPage() {
       return
     }
 
+    // Guard: require saved account address
+    const name = String(account?.name || '').trim()
+    const email = String(account?.email || '').trim()
+    const phone = String(account?.phone || '').trim()
+    const address = String(account?.address || '').trim()
+    const city = String(account?.city || '').trim()
+    const province = String(account?.province || '').trim()
+    const postal = String(account?.postal || '').trim()
+    if (!name || !email || !phone || !address || !city || !province || !postal) {
+      setError("Please complete your address in Account first.")
+      router.push('/account-page')
+      return
+    }
+
     setPlacing(true)
     setError("")
     try {
-      // Collect customer data from form inputs
+      // Collect customer data from saved account info
+      const [firstName = '', lastName = ''] = name.split(' ')
       const customer = {
         first_name: firstName,
         last_name: lastName,
-        name: `${firstName} ${lastName}`.trim(),
+        name,
         email,
         phone,
         address,
         city,
         province,
-        postal_code: postalCode,
+        postal_code: postal,
       }
       const order = await createOrder({
         customer,
@@ -69,9 +88,9 @@ export default function CheckoutPage() {
           amount: cents,
           description: `Order ${order?.id || ''}`.trim(),
           email,
-          name: `${firstName} ${lastName}`.trim(),
+          name,
           orderId: order?.id,
-          paymentMethod,
+          // Do not pass a specific paymentMethod so PayMongo shows selection (card, gcash)
         })
       })
       const data = await resp.json()
@@ -102,153 +121,30 @@ export default function CheckoutPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Checkout Form */}
-            <div className="space-y-12">
-              {/* Shipping Information */}
+          <div className="space-y-12">
+              {/* Delivery Address (read-only from Account) */}
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-8">
-                  Shipping Information
-                </h2>
-                
-                <form className="space-y-6" onSubmit={handlePlaceOrder}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-3">
-                        First Name
-                      </label>
-                      <input
-                        type="text"
-                        className={inputClass}
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-3">
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        className={inputClass}
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                      />
-                    </div>
+                <h2 className="text-2xl font-semibold text-white mb-4">Delivery Address</h2>
+                {!account ? (
+                  <p className="text-sm text-white/70">No address found. Please set up your address in your Account.</p>
+                ) : (
+                  <div className="space-y-1 text-white/90">
+                    <p className="font-medium">{account.name}</p>
+                    <p className="text-sm">{account.phone}</p>
+                    <p className="text-sm">{account.email}</p>
+                    <p className="text-sm">{account.address}</p>
+                    <p className="text-sm">{account.city}, {account.province} {account.postal}</p>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
-                      Address
-                    </label>
-                    <input
-                      type="text"
-                      className={inputClass}
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="123 Main Street"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-3">
-                        City
-                      </label>
-                      <input
-                        type="text"
-                        className={inputClass}
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-3">
-                        Province
-                      </label>
-                      <input
-                        type="text"
-                        className={inputClass}
-                        value={province}
-                        onChange={(e) => setProvince(e.target.value)}
-                        placeholder="e.g., Metro Manila"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-white/80 mb-3">
-                        Postal Code
-                      </label>
-                      <input
-                        type="text"
-                        className={inputClass}
-                        value={postalCode}
-                        onChange={(e) => setPostalCode(e.target.value)}
-                        placeholder="e.g., 1747"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      className={inputClass}
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+63 912 345 6789"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      className={inputClass}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
-                      required
-                    />
-                  </div>
-                </form>
+                )}
+                <a href="/account-page" className="inline-block mt-6 text-blue-300 hover:text-blue-200 underline">Edit address in Account</a>
               </div>
 
-              {/* Payment Method */}
+              {/* Payment */}
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-8">
-                  Payment Method
-                </h2>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('gcash')}
-                      className={`w-full px-4 py-3 rounded-md border transition ${paymentMethod === 'gcash' ? 'border-blue-400 bg-blue-500/10 text-white' : 'border-white/30 text-white/80 hover:border-white/50 hover:bg-white/10'}`}
-                    >
-                      GCash
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('card')}
-                      className={`w-full px-4 py-3 rounded-md border transition ${paymentMethod === 'card' ? 'border-blue-400 bg-blue-500/10 text-white' : 'border-white/30 text-white/80 hover:border-white/50 hover:bg-white/10'}`}
-                    >
-                      Credit/Debit Card
-                    </button>
-                  </div>
-                  <p className="text-sm text-white/70">
-                    You will be redirected to PayMongo to securely complete your {paymentMethod === 'gcash' ? 'GCash' : 'Card'} payment.
-                  </p>
-                </div>
+                <h2 className="text-2xl font-semibold text-white mb-4">Payment</h2>
+                <p className="text-sm text-white/70">You will choose GCash or Card on the PayMongo page after you click Place Order.</p>
               </div>
-            </div>
+          </div>
 
             {/* Order Summary */}
             <div className="lg:col-span-1">

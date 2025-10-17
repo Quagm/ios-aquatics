@@ -1,7 +1,6 @@
 "use client"
 import NavigationBar from "@/components/navigation-bar"
 import Footer from "@/components/footer"
-import { UserButton } from "@clerk/nextjs"
 import AccountForm from "@/components/AccountForm"
 import OrderHistory from "@/components/OrderHistory"
 
@@ -20,40 +19,23 @@ export default function AccountPage() {
             <h1 className="text-4xl font-extrabold text-white mb-4">
               My Account
             </h1>
-            <p className="text-white/70 text-lg">
-              Manage your profile, orders, and quick actions here.
-            </p>
-            <div className="flex justify-center mt-6">
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    userButtonBox:
-                      "border border-white/20 bg-white/10 p-1 rounded-full shadow-md hover:bg-white/20 transition",
-                  },
-                }}
-              />
-            </div>
           </div>
 
           {/* Account Content */}
-<div className="space-y-12 w-full px-4 sm:px-8 lg:px-16">
-  {/* Account Information */}
-  <section className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-10 border border-white/10 hover:shadow-xl transition">
-    <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
-      Account Information
-    </h2>
-    <AccountForm />
-  </section>
+        <div className="space-y-12 w-full px-4 sm:px-8 lg:px-16 flex flex-col items-center">
+          {/* Account Information */}
+          <section className="w-full max-w-3xl bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-10 border border-white/10 hover:shadow-xl transition">
+            <AccountForm />
+          </section>
 
-  {/* Order History */}
-  <section className="bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-10 border border-white/10 hover:shadow-xl transition">
-    <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
-      Order History
-    </h2>
-    <OrderHistory />
-  </section>
-</div>
+          {/* Order History */}
+          <section className="w-full max-w-4xl bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-10 border border-white/10 hover:shadow-xl transition">
+            <h2 className="text-2xl font-semibold text-white mb-6 border-b border-white/10 pb-3">
+              Order History
+            </h2>
+            <OrderHistory />
+          </section>
+        </div>
         </div>
       </main>
       

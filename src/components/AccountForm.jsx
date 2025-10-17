@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 
 export default function AccountForm() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "" })
+  const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", province: "", postal: "" })
 
   useEffect(() => {
     try {
@@ -12,7 +12,11 @@ export default function AccountForm() {
         setForm({ 
           name: parsed.name || "", 
           email: parsed.email || "", 
-          phone: parsed.phone || "" 
+          phone: parsed.phone || "",
+          address: parsed.address || "",
+          city: parsed.city || "",
+          province: parsed.province || "",
+          postal: parsed.postal || ""
         })
       }
     } catch {}
@@ -82,6 +86,66 @@ export default function AccountForm() {
             value={form.phone}
             onChange={(e) => update('phone', e.target.value)}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            Address
+          </label>
+          <input
+            type="text"
+            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
+                       text-white placeholder-slate-400 transition-all duration-300"
+            placeholder="123 Main Street"
+            value={form.address}
+            onChange={(e) => update('address', e.target.value)}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">
+              City
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
+                         text-white placeholder-slate-400 transition-all duration-300"
+              placeholder="Quezon City"
+              value={form.city}
+              onChange={(e) => update('city', e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">
+              Province
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
+                         text-white placeholder-slate-400 transition-all duration-300"
+              placeholder="Metro Manila"
+              value={form.province}
+              onChange={(e) => update('province', e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">
+              Postal Code
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
+                         text-white placeholder-slate-400 transition-all duration-300"
+              placeholder="1747"
+              value={form.postal}
+              onChange={(e) => update('postal', e.target.value)}
+            />
+          </div>
         </div>
       </div>
 

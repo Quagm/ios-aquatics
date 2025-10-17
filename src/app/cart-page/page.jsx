@@ -39,7 +39,6 @@ export default function CartPage() {
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
               <span className="gradient-text">Your</span> Cart
             </h1>
-            <p className="text-slate-300 text-lg">Review your items before checkout</p>
           </div>
           
           {items.length === 0 ? (
