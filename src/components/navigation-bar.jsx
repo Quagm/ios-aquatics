@@ -1,16 +1,21 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/nextjs"
+import { SignedOut, SignInButton, SignedIn, UserButton, useUser } from "@clerk/nextjs"
 import { ShoppingCart } from "lucide-react"
 import { useCart } from "@/components/CartContext"
 
 export default function NavigationBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const navRef = useRef(null)
+  const [navHeight, setNavHeight] = useState(0)
   const { items, animationState } = useCart()
-  
+  const { user } = useUser()
+  const role = user?.publicMetadata?.role || user?.unsafeMetadata?.role || user?.privateMetadata?.role
+  const isAdmin = role === 'admin'
+
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   useEffect(() => {
@@ -21,6 +26,23 @@ export default function NavigationBar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Measure nav height and push content by exactly this amount
+  useEffect(() => {
+    const measure = () => {
+      const h = navRef.current ? navRef.current.offsetHeight : 0
+      setNavHeight(h)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  // Recalculate when nav padding/style changes or mobile menu toggles
+  useEffect(() => {
+    const h = navRef.current ? navRef.current.offsetHeight : 0
+    setNavHeight(h)
+  }, [isScrolled, isMobileMenuOpen])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -65,7 +87,9 @@ export default function NavigationBar() {
   }
 
   return (
+    <>
     <nav
+      ref={navRef}
       className={`fixed inset-x-0 top-0 z-50 py-2 sm:py-3 lg:py-4 transition-all duration-300 ${
         isScrolled
           ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-200"
@@ -117,28 +141,30 @@ export default function NavigationBar() {
           >
             Store
           </Link>
-          <Link
-            href="/cart-page"
-            className={`relative px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
-              isScrolled
-                ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                : "text-white/90 hover:text-white hover:bg-white/10"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <ShoppingCart className={`w-5 h-5 transition-transform duration-300 ${
-                animationState.isVisible ? 'animate-cart-bounce' : ''
-              }`} />
-              <span>Cart</span>
-              {cartItemCount > 0 && (
-                <span className={`absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-all duration-300 ${
-                  animationState.isVisible ? 'animate-cart-pulse' : ''
-                }`}>
-                  {cartItemCount}
-                </span>
-              )}
-            </div>
-          </Link>
+          <SignedIn>
+            <Link
+              href="/checkout-page"
+              className={`relative px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
+                isScrolled
+                  ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                  : "text-white/90 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <ShoppingCart className={`w-5 h-5 transition-transform duration-300 ${
+                  animationState.isVisible ? 'animate-cart-bounce' : ''
+                }`} />
+                <span>Cart</span>
+                {cartItemCount > 0 && (
+                  <span className={`absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-all duration-300 ${
+                    animationState.isVisible ? 'animate-cart-pulse' : ''
+                  }`}>
+                    {cartItemCount}
+                  </span>
+                )}
+              </div>
+            </Link>
+          </SignedIn>
 
           {/* Auth Buttons */}
           <div className="ml-1 lg:ml-2">
@@ -167,16 +193,18 @@ export default function NavigationBar() {
                 >
                   Account
                 </Link>
-                <Link
-                  href="/admin"
-                  className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
-                    isScrolled
-                      ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                      : "text-white/90 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  Admin
-                </Link>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
+                      isScrolled
+                        ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                        : "text-white/90 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    Admin
+                  </Link>
+                )}
                 <UserButton />
               </div>
             </SignedIn>
@@ -242,25 +270,27 @@ export default function NavigationBar() {
           >
             Store
           </Link>
-          <Link
-            href="/cart-page"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="relative block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <ShoppingCart className={`w-5 h-5 transition-transform duration-300 ${
-                animationState.isVisible ? 'animate-cart-bounce' : ''
-              }`} />
-              <span>Cart</span>
-              {cartItemCount > 0 && (
-                <span className={`bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-all duration-300 ${
-                  animationState.isVisible ? 'animate-cart-pulse' : ''
-                }`}>
-                  {cartItemCount}
-                </span>
-              )}
-            </div>
-          </Link>
+          <SignedIn>
+            <Link
+              href="/checkout-page"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="relative block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <ShoppingCart className={`w-5 h-5 transition-transform duration-300 ${
+                  animationState.isVisible ? 'animate-cart-bounce' : ''
+                }`} />
+                <span>Cart</span>
+                {cartItemCount > 0 && (
+                  <span className={`bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-all duration-300 ${
+                    animationState.isVisible ? 'animate-cart-pulse' : ''
+                  }`}>
+                    {cartItemCount}
+                  </span>
+                )}
+              </div>
+            </Link>
+          </SignedIn>
 
           <div className="pt-4 border-t border-slate-200">
             <SignedOut>
@@ -279,18 +309,23 @@ export default function NavigationBar() {
                 >
                   Account
                 </Link>
-                <Link
-                  href="/admin"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
-                >
-                  Admin
-                </Link>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+                  >
+                    Admin
+                  </Link>
+                )}
               </div>
             </SignedIn>
           </div>
         </div>
       </div>
     </nav>
+    {/* Dynamic spacer equal to nav height */}
+    <div aria-hidden style={{ height: navHeight }} />
+    </>
   )
 }

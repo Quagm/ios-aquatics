@@ -50,7 +50,7 @@ export async function PATCH(request) {
     const body = await request.json()
     const { id, status } = body || {}
     if (!id) return NextResponse.json({ error: 'Inquiry ID is required' }, { status: 400 })
-    const validStatuses = ['pending', 'in_progress', 'resolved', 'closed']
+    const validStatuses = ['accepted', 'in_progress', 'completed', 'cancelled']
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` }, { status: 400 })
     }

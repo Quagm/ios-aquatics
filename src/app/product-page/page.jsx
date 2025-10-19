@@ -4,12 +4,12 @@ import Footer from "@/components/footer"
 import ProductImageGallery from "@/components/ProductImageGallery"
 import ProductDetails from "@/components/ProductDetails"
 import ProductSpecifications from "@/components/ProductSpecifications"
-import Breadcrumb from "@/components/Breadcrumb"
 import Link from "next/link"
 import { ArrowLeft } from 'lucide-react'
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { fetchProductById } from '@/lib/queries'
+import { supabase } from '@/supabaseClient'
 
 function ProductPageContent() {
   const searchParams = useSearchParams()
@@ -40,16 +40,33 @@ function ProductPageContent() {
     return () => { isMounted = false }
   }, [id])
 
-  const breadcrumbItems = [
-    { label: "Home", href: "/" },
-    { label: "Store", href: "/store-page" },
-    { label: product?.category || 'Product', href: "/store-page" },
-    { label: product?.name || 'Loading...', isActive: true }
-  ]
+  // Realtime updates for product changes (e.g., stockCount, inStock)
+  useEffect(() => {
+    if (!id) return
+    const channel = supabase
+      .channel(`product_${id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'products',
+        filter: `id=eq.${id}`,
+      }, (payload) => {
+        const next = payload?.new || payload?.record
+        if (next) {
+          setProduct(prev => ({ ...(prev || {}), ...next }))
+        }
+      })
+      .subscribe()
+
+    return () => {
+      try { supabase.removeChannel(channel) } catch {}
+    }
+  }, [id])
+
+  
 
   return (
     <div className="max-w-7xl mx-auto">
-      <Breadcrumb items={breadcrumbItems} />
 
       <div className="mt-4 mb-8">
         <Link href="/store-page" className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-lg border border-white/20 text-white/90 hover:bg-white/20 transition-colors">
@@ -82,7 +99,6 @@ function ProductPageContent() {
 export default function ProductPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
-      <div className="h-24 sm:h-28 lg:h-32"></div>
       <NavigationBar />
       <div className="flex-1 py-20 px-4">
         <Suspense fallback={<div className="text-white/80 max-w-7xl mx-auto">Loading...</div>}>

@@ -84,8 +84,8 @@ export default function InquiryManagement() {
       })
     }
 
-    // Exclude archived (resolved/closed) from active by default
-    filtered = filtered.filter(inquiry => inquiry.status !== 'resolved' && inquiry.status !== 'closed')
+    // Exclude archived (completed/cancelled) from active by default
+    filtered = filtered.filter(inquiry => inquiry.status !== 'completed' && inquiry.status !== 'cancelled')
 
     if (statusFilter !== 'all') {
       filtered = filtered.filter(inquiry => inquiry.status === statusFilter)
@@ -96,9 +96,10 @@ export default function InquiryManagement() {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending': return <Clock className="w-4 h-4 text-yellow-500" />
-      case 'replied': return <Reply className="w-4 h-4 text-blue-500" />
-      case 'resolved': return <CheckCircle className="w-4 h-4 text-green-500" />
+      case 'accepted': return <Reply className="w-4 h-4 text-blue-500" />
+      case 'in_progress': return <Clock className="w-4 h-4 text-yellow-500" />
+      case 'completed': return <CheckCircle className="w-4 h-4 text-green-500" />
+      case 'cancelled': return <AlertCircle className="w-4 h-4 text-red-500" />
       default: return <AlertCircle className="w-4 h-4 text-gray-500" />
     }
   }
@@ -114,13 +115,13 @@ export default function InquiryManagement() {
 
   const updateInquiryStatus = async (id, newStatus) => {
     try {
-      if (newStatus === 'resolved' || newStatus === 'closed') {
-        const ok = window.confirm('Mark this inquiry as finished? It will be moved to Inquiry History and removed from active inquiries.')
+      if (newStatus === 'completed' || newStatus === 'cancelled') {
+        const ok = window.confirm('Archive this inquiry? It will be moved to Inquiry History and removed from active inquiries.')
         if (!ok) return
       }
       const updated = await apiUpdateInquiryStatus(id, newStatus)
       await loadInquiries()
-      if (updated.status === 'resolved' || updated.status === 'closed') {
+      if (updated.status === 'completed' || updated.status === 'cancelled') {
         push({ title: 'Inquiry archived', description: `Inquiry ${id} moved to history.`, variant: 'success' })
       } else {
         push({ title: 'Inquiry updated', description: `Inquiry ${id} set to ${updated.status}.`, variant: 'success' })
@@ -160,10 +161,10 @@ export default function InquiryManagement() {
           className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
         >
           <option value="all" className="bg-slate-800">All Status</option>
-          <option value="pending" className="bg-slate-800">Pending</option>
+          <option value="accepted" className="bg-slate-800">Accepted</option>
           <option value="in_progress" className="bg-slate-800">In Progress</option>
-          <option value="resolved" className="bg-slate-800">Resolved</option>
-          <option value="closed" className="bg-slate-800">Closed</option>
+          <option value="completed" className="bg-slate-800">Completed</option>
+          <option value="cancelled" className="bg-slate-800">Cancelled</option>
         </select>
       </div>
 
@@ -179,11 +180,12 @@ export default function InquiryManagement() {
                 <p className="text-slate-300 text-sm mt-2 whitespace-pre-line">{inq.message}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <span className="text-xs px-2 py-1 rounded border border-white/20 text-white/80">{inq.status || 'pending'}</span>
+                <span className="text-xs px-2 py-1 rounded border border-white/20 text-white/80 capitalize">{inq.status || 'accepted'}</span>
                 <div className="flex gap-2">
-                  <button onClick={() => updateInquiryStatus(inq.id, 'in_progress')} className="px-3 py-2 text-xs rounded bg-white/10 text-white hover:bg-white/20">In Progress</button>
-                  <button onClick={() => updateInquiryStatus(inq.id, 'resolved')} className="px-3 py-2 text-xs rounded bg-green-600/20 text-green-200 hover:bg-green-600/30">Resolve</button>
-                  <button onClick={() => updateInquiryStatus(inq.id, 'closed')} className="px-3 py-2 text-xs rounded bg-slate-600/20 text-slate-200 hover:bg-slate-600/30">Close</button>
+                  <button onClick={() => updateInquiryStatus(inq.id, 'accepted')} className="px-3 py-2 text-xs rounded bg-white/10 text-white hover:bg-white/20">Accepted</button>
+                  <button onClick={() => updateInquiryStatus(inq.id, 'in_progress')} className="px-3 py-2 text-xs rounded bg-yellow-600/20 text-yellow-200 hover:bg-yellow-600/30">In Progress</button>
+                  <button onClick={() => updateInquiryStatus(inq.id, 'completed')} className="px-3 py-2 text-xs rounded bg-green-600/20 text-green-200 hover:bg-green-600/30">Completed</button>
+                  <button onClick={() => updateInquiryStatus(inq.id, 'cancelled')} className="px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Cancelled</button>
                   <button onClick={() => deleteInquiry(inq.id)} className="px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Delete</button>
                 </div>
               </div>

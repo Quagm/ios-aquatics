@@ -41,7 +41,7 @@ export default function InventoryManagement() {
   const getStockStatus = (stock = 0, minStock = 0) => {
     if (stock <= 0) return 'out-of-stock'
     if (stock <= minStock) return 'low-stock'
-    return 'active'
+    return 'in-stock'
   }
 
   // Server API update for toggling active
@@ -152,7 +152,7 @@ useEffect(() => {
     }
 
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(product => (product.status || 'active') === statusFilter)
+      filtered = filtered.filter(product => (product.status || 'in-stock') === statusFilter)
     }
 
     setFilteredProducts(filtered)
@@ -160,7 +160,7 @@ useEffect(() => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active':
+      case 'in-stock':
         return 'bg-green-500/20 text-green-300 border border-green-500/30'
       case 'low-stock':
         return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
@@ -173,6 +173,8 @@ useEffect(() => {
 
   const deleteProduct = async (id) => {
     try {
+      const ok = window.confirm('Delete this product? This action cannot be undone.')
+      if (!ok) return
       await deleteProductById(id)
       setProducts(prev => prev.filter(product => product.id !== id))
     } catch {}
@@ -314,7 +316,7 @@ useEffect(() => {
               className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
             >
               <option value="all" className="bg-slate-800">All Status</option>
-              <option value="active" className="bg-slate-800">In Stock</option>
+              <option value="in-stock" className="bg-slate-800">In Stock</option>
               <option value="low-stock" className="bg-slate-800">Low Stock</option>
               <option value="out-of-stock" className="bg-slate-800">Out of Stock</option>
             </select>
@@ -373,38 +375,14 @@ useEffect(() => {
                 </div>
                 <div className="flex justify-between items-center gap-3">
                   <span className="text-sm text-slate-400">Stock:</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20"
-                      onClick={() => updateStockValue(product.id, (stockEdits[product.id] ?? product.stock ?? 0) - 1)}
-                    >-</button>
-                    <input
-                      type="number"
-                      value={stockEdits[product.id] ?? String(product.stock ?? 0)}
-                      onChange={(e) => updateStockValue(product.id, e.target.value)}
-                      className="w-20 px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-xs"
-                      min={0}
-                      step={1}
-                    />
-                    <button
-                      type="button"
-                      className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20"
-                      onClick={() => updateStockValue(product.id, (stockEdits[product.id] ?? product.stock ?? 0) + 1)}
-                    >+</button>
-                    <button
-                      type="button"
-                      className="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
-                      onClick={() => saveStock(product)}
-                    >Save</button>
-                  </div>
+                  <span className="text-sm font-medium text-white">{typeof product.stock === 'number' ? product.stock : 0}</span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => toggleActive(product)}
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border transition-colors 
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border transition-colors transition-transform transform hover:scale-105 
                     ${product.active !== false 
                       ? 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30 hover:border-green-500/40'
                       : 'bg-slate-600/20 text-slate-200 border-slate-500/30 hover:bg-slate-600/30 hover:border-slate-500/40'}
@@ -413,12 +391,6 @@ useEffect(() => {
                 >
                   <CheckCircle className="w-3 h-3 mr-1" />
                   {product.active !== false ? 'Active (Shown in Store)' : 'Inactive (Hidden)'}
-                </button>
-                <button
-                  onClick={() => setEditingProduct(product)}
-                  className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
-                >
-                  View Details
                 </button>
               </div>
             </div>
@@ -657,6 +629,33 @@ function EditProductModal({ product, onClose, onSave, categories }) {
                   <option key={category} value={category} className="bg-slate-800">{category}</option>
                 ))}
               </select>
+            </div>
+          </div>
+          {/* Stock Fields moved near top for visibility */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Stock</label>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Minimum Stock Threshold</label>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={formData.minStock}
+                onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                placeholder="0"
+              />
             </div>
           </div>
           <div>

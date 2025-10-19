@@ -42,7 +42,7 @@ export default function AdminDashboard() {
           const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
           const data = await res.json()
           if (Array.isArray(data)) {
-            pendingInquiries = data.filter(i => i.status === 'pending' || i.status === 'in_progress').length
+            pendingInquiries = data.filter(i => i.status === 'accepted' || i.status === 'in_progress').length
           }
         } catch { }
 

@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { ShoppingCart, MapPin } from 'lucide-react'
+import { SignedIn } from "@clerk/nextjs"
 
 export default function QuickActions() {
   return (
@@ -9,14 +10,16 @@ export default function QuickActions() {
       </h2>
 
       <div className="flex justify-center gap-6">
-        <Link 
-          href="/cart-page" 
-          className="p-6 rounded-lg border border-white/20 bg-white/5 
-                     hover:bg-white/10 transition-all text-center flex flex-col items-center"
-        >
-          <ShoppingCart className="w-8 h-8 text-blue-400 mb-2" />
-          <span className="text-sm font-medium text-white">View Cart</span>
-        </Link>
+        <SignedIn>
+          <Link 
+            href="/checkout-page" 
+            className="p-6 rounded-lg border border-white/20 bg-white/5 
+                       hover:bg-white/10 transition-all text-center flex flex-col items-center"
+          >
+            <ShoppingCart className="w-8 h-8 text-blue-400 mb-2" />
+            <span className="text-sm font-medium text-white">View Cart</span>
+          </Link>
+        </SignedIn>
 
         <button 
           className="p-6 rounded-lg border border-white/20 bg-white/5 

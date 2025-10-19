@@ -3,13 +3,15 @@ import NavigationBar from "@/components/navigation-bar"
 import Footer from "@/components/footer"
 import Image from "next/image"
 import OrderSummary from "@/components/OrderSummary"
+import CartItem from "@/components/CartItem"
+import EmptyCart from "@/components/EmptyCart"
 import { useCart } from "@/components/CartContext"
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import { createOrder } from "@/lib/queries"
 
 export default function CheckoutPage() {
-  const { items, subtotal, clearCart } = useCart()
+  const { items, subtotal, clearCart, updateQuantity, removeItem } = useCart()
   const router = useRouter()
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState("")
@@ -99,6 +101,7 @@ export default function CheckoutPage() {
       if (!url) throw new Error('Payment link missing checkout URL')
 
       // Redirect to PayMongo to complete payment
+      try { clearCart?.() } catch {}
       window.location.href = url
     } catch (err) {
       setError(err.message || "Failed to place order")
@@ -120,33 +123,29 @@ export default function CheckoutPage() {
           </h1>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Checkout Form */}
-          <div className="space-y-12">
-              {/* Delivery Address (read-only from Account) */}
+            {/* Left: Cart Review */}
+            <div className="space-y-12">
+              {/* Cart Review */}
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-4">Delivery Address</h2>
-                {!account ? (
-                  <p className="text-sm text-white/70">No address found. Please set up your address in your Account.</p>
+                <h2 className="text-2xl font-semibold text-white mb-6">Your Cart</h2>
+                {items.length === 0 ? (
+                  <EmptyCart />
                 ) : (
-                  <div className="space-y-1 text-white/90">
-                    <p className="font-medium">{account.name}</p>
-                    <p className="text-sm">{account.phone}</p>
-                    <p className="text-sm">{account.email}</p>
-                    <p className="text-sm">{account.address}</p>
-                    <p className="text-sm">{account.city}, {account.province} {account.postal}</p>
+                  <div className="space-y-6">
+                    {items.map((item) => (
+                      <CartItem
+                        key={item.id}
+                        item={item}
+                        onQuantityChange={(id, qty) => updateQuantity(id, qty)}
+                        onRemove={(id) => removeItem(id)}
+                      />
+                    ))}
                   </div>
                 )}
-                <a href="/account-page" className="inline-block mt-6 text-blue-300 hover:text-blue-200 underline">Edit address in Account</a>
               </div>
+            </div>
 
-              {/* Payment */}
-              <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-4">Payment</h2>
-                <p className="text-sm text-white/70">You will choose GCash or Card on the PayMongo page after you click Place Order.</p>
-              </div>
-          </div>
-
-            {/* Order Summary */}
+            {/* Right: Order Summary + Place Order */}
             <div className="lg:col-span-1">
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 sticky top-4 border border-white/20">
                 <h2 className="text-2xl font-semibold text-white mb-8">
@@ -154,7 +153,8 @@ export default function CheckoutPage() {
                 </h2>
                 {error && <p className="text-red-300 mb-4">{error}</p>}
                 
-                {/* Order Items */}
+                {/* Order Items */
+                }
                 <div className="space-y-6 mb-8">
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4">
@@ -174,6 +174,38 @@ export default function CheckoutPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Delivery Address + Payment inside Order Summary */}
+                <div className="space-y-6 mb-8">
+                  {/* Delivery Address (read-only from Account) */}
+                  <div className="bg-white/5 rounded-lg p-6 border border-white/20">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xl font-semibold text-white">Delivery Address</h3>
+                      <a
+                        href="/account-page"
+                        className="px-3 py-2 rounded-md text-sm font-medium bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors"
+                      >
+                        Edit
+                      </a>
+                    </div>
+                    {!account ? (
+                      <p className="text-sm text-white/70">No address found. Please set up your address.</p>
+                    ) : (
+                      <p className="text-white/90 text-sm leading-relaxed">
+                        {(account.address || '').trim()}
+                        {account.city ? `, ${account.city}` : ''}
+                        {account.province ? `, ${account.province}` : ''}
+                        {account.postal ? ` ${account.postal}` : ''}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Payment Note */}
+                  <div className="bg-white/5 rounded-lg p-6 border border-white/20">
+                    <h3 className="text-xl font-semibold text-white mb-3">Payment</h3>
+                    <p className="text-sm text-white/70">You will choose GCash or Card on the PayMongo page after you click Checkout.</p>
+                  </div>
+                </div>
                 
                 {/* Price Breakdown */}
                 <div className="space-y-4 mb-8 border-t border-white/30 pt-6">
@@ -192,14 +224,10 @@ export default function CheckoutPage() {
                   </div>
                 </div>
                 
-                {/* Place Order Button */}
-                <button className="w-full bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors mb-6 disabled:opacity-60 disabled:cursor-not-allowed" onClick={handlePlaceOrder} disabled={placing || items.length === 0}>
-                  {placing ? "Placing..." : "Place Order"}
+                {/* Checkout Button */}
+                <button className="w-full bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors mb-0 disabled:opacity-60 disabled:cursor-not-allowed" onClick={handlePlaceOrder} disabled={placing || items.length === 0}>
+                  {placing ? "Processing..." : "Checkout"}
                 </button>
-                
-                <p className="text-sm text-white/70 text-center">
-                  By placing this order, you agree to our terms and conditions.
-                </p>
               </div>
             </div>
           </div>

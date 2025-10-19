@@ -21,10 +21,10 @@ export default function InquiryHistory() {
     apiFetchInquiries()
       .then((data) => {
         if (!mounted) return
-        const archived = (data || []).filter(i => i.status === 'resolved' || i.status === 'closed')
+        const archived = (data || []).filter(i => i.status === 'completed' || i.status === 'cancelled')
         setInquiries(archived)
         if (archived.length === 0) {
-          push({ title: 'No archived inquiries', description: 'No resolved or closed inquiries found.', variant: 'default' })
+          push({ title: 'No archived inquiries', description: 'No completed or cancelled inquiries found.', variant: 'default' })
         }
       })
       .catch((e) => {
@@ -43,7 +43,7 @@ export default function InquiryHistory() {
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Inquiry</span> History
         </h1>
-        <p className="text-lg text-slate-300 max-w-2xl">Archived inquiries (resolved or closed).</p>
+        <p className="text-lg text-slate-300 max-w-2xl">Archived inquiries (completed or cancelled).</p>
       </div>
 
       <div className="glass-effect rounded-2xl border border-white/10 overflow-hidden">

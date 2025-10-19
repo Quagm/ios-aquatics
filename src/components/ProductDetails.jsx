@@ -10,8 +10,12 @@ export default function ProductDetails({ product }) {
   const [isAdding, setIsAdding] = useState(false)
   const features = Array.isArray(product?.features) ? product.features : []
   const description = product?.description || ''
-  const inStock = typeof product?.inStock === 'boolean' ? product.inStock : true
-  const stockCount = typeof product?.stockCount === 'number' ? product.stockCount : undefined
+  // Reflect inventory: derive stock availability from products.stock
+  const stock = typeof product?.stock === 'number' ? product.stock : undefined
+  const hasFiniteStock = typeof stock === 'number'
+  const stockCount = hasFiniteStock ? stock : undefined
+  const inStock = hasFiniteStock ? stock > 0 : true
+  const canAdd = inStock && (!hasFiniteStock || qty <= stockCount)
   return (
     <div className="space-y-8">
       <div>
@@ -32,10 +36,6 @@ export default function ProductDetails({ product }) {
       </div>
 
       <div>
-        {description && (
-          <p className="text-white/80 leading-relaxed mb-8 text-lg">{description}</p>
-        )}
-        
         {features.length > 0 && (
           <div className="mb-8">
             <h3 className="text-xl font-semibold text-white mb-4">Key Features:</h3>
@@ -83,13 +83,16 @@ export default function ProductDetails({ product }) {
             <button
               type="button"
               className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white text-lg"
-              onClick={() => setQty((q) => q + 1)}
+              onClick={() => setQty((q) => hasFiniteStock ? Math.min(stockCount, q + 1) : q + 1)}
               aria-label="Increase quantity"
             >
               +
             </button>
           </div>
         </div>
+        {hasFiniteStock && qty >= stockCount && (
+          <p className="text-sm text-white/60">Max quantity reached.</p>
+        )}
         
         <div className="flex space-x-4">
           <button
@@ -101,16 +104,24 @@ export default function ProductDetails({ product }) {
                 alert('Please log in to add items to your cart.')
                 return
               }
+              if (!canAdd) return
               setIsAdding(true)
-              addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, qty)
+              addItem({ id: product.id, name: product.name, price: product.price, image: product.image, stockCount: hasFiniteStock ? stockCount : undefined }, qty)
               setTimeout(() => setIsAdding(false), 1000)
             }}
-            disabled={isAdding || !isLoaded}
+            disabled={isAdding || !isLoaded || !canAdd}
           >
             {isAdding ? 'Adding…' : 'Add to Cart'}
           </button>
         </div>
       </div>
+
+      {/* Description moved below Add to Cart */}
+      {description && (
+        <div className="mt-12">
+          <p className="text-white/80 leading-relaxed text-lg whitespace-pre-line">{description}</p>
+        </div>
+      )}
     </div>
   )
 }

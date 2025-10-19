@@ -143,7 +143,7 @@ export async function updateInquiryStatus(inquiryId, status) {
   try {
     if (!inquiryId) throw new Error("Inquiry ID is required");
     if (!status) throw new Error("Status is required");
-    const validStatuses = ['pending', 'in_progress', 'resolved', 'closed'];
+    const validStatuses = ['accepted', 'in_progress', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }

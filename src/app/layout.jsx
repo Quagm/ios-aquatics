@@ -36,7 +36,11 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground font-sans`}>
           <CartProvider>
-            <main className="">{children}</main>
+            <main className="w-full">
+              <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 w-full">
+                {children}
+              </div>
+            </main>
             <CartAnimationWrapper />
           </CartProvider>
         </body>

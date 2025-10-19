@@ -450,14 +450,14 @@ export default function HomePage() {
                 </p>
 
                 <div className="space-y-4">
-                  <Link href="/inquiry-form">
+                  <a href="https://web.facebook.com/iosaquatics" target="_blank" rel="noopener noreferrer">
                     <button className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
                       <span className="flex items-center justify-center gap-2">
-                        Send Inquiry
+                        Message us on Facebook
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                       </span>
                     </button>
-                  </Link>
+                  </a>
 
                   <Link href="/store-page">
                     <button className="group w-full glass-effect text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">

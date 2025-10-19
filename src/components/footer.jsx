@@ -123,7 +123,7 @@ function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/cart-page" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
+                <Link href="/checkout-page" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   Shopping Cart
                 </Link>

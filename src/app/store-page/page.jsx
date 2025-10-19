@@ -13,6 +13,8 @@ export default function StorePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [query, setQuery] = useState("")
+  const [minPrice, setMinPrice] = useState("")
+  const [maxPrice, setMaxPrice] = useState("")
 
   // Services slideshow state (ported from HomePage)
   const [currentServiceSlide, setCurrentServiceSlide] = useState(0)
@@ -86,8 +88,20 @@ export default function StorePage() {
         (p.description || '').toLowerCase().includes(q)
       ))
     }
+    // Apply price range filter if provided
+    const min = minPrice ? Number(minPrice) : null
+    const max = maxPrice ? Number(maxPrice) : null
+    if (min != null || max != null) {
+      list = list.filter(p => {
+        const price = Number(p.price)
+        if (Number.isNaN(price)) return false
+        if (min != null && price < min) return false
+        if (max != null && price > max) return false
+        return true
+      })
+    }
     return list
-  }, [products, selectedCategory, query])
+  }, [products, selectedCategory, query, minPrice, maxPrice])
 
   const visibleProducts = filteredProducts.slice(0, visibleCount)
 
@@ -96,11 +110,10 @@ export default function StorePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Navigation */}
-      <div className="h-24 sm:h-28 lg:h-32"></div>
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 py-16 sm:py-20 lg:py-24">
+      <div className="flex-1 pt-6 sm:pt-8 lg:pt-10 pb-16 sm:pb-20 lg:pb-24">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
           {/* Header Section */}
           <div className="text-center mb-12">
@@ -173,6 +186,39 @@ export default function StorePage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                />
+              </div>
+            </div>
+            {/* Price Range Inputs */}
+            <div className="max-w-xl mx-auto grid grid-cols-2 gap-3">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₱</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Min price"
+                  value={minPrice}
+                  onChange={(e) => {
+                    const digitsOnly = e.target.value.replace(/\D/g, '')
+                    const limited = digitsOnly.slice(0, 7)
+                    setMinPrice(limited)
+                  }}
+                  className="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                />
+              </div>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₱</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Max price"
+                  value={maxPrice}
+                  onChange={(e) => {
+                    const digitsOnly = e.target.value.replace(/\D/g, '')
+                    const limited = digitsOnly.slice(0, 7)
+                    setMaxPrice(limited)
+                  }}
+                  className="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
                 />
               </div>
             </div>
@@ -255,9 +301,9 @@ export default function StorePage() {
                 </span>
               </button>
             ) : (
-              <div className="glass-effect rounded-2xl p-6 border border-white/10 max-w-sm mx-auto">
+              <div className="glass-effect rounded-2xl p-6 border border-white/10 max-w-sm mx-auto mt-8 mb-8">
                 <Sparkles className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                <p className="text-slate-300 font-medium">You've seen all our products!</p>
+                <p className="text-slate-300 font-medium text-center">You've seen all our products!</p>
               </div>
             )}
           </div>

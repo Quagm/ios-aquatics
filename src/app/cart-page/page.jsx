@@ -6,9 +6,16 @@ import OrderSummary from "@/components/OrderSummary"
 import EmptyCart from "@/components/EmptyCart"
 import { useCart } from "@/components/CartContext"
 import { ShoppingCart } from 'lucide-react'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal } = useCart()
+  const router = useRouter()
+
+  useEffect(() => {
+    router.replace('/checkout-page')
+  }, [router])
 
   // Shipping and tax removed from cart calculations
   const shipping = 0
@@ -28,47 +35,10 @@ export default function CartPage() {
       {/* Navigation */}
       <NavigationBar />
       
-      {/* Main Content */}
+      {/* Main Content (redirect fallback) */}
       <div className="flex-1 page-section">
-        <div className="page-container">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-6">
-              <ShoppingCart className="w-4 h-4" />
-              Shopping Cart
-            </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-              <span className="gradient-text">Your</span> Cart
-            </h1>
-          </div>
-          
-          {items.length === 0 ? (
-            <EmptyCart />
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-              {/* Cart Items */}
-              <div className="lg:col-span-2 space-y-6">
-                {items.map((item) => (
-                  <CartItem 
-                    key={item.id} 
-                    item={item} 
-                    onQuantityChange={handleQuantityChange}
-                    onRemove={handleRemoveItem}
-                  />
-                ))}
-              </div>
-
-              {/* Order Summary */}
-              <div className="lg:col-span-1">
-                <OrderSummary 
-                  items={items}
-                  subtotal={subtotal}
-                  shipping={shipping}
-                  tax={tax}
-                  total={total}
-                />
-              </div>
-            </div>
-          )}
+        <div className="page-container text-center text-white/80">
+          Redirecting to checkout...
         </div>
       </div>
       
