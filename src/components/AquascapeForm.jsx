@@ -18,10 +18,24 @@ export default function AquascapeForm() {
     setError("")
     
     try {
-      // Create a detailed message for aquascape inquiry
-      const fileLine = imageFiles.length
-        ? `- Image References (${imageFiles.length}): ${imageFiles.map(f => f.name).join(', ')}`
-        : ''
+      // Upload image references first (if any), get public URLs
+      let uploadedUrls = []
+      if (imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          const fd = new FormData()
+          fd.append('file', file)
+          const res = await fetch('/api/upload', { method: 'POST', body: fd, credentials: 'include' })
+          const out = await res.json()
+          if (!res.ok) {
+            throw new Error(out?.error || `Failed to upload ${file.name}`)
+          }
+          if (out?.url) uploadedUrls.push(out.url)
+        }
+      }
+
+      // Create a detailed message for aquascape inquiry (embed public URLs so admin can preview)
+      const filesHeader = imageFiles.length ? `- Image References (${imageFiles.length}): ${imageFiles.map(f => f.name).join(', ')}` : ''
+      const urlsBlock = uploadedUrls.length ? `- Image URLs:\n${uploadedUrls.map(u => `  ${u}`).join('\n')}` : ''
       const aquascapeMessage = `
     Aquascape Inquiry Details:
     - Contact: ${payload.contactNo}
@@ -29,7 +43,8 @@ export default function AquascapeForm() {
     - Aquarium Size: ${payload.aquariumSize}
     - Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}
     - Preferences/Suggestions: ${payload.preferences}
-    ${fileLine}
+    ${filesHeader}
+    ${urlsBlock}
       `.trim()
 
       await createInquiry({
@@ -54,9 +69,7 @@ export default function AquascapeForm() {
   if (submitted) {
     return (
       <div className="text-center space-y-4">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">Aquascape Inquiry</h1>
-        <p className="text-lg sm:text-xl text-white/80">Let us help you create the perfect aquascape for your space!</p>
-        <h3 className="text-2xl font-semibold text-white mt-6">Thanks! We received your aquascape inquiry.</h3>
+        <h3 className="text-2xl font-semibold text-white">Thanks! We received your aquascape inquiry.</h3>
         <p className="text-white/80">Our aquascape specialists will get back to you soon with a customized proposal.</p>
       </div>
     )
@@ -84,6 +97,8 @@ export default function AquascapeForm() {
             name="firstName"
             className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
             placeholder="Enter your first name"
+            pattern="^[a-zA-Z]+(?: [a-zA-Z]+)*$"
+            title="Name may contain letters and single spaces between words"
             required
           />
         </div>
@@ -98,6 +113,8 @@ export default function AquascapeForm() {
             name="lastName"
             className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
             placeholder="Enter your last name"
+            pattern="^[a-zA-Z]+(?: [a-zA-Z]+)*$"
+            title="Name may contain letters and single spaces between words"
             required
           />
         </div>
@@ -129,6 +146,8 @@ export default function AquascapeForm() {
             name="email"
             className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
             placeholder="Enter your email address"
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            title="Enter a valid email address (example@domain.com)"
             required
           />
         </div>
@@ -185,6 +204,9 @@ export default function AquascapeForm() {
                 className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
                 min="0"
                 max={MAX_PRICE}
+                pattern="^\\d+$"
+                inputMode="numeric"
+                title="Enter digits only"
                 onChange={(e) => {
                   const v = e.target.valueAsNumber
                   if (Number.isFinite(v) && v > MAX_PRICE) {
@@ -205,6 +227,9 @@ export default function AquascapeForm() {
                 className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
                 min="0"
                 max={MAX_PRICE}
+                pattern="^\\d+$"
+                inputMode="numeric"
+                title="Enter digits only"
                 onChange={(e) => {
                   const v = e.target.valueAsNumber
                   if (Number.isFinite(v) && v > MAX_PRICE) {

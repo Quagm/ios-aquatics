@@ -55,6 +55,8 @@ export default function AccountForm() {
             placeholder="James Ygain"
             value={form.name}
             onChange={(e) => update('name', e.target.value)}
+            pattern="^[a-zA-Z]+(?: [a-zA-Z]+)*$"
+            title="Name may contain letters and single spaces between words"
           />
         </div>
         
@@ -70,6 +72,8 @@ export default function AccountForm() {
             placeholder="john@example.com"
             value={form.email}
             onChange={(e) => update('email', e.target.value)}
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            title="Enter a valid email address (example@domain.com)"
           />
         </div>
         
@@ -144,6 +148,8 @@ export default function AccountForm() {
               placeholder="1747"
               value={form.postal}
               onChange={(e) => update('postal', e.target.value)}
+              pattern="^\d{5}(?:[-\s]?\d{4})?$"
+              title="Enter a 5-digit postal code or ZIP+4 (e.g., 12345 or 12345-6789)"
             />
           </div>
         </div>

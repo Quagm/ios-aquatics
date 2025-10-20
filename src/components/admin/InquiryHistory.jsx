@@ -16,6 +16,34 @@ export default function InquiryHistory() {
   const [loading, setLoading] = useState(true)
   const { push } = useToast()
 
+  const extractImageUrls = (text) => {
+    if (!text || typeof text !== 'string') return []
+    const urlRegex = /(https?:\/\/[^\s)]+)(?=\s|$)/g
+    const knownImageExt = /\.(png|jpe?g|gif|webp|bmp|svg|tiff|heic|heif)(\?|#|$)/i
+    const urls = []
+    let m
+    while ((m = urlRegex.exec(text)) !== null) {
+      const u = m[1]
+      if (knownImageExt.test(u) || u.includes('/storage/v1/object/public/')) {
+        urls.push(u)
+      }
+    }
+    return Array.from(new Set(urls))
+  }
+
+  const getCleanMessage = (text) => {
+    if (!text || typeof text !== 'string') return ''
+    const lines = text.split(/\r?\n/)
+    const cleaned = lines.filter((line) => {
+      const l = line.trim()
+      if (l.toLowerCase().startsWith('- image references')) return false
+      if (l.toLowerCase().startsWith('- image urls')) return false
+      if (/^https?:\/\//i.test(l)) return false
+      return true
+    })
+    return cleaned.join('\n').trim()
+  }
+
   useEffect(() => {
     let mounted = true
     apiFetchInquiries()
@@ -65,7 +93,16 @@ export default function InquiryHistory() {
                   <span className="text-xs text-slate-400 whitespace-nowrap">{new Date(inq.created_at).toLocaleString()}</span>
                 </div>
               </div>
-              <p className="text-slate-300 text-sm mt-3 line-clamp-4 whitespace-pre-line">{inq.message}</p>
+              <p className="text-slate-300 text-sm mt-3 line-clamp-4 whitespace-pre-line">{getCleanMessage(inq.message)}</p>
+              {extractImageUrls(inq.message).length > 0 && (
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {extractImageUrls(inq.message).map((url, idx) => (
+                    <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-white/20 bg-white/5">
+                      <img src={url} alt={`reference-${idx + 1}`} className="w-full h-28 object-cover" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
           {(!loading && inquiries.length === 0) && (

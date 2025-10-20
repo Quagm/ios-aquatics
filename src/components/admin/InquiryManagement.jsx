@@ -113,6 +113,38 @@ export default function InquiryManagement() {
     }
   }
 
+  // Extract image URLs from free-form message text
+  const extractImageUrls = (text) => {
+    if (!text || typeof text !== 'string') return []
+    // Look for any http/https URLs, keep those that look like images or Supabase public links
+    const urlRegex = /(https?:\/\/[^\s)]+)(?=\s|$)/g
+    const knownImageExt = /\.(png|jpe?g|gif|webp|bmp|svg|tiff|heic|heif)(\?|#|$)/i
+    const urls = []
+    let m
+    while ((m = urlRegex.exec(text)) !== null) {
+      const u = m[1]
+      if (knownImageExt.test(u) || u.includes('/storage/v1/object/public/')) {
+        urls.push(u)
+      }
+    }
+    return Array.from(new Set(urls))
+  }
+
+  // Clean message by removing image reference metadata lines
+  const getCleanMessage = (text) => {
+    if (!text || typeof text !== 'string') return ''
+    const lines = text.split(/\r?\n/)
+    const cleaned = lines.filter((line) => {
+      const l = line.trim()
+      if (l.toLowerCase().startsWith('- image references')) return false
+      if (l.toLowerCase().startsWith('- image urls')) return false
+      // Drop bare URL-only lines that are part of the image block
+      if (/^https?:\/\//i.test(l)) return false
+      return true
+    })
+    return cleaned.join('\n').trim()
+  }
+
   const updateInquiryStatus = async (id, newStatus) => {
     try {
       if (newStatus === 'completed' || newStatus === 'cancelled') {
@@ -173,14 +205,27 @@ export default function InquiryManagement() {
           <div key={inq.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <h3 className="text-lg font-semibold text-white truncate">{inq.subject || 'No subject'}</h3>
+                <h3
+                  onClick={() => setSelectedInquiry(inq)}
+                  className="text-lg font-semibold text-white truncate cursor-pointer hover:underline"
+                >
+                  {inq.subject || 'No subject'}
+                </h3>
                 <p className="text-slate-300 text-sm mt-1 truncate">
                   {(inq.first_name || '') + ' ' + (inq.last_name || '')} • {inq.email}
                 </p>
               </div>
-              <span className="text-xs px-2 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{inq.status || 'accepted'}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedInquiry(inq)}
+                  className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  title="View Details"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+                <span className="text-xs px-2 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{inq.status || 'accepted'}</span>
+              </div>
             </div>
-            <p className="text-slate-300 text-sm mt-3 line-clamp-4 whitespace-pre-line">{inq.message}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button onClick={() => updateInquiryStatus(inq.id, 'accepted')} className="px-3 py-2 text-xs rounded bg-white/10 text-white hover:bg-white/20">Accepted</button>
               <button onClick={() => updateInquiryStatus(inq.id, 'in_progress')} className="px-3 py-2 text-xs rounded bg-yellow-600/20 text-yellow-200 hover:bg-yellow-600/30">In Progress</button>
@@ -194,6 +239,75 @@ export default function InquiryManagement() {
           <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No inquiries found</div>
         )}
       </div>
+
+      {/* View Inquiry Modal */}
+      {selectedInquiry && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="glass-effect rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white">Inquiry Details</h3>
+              <button onClick={() => setSelectedInquiry(null)} className="px-3 py-1 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20">Close</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-slate-400 text-sm">Subject</div>
+                    <div className="text-white text-lg font-semibold">{selectedInquiry.subject || 'No subject'}</div>
+                  </div>
+                  <span className="text-xs px-2 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{selectedInquiry.status || 'accepted'}</span>
+                </div>
+                <div className="mt-2 text-slate-400 text-xs">
+                  {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : ''}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-slate-400 text-sm">Name</div>
+                  <div className="text-white">{(selectedInquiry.first_name || '') + ' ' + (selectedInquiry.last_name || '')}</div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Email</div>
+                  <div className="text-white break-all">{selectedInquiry.email}</div>
+                </div>
+                {selectedInquiry.phone && (
+                  <div>
+                    <div className="text-slate-400 text-sm">Phone</div>
+                    <div className="text-white">{selectedInquiry.phone}</div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <div className="text-slate-400 text-sm mb-1">Message</div>
+                <div className="text-slate-200 whitespace-pre-line break-words">{getCleanMessage(selectedInquiry.message)}</div>
+              </div>
+
+              {extractImageUrls(selectedInquiry.message).length > 0 && (
+                <div>
+                  <div className="text-slate-400 text-sm mb-2">Images</div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {extractImageUrls(selectedInquiry.message).map((url, idx) => (
+                      <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-white/20 bg-white/5">
+                        <img src={url} alt={`reference-${idx + 1}`} className="w-full h-32 object-cover" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                <button onClick={() => updateInquiryStatus(selectedInquiry.id, 'accepted')} className="px-3 py-2 text-xs rounded bg-white/10 text-white hover:bg-white/20">Accepted</button>
+                <button onClick={() => updateInquiryStatus(selectedInquiry.id, 'in_progress')} className="px-3 py-2 text-xs rounded bg-yellow-600/20 text-yellow-200 hover:bg-yellow-600/30">In Progress</button>
+                <button onClick={() => updateInquiryStatus(selectedInquiry.id, 'completed')} className="px-3 py-2 text-xs rounded bg-green-600/20 text-green-200 hover:bg-green-600/30">Completed</button>
+                <button onClick={() => updateInquiryStatus(selectedInquiry.id, 'cancelled')} className="px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Cancelled</button>
+                <button onClick={() => { deleteInquiry(selectedInquiry.id); setSelectedInquiry(null) }} className="ml-auto px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

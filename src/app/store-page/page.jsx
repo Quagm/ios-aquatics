@@ -23,9 +23,7 @@ export default function StorePage() {
     "/services-slides/monster-tanks.png",
     "/services-slides/moss-wall-design.png",
     "/services-slides/paludarium-system.png",
-    "/services-slides/terrarium-enclosures.png",
-    "/services-slides/slide-img.png",
-    "/services-slides/slide-img1.png"
+    "/services-slides/terrarium-enclosures.png"
   ]
 
   useEffect(() => {
@@ -179,6 +177,7 @@ export default function StorePage() {
                 />
               </div>
             </div>
+            
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
               {categories.map(cat => (
                 <button

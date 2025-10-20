@@ -281,7 +281,20 @@ export async function updateOrderStatus(orderId, status) {
       throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }
 
-    // Use maybeSingle to avoid coercion error when the database returns an array
+    // If marking as completed, use secure API that atomically deducts stock and completes order
+    if (String(status).toLowerCase() === 'completed') {
+      const res = await fetch('/api/orders/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ orderId })
+      })
+      const data = await res.json()
+      if (!res.ok) handleSupabaseError({ message: data?.error || 'Complete order failed' }, 'Complete order')
+      return data
+    }
+
+    // Otherwise, update status directly
     const { data, error } = await supabase
       .from("orders")
       .update({ status })
