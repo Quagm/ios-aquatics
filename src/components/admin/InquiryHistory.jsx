@@ -46,30 +46,30 @@ export default function InquiryHistory() {
         <p className="text-lg text-slate-300 max-w-2xl">Archived inquiries (completed or cancelled).</p>
       </div>
 
-      <div className="glass-effect rounded-2xl border border-white/10 overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10">
+      <div>
+        <div className="px-1 py-2">
           <h3 className="text-lg font-semibold text-white">Archived Inquiries ({inquiries.length})</h3>
         </div>
-        <div className="divide-y divide-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {inquiries.map(inq => (
-            <div key={inq.id} className="px-6 py-5">
+            <div key={inq.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{inq.subject || 'No subject'}</h3>
-                  <p className="text-slate-300 text-sm mt-1">
+                <div className="min-w-0">
+                  <h3 className="text-lg font-semibold text-white truncate">{inq.subject || 'No subject'}</h3>
+                  <p className="text-slate-300 text-sm mt-1 truncate">
                     {(inq.first_name || '') + ' ' + (inq.last_name || '')} • {inq.email}
                   </p>
-                  <p className="text-slate-300 text-sm mt-2 whitespace-pre-line">{inq.message}</p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className="text-xs px-2 py-1 rounded border border-white/20 text-white/80 capitalize">{inq.status}</span>
-                  <span className="text-xs text-slate-400">{new Date(inq.created_at).toLocaleString()}</span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-xs px-2 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{inq.status}</span>
+                  <span className="text-xs text-slate-400 whitespace-nowrap">{new Date(inq.created_at).toLocaleString()}</span>
                 </div>
               </div>
+              <p className="text-slate-300 text-sm mt-3 line-clamp-4 whitespace-pre-line">{inq.message}</p>
             </div>
           ))}
           {(!loading && inquiries.length === 0) && (
-            <div className="px-6 py-10 text-center text-slate-300">No archived inquiries.</div>
+            <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No archived inquiries.</div>
           )}
         </div>
       </div>

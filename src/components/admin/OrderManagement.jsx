@@ -68,11 +68,8 @@ export default function OrderManagement() {
       )
     }
 
-    // Always exclude completed/delivered orders from the active management view (case-insensitive)
-    filtered = filtered.filter(order => {
-      const s = String(order.status || '').toLowerCase()
-      return s !== 'completed' && s !== 'delivered'
-    })
+    // Exclude completed orders from the active management view (case-insensitive)
+    filtered = filtered.filter(order => String(order.status || '').toLowerCase() !== 'completed')
 
     if (statusFilter !== 'all') {
       filtered = filtered.filter(order => order.status === statusFilter)
@@ -106,8 +103,6 @@ export default function OrderManagement() {
         return 'bg-yellow-100 text-yellow-800'
       case 'shipped':
         return 'bg-blue-100 text-blue-800'
-      case 'delivered':
-        return 'bg-green-100 text-green-800'
       case 'completed':
         return 'bg-green-100 text-green-800'
       case 'cancelled':
@@ -123,8 +118,6 @@ export default function OrderManagement() {
         return <Clock className="w-4 h-4" />
       case 'shipped':
         return <Truck className="w-4 h-4" />
-      case 'delivered':
-        return <CheckCircle className="w-4 h-4" />
       case 'completed':
         return <CheckCircle className="w-4 h-4" />
       case 'cancelled':
@@ -270,21 +263,21 @@ export default function OrderManagement() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Status</option>
-              <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
+              <option className="bg-slate-800 text-white" value="all">All Status</option>
+              <option className="bg-slate-800 text-white" value="processing">Processing</option>
+              <option className="bg-slate-800 text-white" value="shipped">Shipped</option>
+              
+              <option className="bg-slate-800 text-white" value="cancelled">Cancelled</option>
             </select>
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
               className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
+              <option className="bg-slate-800 text-white" value="all">All Time</option>
+              <option className="bg-slate-800 text-white" value="today">Today</option>
+              <option className="bg-slate-800 text-white" value="week">This Week</option>
+              <option className="bg-slate-800 text-white" value="month">This Month</option>
             </select>
             <button className="flex items-center px-4 py-2 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors border border-white/20">
               <Filter className="w-4 h-4 mr-2" />
@@ -294,83 +287,52 @@ export default function OrderManagement() {
         </div>
       </div>
 
-      {/* Orders Table */}
-      <div className="glass-effect rounded-2xl border border-white/10 overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10">
-          <h3 className="text-lg font-semibold text-white">
-            Orders ({filteredOrders.length})
-          </h3>
+      {/* Orders Grid */}
+      <div>
+        <div className="px-1 py-2">
+          <h3 className="text-lg font-semibold text-white">Orders ({filteredOrders.length})</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-white/10">
-            <thead className="bg-white/10">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">
-                  Items
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-200 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-transparent divide-y divide-white/10">
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-white/10">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-white">{order.id}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-white">{order.items.length} items</div>
-                    <div className="text-sm text-slate-300">
-                      {order.items.map(item => item.name).join(', ')}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                    ₱{order.total.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredOrders.map((order) => (
+            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-300">#{order.id}</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                       {getStatusIcon(order.status)}
                       <span className="ml-1 capitalize">{order.status}</span>
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    {order.orderDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end space-x-2">
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="text-blue-300 hover:text-blue-200"
-                        title="View Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="text-green-300 hover:text-green-200"
-                        title="Edit Order"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                  <p className="text-slate-300 text-sm mt-1">{order.orderDate}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedOrder(order)}
+                  className="text-blue-300 hover:text-blue-200"
+                  title="View Details"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="mt-4 space-y-1">
+                <p className="text-white text-sm font-medium">{order.items.length} items</p>
+                <p className="text-slate-300 text-sm line-clamp-2">{order.items.map(i => i.name).join(', ')}</p>
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <p className="text-white font-semibold">₱{order.total.toFixed(2)}</p>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => updateOrderStatus(order.id, 'processing')} className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20">Processing</button>
+                  <button onClick={() => updateOrderStatus(order.id, 'shipped')} className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20">Shipped</button>
+                  
+                  <button onClick={() => updateOrderStatus(order.id, 'completed')} className="px-2 py-1 text-xs rounded bg-green-600/20 text-green-200 hover:bg-green-600/30">Completed</button>
+                  <button onClick={() => updateOrderStatus(order.id, 'cancelled')} className="px-2 py-1 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Cancel</button>
+                </div>
+              </div>
+            </div>
+          ))}
+          {filteredOrders.length === 0 && (
+            <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No orders found</div>
+          )}
         </div>
       </div>
 
@@ -498,11 +460,11 @@ function OrderDetailModal({ order, onClose, onUpdateStatus }) {
                 onChange={(e) => setNewStatus(e.target.value)}
                 className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option className="bg-slate-800 text-white" value="processing">Processing</option>
+                <option className="bg-slate-800 text-white" value="shipped">Shipped</option>
+                <option className="bg-slate-800 text-white" value="delivered">Delivered</option>
+                <option className="bg-slate-800 text-white" value="completed">Completed</option>
+                <option className="bg-slate-800 text-white" value="cancelled">Cancelled</option>
               </select>
               <button
                 onClick={handleStatusUpdate}

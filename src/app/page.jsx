@@ -427,18 +427,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 relative top-6">
-                <div className="glass-effect rounded-xl p-6 text-center border border-white/10">
-                  <Clock className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                  <div className="text-white font-semibold mb-1">Store Hours</div>
-                  <div className="text-slate-300 text-sm">Mon-Sat: 9AM-6PM</div>
-                </div>
-                <div className="glass-effect rounded-xl p-6 text-center border border-white/10">
-                  <Truck className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                  <div className="text-white font-semibold mb-1">Delivery</div>
-                  <div className="text-slate-300 text-sm">Available</div>
-                </div>
-              </div>
+              
             </div>
 
             {/* Contact Actions */}

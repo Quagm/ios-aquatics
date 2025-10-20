@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { fetchOrders } from '@/lib/queries'
 import { Package, CheckCircle, Calendar, DollarSign } from 'lucide-react'
 import { useToast } from '@/components/ui/ToastProvider'
+import { supabase } from '@/supabaseClient'
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([])
@@ -42,6 +43,32 @@ export default function OrderHistory() {
       })
       .finally(() => setLoading(false))
     return () => { mounted = false }
+  }, [])
+
+  // Realtime: refresh when orders change so completed/delivered show up immediately
+  useEffect(() => {
+    const channel = supabase
+      .channel('orders_history_updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async () => {
+        try {
+          const data = await fetchOrders()
+          const archived = (data || [])
+            .filter(o => ['completed', 'delivered'].includes(String(o.status || '').toLowerCase()))
+            .map((o) => ({
+              id: o.id,
+              items: (o.order_items || []).map(i => ({ name: i.products?.name || 'Unknown Product', quantity: i.quantity, price: i.price })),
+              total: o.total,
+              status: o.status,
+              orderDate: o.created_at?.split('T')[0],
+              customer: o.customer || {}
+            }))
+          setOrders(archived)
+        } catch {}
+      })
+      .subscribe()
+    return () => {
+      try { supabase.removeChannel(channel) } catch {}
+    }
   }, [])
 
   const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0)
@@ -86,53 +113,38 @@ export default function OrderHistory() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="glass-effect rounded-2xl border border-white/10 overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10">
-          <h3 className="text-lg font-semibold text-white">
-            Completed Orders ({orders.length})
-          </h3>
+      {/* Grid Cards */}
+      <div>
+        <div className="px-1 py-2">
+          <h3 className="text-lg font-semibold text-white">Completed Orders ({orders.length})</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-white/10">
-            <thead className="bg-white/10">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">Order ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">Items</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">Total</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider">Date</th>
-              </tr>
-            </thead>
-            <tbody className="bg-transparent divide-y divide-white/10">
-              {orders.map(order => (
-                <tr key={order.id} className="hover:bg-white/10">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-white">{order.id}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-white">{order.items.length} items</div>
-                    <div className="text-sm text-slate-300">{order.items.map(i => i.name).join(', ')}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">₱{order.total.toFixed(2)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {orders.map(order => (
+            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-300">#{order.id}</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       <CheckCircle className="w-4 h-4" />
                       <span className="ml-1 capitalize">{order.status}</span>
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{order.orderDate}</td>
-                </tr>
-              ))}
-              {(!loading && orders.length === 0) && (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-300">
-                    No completed orders yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  </div>
+                  <p className="text-slate-300 text-sm mt-1">{order.orderDate}</p>
+                </div>
+              </div>
+              <div className="mt-4 space-y-1">
+                <p className="text-white text-sm font-medium">{order.items.length} items</p>
+                <p className="text-slate-300 text-sm line-clamp-2">{order.items.map(i => i.name).join(', ')}</p>
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <p className="text-white font-semibold">₱{order.total.toFixed(2)}</p>
+              </div>
+            </div>
+          ))}
+          {(!loading && orders.length === 0) && (
+            <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No completed orders yet.</div>
+          )}
         </div>
       </div>
     </div>

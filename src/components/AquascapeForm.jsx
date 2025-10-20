@@ -6,6 +6,9 @@ export default function AquascapeForm() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [imageFiles, setImageFiles] = useState([]) // selected image references
+  const MAX_IMAGES = 5
+  const MAX_PRICE = 1_000_000_000_000 // one trillion
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -16,15 +19,18 @@ export default function AquascapeForm() {
     
     try {
       // Create a detailed message for aquascape inquiry
-          const aquascapeMessage = `
+      const fileLine = imageFiles.length
+        ? `- Image References (${imageFiles.length}): ${imageFiles.map(f => f.name).join(', ')}`
+        : ''
+      const aquascapeMessage = `
     Aquascape Inquiry Details:
     - Contact: ${payload.contactNo}
     - Address: ${payload.address}
     - Aquarium Size: ${payload.aquariumSize}
     - Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}
     - Preferences/Suggestions: ${payload.preferences}
-    ${payload.imageReference ? `- Image Reference: ${payload.imageReference.name}` : ''}
-          `.trim()
+    ${fileLine}
+      `.trim()
 
       await createInquiry({
         first_name: payload.firstName,
@@ -37,6 +43,7 @@ export default function AquascapeForm() {
       })
       setSubmitted(true)
       ;(e.currentTarget).reset()
+      setImageFiles([])
     } catch (err) {
       setError(err.message || "Failed to submit. Please try again.")
     } finally {
@@ -177,6 +184,15 @@ export default function AquascapeForm() {
                 placeholder="Min (₱)"
                 className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
                 min="0"
+                max={MAX_PRICE}
+                onChange={(e) => {
+                  const v = e.target.valueAsNumber
+                  if (Number.isFinite(v) && v > MAX_PRICE) {
+                    e.target.value = String(MAX_PRICE)
+                  } else if (v < 0) {
+                    e.target.value = '0'
+                  }
+                }}
                 required
               />
             </div>
@@ -188,6 +204,15 @@ export default function AquascapeForm() {
                 placeholder="Max (₱)"
                 className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
                 min="0"
+                max={MAX_PRICE}
+                onChange={(e) => {
+                  const v = e.target.valueAsNumber
+                  if (Number.isFinite(v) && v > MAX_PRICE) {
+                    e.target.value = String(MAX_PRICE)
+                  } else if (v < 0) {
+                    e.target.value = '0'
+                  }
+                }}
                 required
               />
             </div>
@@ -215,10 +240,10 @@ export default function AquascapeForm() {
         ></textarea>
       </div>
 
-      {/* Image Reference */}
+      {/* Image References (multiple with limit) */}
       <div>
         <label htmlFor="imageReference" className="block text-sm font-medium text-white mb-3">
-          Image Reference Attachment
+          Image Reference Attachments <span className="text-white/60">(up to {MAX_IMAGES})</span>
         </label>
         <div className="relative">
           <input
@@ -226,12 +251,47 @@ export default function AquascapeForm() {
             id="imageReference"
             name="imageReference"
             accept="image/*"
+            multiple
+            onChange={(e) => {
+              const files = Array.from(e.target.files || [])
+              const next = [...imageFiles, ...files]
+              if (next.length > MAX_IMAGES) {
+                const allowed = next.slice(0, MAX_IMAGES)
+                setImageFiles(allowed)
+                setError(`You can attach up to ${MAX_IMAGES} images.`)
+              } else {
+                setImageFiles(next)
+              }
+              // Clear the input so selecting the same file again re-triggers change
+              e.target.value = ''
+            }}
             className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#6c47ff] file:text-white hover:file:bg-[#5a3ae6] file:cursor-pointer"
           />
           <p className="text-white/60 text-sm mt-2">
             Upload reference images of aquascapes you like (optional)
           </p>
         </div>
+        {imageFiles.length > 0 && (
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {imageFiles.map((file, idx) => {
+              const url = URL.createObjectURL(file)
+              return (
+                <div key={idx} className="relative group rounded-lg overflow-hidden border border-white/20 bg-white/10">
+                  <img src={url} alt={file.name} className="w-full h-32 object-cover" />
+                  <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-xs px-2 py-1 truncate">{file.name}</div>
+                  <button
+                    type="button"
+                    onClick={() => setImageFiles(prev => prev.filter((_, i) => i !== idx))}
+                    className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    Remove
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
       
       <div className="text-center pt-4">

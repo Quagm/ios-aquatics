@@ -13,8 +13,6 @@ export default function StorePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [query, setQuery] = useState("")
-  const [minPrice, setMinPrice] = useState("")
-  const [maxPrice, setMaxPrice] = useState("")
 
   // Services slideshow state (ported from HomePage)
   const [currentServiceSlide, setCurrentServiceSlide] = useState(0)
@@ -88,20 +86,8 @@ export default function StorePage() {
         (p.description || '').toLowerCase().includes(q)
       ))
     }
-    // Apply price range filter if provided
-    const min = minPrice ? Number(minPrice) : null
-    const max = maxPrice ? Number(maxPrice) : null
-    if (min != null || max != null) {
-      list = list.filter(p => {
-        const price = Number(p.price)
-        if (Number.isNaN(price)) return false
-        if (min != null && price < min) return false
-        if (max != null && price > max) return false
-        return true
-      })
-    }
     return list
-  }, [products, selectedCategory, query, minPrice, maxPrice])
+  }, [products, selectedCategory, query])
 
   const visibleProducts = filteredProducts.slice(0, visibleCount)
 
@@ -121,6 +107,8 @@ export default function StorePage() {
               <ShoppingCart className="w-4 h-4" />
               Our Store
             </div>
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-16 sm:my-20 lg:my-24" />
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight">
               <span className="gradient-text">Premium</span> Aquatics Store
             </h1>
@@ -174,6 +162,8 @@ export default function StorePage() {
               </div>
             </div>
           </div>
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-16 sm:my-20 lg:my-24" />
 
           {/* Search + Filter Section */}
           <div className="mb-12 space-y-6">
@@ -186,39 +176,6 @@ export default function StorePage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
-                />
-              </div>
-            </div>
-            {/* Price Range Inputs */}
-            <div className="max-w-xl mx-auto grid grid-cols-2 gap-3">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₱</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Min price"
-                  value={minPrice}
-                  onChange={(e) => {
-                    const digitsOnly = e.target.value.replace(/\D/g, '')
-                    const limited = digitsOnly.slice(0, 7)
-                    setMinPrice(limited)
-                  }}
-                  className="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
-                />
-              </div>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₱</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Max price"
-                  value={maxPrice}
-                  onChange={(e) => {
-                    const digitsOnly = e.target.value.replace(/\D/g, '')
-                    const limited = digitsOnly.slice(0, 7)
-                    setMaxPrice(limited)
-                  }}
-                  className="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
                 />
               </div>
             </div>
@@ -238,6 +195,8 @@ export default function StorePage() {
               ))}
             </div>
           </div>
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-8 sm:my-10 lg:my-12" />
 
           {/* Products Grid */}
           {error && (

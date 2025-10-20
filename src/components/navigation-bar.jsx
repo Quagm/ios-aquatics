@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { SignedOut, SignInButton, SignedIn, UserButton, useUser } from "@clerk/nextjs"
-import { ShoppingCart } from "lucide-react"
+import { ShoppingCart, Bell } from "lucide-react"
+import { supabase } from "@/supabaseClient"
 import { useCart } from "@/components/CartContext"
 
 export default function NavigationBar() {
@@ -15,6 +16,10 @@ export default function NavigationBar() {
   const { user } = useUser()
   const role = user?.publicMetadata?.role || user?.unsafeMetadata?.role || user?.privateMetadata?.role
   const isAdmin = role === 'admin'
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress || user?.primaryEmailAddress?.emailAddress
+
+  const [isNotifOpen, setIsNotifOpen] = useState(false)
+  const [notifs, setNotifs] = useState([])
 
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
@@ -26,6 +31,62 @@ export default function NavigationBar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Subscribe to user's inquiry and order status changes
+  useEffect(() => {
+    if (!userEmail) return
+    const maxItems = 20
+    const addNotif = (n) => {
+      setNotifs((prev) => {
+        const next = [n, ...prev]
+        return next.slice(0, maxItems)
+      })
+    }
+
+    // Inquiries: filter by email client-side
+    const chInq = supabase
+      .channel(`inq_status_${userEmail}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inquiries' }, (payload) => {
+        const row = payload?.new || payload?.record
+        if (!row) return
+        if ((row.email || '').toLowerCase() !== (userEmail || '').toLowerCase()) return
+        if (payload.eventType === 'UPDATE' && payload.old?.status !== row.status) {
+          addNotif({
+            id: `inq_${row.id}_${Date.now()}`,
+            type: 'inquiry',
+            title: 'Inquiry status updated',
+            detail: `${row.subject || 'Inquiry'} → ${row.status}`,
+            at: new Date().toISOString(),
+          })
+        }
+      })
+      .subscribe()
+
+    // Orders: customer is JSON; check customer.email
+    const chOrder = supabase
+      .channel(`order_status_${userEmail}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+        const row = payload?.new || payload?.record
+        if (!row) return
+        const email = (row.customer?.email || '').toLowerCase()
+        if (email !== (userEmail || '').toLowerCase()) return
+        if (payload.eventType === 'UPDATE' && payload.old?.status !== row.status) {
+          addNotif({
+            id: `ord_${row.id}_${Date.now()}`,
+            type: 'order',
+            title: 'Order status updated',
+            detail: `#${row.id} → ${row.status}`,
+            at: new Date().toISOString(),
+          })
+        }
+      })
+      .subscribe()
+
+    return () => {
+      try { supabase.removeChannel(chInq) } catch {}
+      try { supabase.removeChannel(chOrder) } catch {}
+    }
+  }, [userEmail])
 
   // Measure nav height and push content by exactly this amount
   useEffect(() => {
@@ -141,6 +202,16 @@ export default function NavigationBar() {
           >
             Store
           </Link>
+          <Link
+            href="/inquiry-form"
+            className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
+              isScrolled
+                ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
+                : "text-white/90 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            Aquascape
+          </Link>
           <SignedIn>
             <Link
               href="/checkout-page"
@@ -164,6 +235,7 @@ export default function NavigationBar() {
                 )}
               </div>
             </Link>
+            
           </SignedIn>
 
           {/* Auth Buttons */}
@@ -205,6 +277,44 @@ export default function NavigationBar() {
                     Admin
                   </Link>
                 )}
+                {/* Icon-only Notification Bell (left of profile) */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsNotifOpen((v) => !v)}
+                    className={`relative p-2 rounded-md transition-colors ${
+                      isScrolled ? 'text-slate-700 hover:text-slate-900 hover:bg-white/10' : 'text-white/90 hover:text-white hover:bg-white/10'
+                    }`}
+                    aria-label="Notifications"
+                  >
+                    <Bell className="w-5 h-5 relative top-[1px]" />
+                    {notifs.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-[10px] rounded-full min-w-[16px] h-[16px] px-1 flex items-center justify-center font-bold">
+                        {Math.min(notifs.length, 9)}{notifs.length > 9 ? '+' : ''}
+                      </span>
+                    )}
+                  </button>
+                  {isNotifOpen && (
+                    <div className={`absolute right-0 mt-2 w-72 glass-effect rounded-xl border border-white/20 shadow-xl z-50`}>
+                      <div className="p-3 border-b border-white/10 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-white">Updates</span>
+                        <button className="text-xs text-slate-300 hover:text-white" onClick={() => setNotifs([])}>Clear</button>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto divide-y divide-white/10">
+                        {notifs.length === 0 ? (
+                          <div className="p-4 text-slate-300 text-sm">No notifications yet.</div>
+                        ) : (
+                          notifs.map((n) => (
+                            <div key={n.id} className="p-3 text-sm">
+                              <p className="text-white font-medium">{n.title}</p>
+                              <p className="text-slate-300 mt-1">{n.detail}</p>
+                              <p className="text-slate-400 text-xs mt-1">{new Date(n.at).toLocaleString()}</p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <UserButton />
               </div>
             </SignedIn>
@@ -269,6 +379,13 @@ export default function NavigationBar() {
             className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
           >
             Store
+          </Link>
+          <Link
+            href="/inquiry-form"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+          >
+            Aquascape
           </Link>
           <SignedIn>
             <Link
