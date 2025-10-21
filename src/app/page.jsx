@@ -56,14 +56,14 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [serviceSlides.length])
 
-  // Handle hash navigation when coming from other pages
+  // hash navigation
   useEffect(() => {
     const handleHashNavigation = () => {
       const hash = window.location.hash
       if (hash) {
         const element = document.querySelector(hash)
         if (element) {
-          // Small delay to ensure page is fully loaded
+          // Delay a bit to make sure the page is fully loaded
           setTimeout(() => {
             element.scrollIntoView({
               behavior: 'smooth',
@@ -74,10 +74,9 @@ export default function HomePage() {
       }
     }
 
-    // Handle initial load
     handleHashNavigation()
 
-    // Handle hash changes
+    // handle hash navigation
     window.addEventListener('hashchange', handleHashNavigation)
     return () => window.removeEventListener('hashchange', handleHashNavigation)
   }, [])
@@ -141,7 +140,7 @@ export default function HomePage() {
 
       <NavigationBar />
 
-      {/* Hero Section with Slideshow */}
+      {/*landing page */}
       <section id="home" className="relative h-screen overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0">
           {slides.map((slide, index) => (
@@ -153,7 +152,7 @@ export default function HomePage() {
           ))}
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60" />
 
-          {/* Slideshow Controls */}
+          {/* Slideshow buttons */}
           <button
             className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
             onClick={prevSlide}
@@ -169,7 +168,7 @@ export default function HomePage() {
             <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
           </button>
 
-          {/* Slide Indicators */}
+          {/* indcator for slides */}
           <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
             {slides.map((_, index) => (
               <button
@@ -221,7 +220,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Content Sections */}
+      {/* landing page sections */}
       <section id="about" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-slate-800 to-slate-900">
         <div className="max-w-[1600px] mx-auto sm:px-4 lg:px-6">
           <div className="w-full flex flex-col items-center text-center mb-12">
@@ -294,7 +293,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Services Grid */}
+          {/* services with icons */}
           <div className="w-full flex justify-center">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16 w-full max-w-6xl px-6 sm:px-8 lg:px-12">
               {[
@@ -323,7 +322,7 @@ export default function HomePage() {
 
           <div className="h-16 sm:h-20"></div>
 
-          {/* Services Slideshow */}
+          {/* services slideshow */}
           <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl border border-white/10 mt-12 sm:mt-16">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
@@ -335,7 +334,7 @@ export default function HomePage() {
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-slate-900/40" />
 
-              {/* Slideshow Controls */}
+              {/* slideshow buttons */}
               <button
                 className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
                 onClick={prevServiceSlide}
@@ -351,7 +350,7 @@ export default function HomePage() {
                 <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
               </button>
 
-              {/* Slide Indicators */}
+              {/* slide index indicators */}
               <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
                 {serviceSlides.map((_, index) => (
                   <button
@@ -366,13 +365,14 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* Service Info Overlay */}
 
             </div>
           </div>
         </div>
       </section>
 
+
+      {/* Contact us secdtion */}
       <section id="contact" className="py-16 sm:py-20 lg:py-28 bg-gradient-to-b from-slate-800 to-slate-900 relative z-10">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
           <div className="text-center mb-8">
@@ -386,7 +386,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Contact Info */}
             <div className="space-y-8">
               <div className="glass-effect rounded-2xl border border-white/10 p-12">
                 <h3 className="text-2xl font-bold text-white mb-5">Visit Our Store</h3>
@@ -430,7 +429,7 @@ export default function HomePage() {
               
             </div>
 
-            {/* Contact Actions */}
+            {/* Contact us buttons */}
             <div className="space-y-6">
               <div className="glass-effect rounded-2xl p-10 sm:p-12 border border-white/10 text-center">
                 <h3 className="text-2xl font-bold text-white mb-4">Ready to Get Started?</h3>
@@ -462,8 +461,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
       <Footer />
     </div>
   )
