@@ -324,7 +324,7 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* Products Grid */}
+      {/* products */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
           <div key={product.id} className="glass-effect border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden group">
@@ -398,7 +398,7 @@ useEffect(() => {
         ))}
       </div>
 
-      {/* Add Product Modal */}
+      {/* add product */}
       {showAddModal && (
         <AddProductModal
           onClose={() => setShowAddModal(false)}
@@ -407,7 +407,7 @@ useEffect(() => {
         />
       )}
 
-      {/* Edit Product Modal */}
+      {/* edit product */}
       {editingProduct && (
         <EditProductModal
           product={editingProduct}
@@ -420,7 +420,7 @@ useEffect(() => {
   )
 }
 
-// Add Product Modal Component
+// add product function
 function AddProductModal({ onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -575,7 +575,7 @@ function AddProductModal({ onClose, onSave, categories }) {
   )
 }
 
-// Edit Product Modal Component
+// edit product function
 function EditProductModal({ product, onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: product.name,
@@ -631,7 +631,6 @@ function EditProductModal({ product, onClose, onSave, categories }) {
               </select>
             </div>
           </div>
-          {/* Stock Fields moved near top for visibility */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Stock</label>

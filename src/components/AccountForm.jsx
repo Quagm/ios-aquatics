@@ -35,13 +35,13 @@ export default function AccountForm() {
 
   return (
     <div className="space-y-8">
-      {/* Title */}
+      {/* title */}
       <div className="text-center md:text-left">
         <h2 className="text-2xl font-bold text-white mb-2">Account Information</h2>
         <p className="text-sm text-white/60">Update your personal details below</p>
       </div>
 
-      {/* Form */}
+      {/* form container */}
       <div className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-white mb-2">
@@ -155,7 +155,7 @@ export default function AccountForm() {
         </div>
       </div>
 
-      {/* Save Button */}
+      {/* update data */}
       <button 
         className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-2xl font-semibold 
                    hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"

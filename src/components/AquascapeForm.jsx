@@ -6,9 +6,6 @@ export default function AquascapeForm() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const [imageFiles, setImageFiles] = useState([]) // selected image references
-  const MAX_IMAGES = 5
-  const MAX_PRICE = 1_000_000_000_000 // one trillion
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -18,34 +15,16 @@ export default function AquascapeForm() {
     setError("")
     
     try {
-      // Upload image references first (if any), get public URLs
-      let uploadedUrls = []
-      if (imageFiles.length > 0) {
-        for (const file of imageFiles) {
-          const fd = new FormData()
-          fd.append('file', file)
-          const res = await fetch('/api/upload', { method: 'POST', body: fd, credentials: 'include' })
-          const out = await res.json()
-          if (!res.ok) {
-            throw new Error(out?.error || `Failed to upload ${file.name}`)
-          }
-          if (out?.url) uploadedUrls.push(out.url)
-        }
-      }
-
-      // Create a detailed message for aquascape inquiry (embed public URLs so admin can preview)
-      const filesHeader = imageFiles.length ? `- Image References (${imageFiles.length}): ${imageFiles.map(f => f.name).join(', ')}` : ''
-      const urlsBlock = uploadedUrls.length ? `- Image URLs:\n${uploadedUrls.map(u => `  ${u}`).join('\n')}` : ''
-      const aquascapeMessage = `
+      // Create a detailed message for aquascape inquiry
+const aquascapeMessage = `
     Aquascape Inquiry Details:
     - Contact: ${payload.contactNo}
     - Address: ${payload.address}
     - Aquarium Size: ${payload.aquariumSize}
     - Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}
     - Preferences/Suggestions: ${payload.preferences}
-    ${filesHeader}
-    ${urlsBlock}
-      `.trim()
+    ${payload.imageReference ? `- Image Reference: ${payload.imageReference.name}` : ''}
+          `.trim()
 
       await createInquiry({
         first_name: payload.firstName,
@@ -58,7 +37,6 @@ export default function AquascapeForm() {
       })
       setSubmitted(true)
       ;(e.currentTarget).reset()
-      setImageFiles([])
     } catch (err) {
       setError(err.message || "Failed to submit. Please try again.")
     } finally {
@@ -69,7 +47,9 @@ export default function AquascapeForm() {
   if (submitted) {
     return (
       <div className="text-center space-y-4">
-        <h3 className="text-2xl font-semibold text-white">Thanks! We received your aquascape inquiry.</h3>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">Aquascape Inquiry</h1>
+        <p className="text-lg sm:text-xl text-white/80">Let us help you create the perfect aquascape for your space!</p>
+        <h3 className="text-2xl font-semibold text-white mt-6">Thanks! We received your aquascape inquiry.</h3>
         <p className="text-white/80">Our aquascape specialists will get back to you soon with a customized proposal.</p>
       </div>
     )
@@ -85,7 +65,7 @@ export default function AquascapeForm() {
         </div>
       )}
       
-      {/* Name Fields */}
+      {/* name */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
         <div>
           <label htmlFor="firstName" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
@@ -97,8 +77,6 @@ export default function AquascapeForm() {
             name="firstName"
             className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
             placeholder="Enter your first name"
-            pattern="^[a-zA-Z]+(?: [a-zA-Z]+)*$"
-            title="Name may contain letters and single spaces between words"
             required
           />
         </div>
@@ -113,14 +91,12 @@ export default function AquascapeForm() {
             name="lastName"
             className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
             placeholder="Enter your last name"
-            pattern="^[a-zA-Z]+(?: [a-zA-Z]+)*$"
-            title="Name may contain letters and single spaces between words"
             required
           />
         </div>
       </div>
 
-      {/* Contact Information */}
+      {/* contact */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
         <div>
           <label htmlFor="contactNo" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
@@ -146,14 +122,12 @@ export default function AquascapeForm() {
             name="email"
             className="w-full px-4 py-3 sm:py-4 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70 transition-all duration-300 hover:border-white/50"
             placeholder="Enter your email address"
-            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-            title="Enter a valid email address (example@domain.com)"
             required
           />
         </div>
       </div>
       
-      {/* Address */}
+      {/* address */}
       <div>
         <label htmlFor="address" className="block text-sm sm:text-base font-medium text-white mb-2 sm:mb-3">
           Address *
@@ -168,7 +142,7 @@ export default function AquascapeForm() {
         ></textarea>
       </div>
 
-      {/* Aquarium Details */}
+      {/* aquascape preferences */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
         <div>
           <label htmlFor="aquariumSize" className="block text-sm font-medium text-white mb-3">
@@ -203,18 +177,6 @@ export default function AquascapeForm() {
                 placeholder="Min (₱)"
                 className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
                 min="0"
-                max={MAX_PRICE}
-                pattern="^\\d+$"
-                inputMode="numeric"
-                title="Enter digits only"
-                onChange={(e) => {
-                  const v = e.target.valueAsNumber
-                  if (Number.isFinite(v) && v > MAX_PRICE) {
-                    e.target.value = String(MAX_PRICE)
-                  } else if (v < 0) {
-                    e.target.value = '0'
-                  }
-                }}
                 required
               />
             </div>
@@ -226,18 +188,6 @@ export default function AquascapeForm() {
                 placeholder="Max (₱)"
                 className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
                 min="0"
-                max={MAX_PRICE}
-                pattern="^\\d+$"
-                inputMode="numeric"
-                title="Enter digits only"
-                onChange={(e) => {
-                  const v = e.target.valueAsNumber
-                  if (Number.isFinite(v) && v > MAX_PRICE) {
-                    e.target.value = String(MAX_PRICE)
-                  } else if (v < 0) {
-                    e.target.value = '0'
-                  }
-                }}
                 required
               />
             </div>
@@ -245,7 +195,7 @@ export default function AquascapeForm() {
         </div>
       </div>
       
-      {/* Preferences/Suggestions */}
+      {/* suggestions & preferences for the aquascape */}
       <div>
         <label htmlFor="preferences" className="block text-sm font-medium text-white mb-3">
           Preferences/Suggestions
@@ -265,10 +215,10 @@ export default function AquascapeForm() {
         ></textarea>
       </div>
 
-      {/* Image References (multiple with limit) */}
+      {/* image preferences */}
       <div>
         <label htmlFor="imageReference" className="block text-sm font-medium text-white mb-3">
-          Image Reference Attachments <span className="text-white/60">(up to {MAX_IMAGES})</span>
+          Image Reference Attachment
         </label>
         <div className="relative">
           <input
@@ -276,47 +226,12 @@ export default function AquascapeForm() {
             id="imageReference"
             name="imageReference"
             accept="image/*"
-            multiple
-            onChange={(e) => {
-              const files = Array.from(e.target.files || [])
-              const next = [...imageFiles, ...files]
-              if (next.length > MAX_IMAGES) {
-                const allowed = next.slice(0, MAX_IMAGES)
-                setImageFiles(allowed)
-                setError(`You can attach up to ${MAX_IMAGES} images.`)
-              } else {
-                setImageFiles(next)
-              }
-              // Clear the input so selecting the same file again re-triggers change
-              e.target.value = ''
-            }}
             className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#6c47ff] file:text-white hover:file:bg-[#5a3ae6] file:cursor-pointer"
           />
           <p className="text-white/60 text-sm mt-2">
             Upload reference images of aquascapes you like (optional)
           </p>
         </div>
-        {imageFiles.length > 0 && (
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {imageFiles.map((file, idx) => {
-              const url = URL.createObjectURL(file)
-              return (
-                <div key={idx} className="relative group rounded-lg overflow-hidden border border-white/20 bg-white/10">
-                  <img src={url} alt={file.name} className="w-full h-32 object-cover" />
-                  <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-xs px-2 py-1 truncate">{file.name}</div>
-                  <button
-                    type="button"
-                    onClick={() => setImageFiles(prev => prev.filter((_, i) => i !== idx))}
-                    className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label={`Remove ${file.name}`}
-                  >
-                    Remove
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        )}
       </div>
       
       <div className="text-center pt-4">

@@ -56,8 +56,8 @@ export default function ProductCard({ product, showAddToCart = true }) {
                   e.preventDefault();
                   e.stopPropagation();
                   
-                  if (isAdding) return; // Prevent multiple clicks
-                  if (!isLoaded) return; // Wait for Clerk
+                  if (isAdding) return; // for multiple clicks
+                  if (!isLoaded) return; // waits for clerk data to be loaded
                   if (!isSignedIn) {
                     alert('Please log in to add items to your cart.');
                     return;
@@ -66,7 +66,7 @@ export default function ProductCard({ product, showAddToCart = true }) {
                   setIsAdding(true);
                   addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, 1);
                   
-                  // Reset button state after animation
+                  // reset state after animation
                   setTimeout(() => {
                     setIsAdding(false);
                   }, 1000);

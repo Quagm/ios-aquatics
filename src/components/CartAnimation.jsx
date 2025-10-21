@@ -8,15 +8,15 @@ export default function CartAnimation({ isVisible, product, onComplete }) {
 
   useEffect(() => {
     if (isVisible) {
-      // Show flying item animation first
+      // show
       setShowFlyingItem(true)
       
-      // Show toast notification after a short delay
+      // toast
       const toastTimer = setTimeout(() => {
         setShowToast(true)
       }, 300)
 
-      // Hide both animations after completion
+      // hide animation
       const hideTimer = setTimeout(() => {
         setShowFlyingItem(false)
         setShowToast(false)
@@ -34,7 +34,7 @@ export default function CartAnimation({ isVisible, product, onComplete }) {
 
   return (
     <>
-      {/* Flying Item Animation */}
+      {/* animation*/}
       {showFlyingItem && (
         <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -47,7 +47,7 @@ export default function CartAnimation({ isVisible, product, onComplete }) {
         </div>
       )}
 
-      {/* Toast Notification */}
+      {/* toast */}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 animate-slide-in-right">
           <div className="glass-effect rounded-2xl p-4 border border-green-500/30 bg-green-500/10 backdrop-blur-sm shadow-2xl">

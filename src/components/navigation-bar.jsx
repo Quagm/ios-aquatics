@@ -88,7 +88,7 @@ export default function NavigationBar() {
     }
   }, [userEmail])
 
-  // Measure nav height and push content by exactly this amount
+  // push page content down by size of navigation bar
   useEffect(() => {
     const measure = () => {
       const h = navRef.current ? navRef.current.offsetHeight : 0
@@ -131,13 +131,13 @@ export default function NavigationBar() {
   const handleSmoothScroll = (e, href) => {
     e.preventDefault()
     
-    // If we're not on the home page, navigate to home first
+    // if not in home page go to home page
     if (window.location.pathname !== '/') {
       window.location.href = `/${href}`
       return
     }
     
-    // If we're on the home page, scroll to the section
+    // if yes go to the section
     const element = document.querySelector(href)
     if (element) {
       element.scrollIntoView({
@@ -158,7 +158,7 @@ export default function NavigationBar() {
       }`}
     >
       <div className="w-full mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 flex items-center justify-between gap-2 sm:gap-4 max-w-[95vw] xl:max-w-7xl">
-        {/* Logo and Title */}
+        {/* logo and title */}
         <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity flex-shrink-0">
           <Image
             src="/logo-aquatics.jpg"
@@ -176,7 +176,7 @@ export default function NavigationBar() {
           </h2>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* desktop version */}
         <div className="hidden md:flex items-center gap-2 lg:gap-4 xl:gap-6 flex-wrap justify-end">
           {navLinks.map(({ href, label }) => (
             <a
@@ -238,7 +238,7 @@ export default function NavigationBar() {
             
           </SignedIn>
 
-          {/* Auth Buttons */}
+          {/* Login buttons */}
           <div className="ml-1 lg:ml-2">
             <SignedOut>
               <SignInButton>
@@ -277,7 +277,7 @@ export default function NavigationBar() {
                     Admin
                   </Link>
                 )}
-                {/* Icon-only Notification Bell (left of profile) */}
+                {/* notifications*/}
                 <div className="relative">
                   <button
                     onClick={() => setIsNotifOpen((v) => !v)}
@@ -321,7 +321,7 @@ export default function NavigationBar() {
           </div>
         </div>
 
-        {/* Mobile Hamburger */}
+        {/* mobile hamburg */}
         <button
           className="md:hidden flex flex-col gap-1.5 p-2"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -441,7 +441,7 @@ export default function NavigationBar() {
         </div>
       </div>
     </nav>
-    {/* Dynamic spacer equal to nav height */}
+    {/* space */}
     <div aria-hidden style={{ height: navHeight }} />
     </>
   )

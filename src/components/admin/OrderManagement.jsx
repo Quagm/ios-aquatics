@@ -68,7 +68,7 @@ export default function OrderManagement() {
       )
     }
 
-    // Exclude completed orders from the active management view (case-insensitive)
+    // completed orders will not be shown
     filtered = filtered.filter(order => String(order.status || '').toLowerCase() !== 'completed')
 
     if (statusFilter !== 'all') {

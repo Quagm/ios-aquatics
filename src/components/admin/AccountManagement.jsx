@@ -154,7 +154,7 @@ export default function AccountManagement() {
 
   return (
     <div className="space-y-8 ml-6">
-      {/* Header */}
+      {/* header */}
       <div className="text-center lg:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
           <User className="w-4 h-4" />
@@ -177,7 +177,7 @@ export default function AccountManagement() {
         </button>
       </div>
 
-      {/* Filters and Search */}
+      {/* filters and serach */}
       <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
@@ -220,7 +220,7 @@ export default function AccountManagement() {
         </div>
       </div>
 
-      {/* Users Table */}
+      {/* users table */}
       <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -336,7 +336,7 @@ export default function AccountManagement() {
         </div>
       </div>
 
-      {/* Add User Modal */}
+      {/* add user */}
       {showAddModal && (
         <AddUserModal
           onClose={() => setShowAddModal(false)}
@@ -344,7 +344,7 @@ export default function AccountManagement() {
         />
       )}
 
-      {/* Edit User Modal */}
+      {/* edit user */}
       {editingUser && (
         <EditUserModal
           user={editingUser}
@@ -356,7 +356,7 @@ export default function AccountManagement() {
   )
 }
 
-// Add User Modal Component
+// add user modal 
 function AddUserModal({ onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -444,7 +444,7 @@ function AddUserModal({ onClose, onSave }) {
   )
 }
 
-// Edit User Modal Component
+// edit user modal
 function EditUserModal({ user, onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: user.name,

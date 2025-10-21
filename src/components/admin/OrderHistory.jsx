@@ -45,7 +45,7 @@ export default function OrderHistory() {
     return () => { mounted = false }
   }, [])
 
-  // Realtime: refresh when orders change so completed/delivered show up immediately
+  // shows cancelled?? or completed orders
   useEffect(() => {
     const channel = supabase
       .channel('orders_history_updates')
@@ -75,7 +75,7 @@ export default function OrderHistory() {
 
   return (
     <div className="space-y-8 ml-6">
-      {/* Header */}
+      {/* header */}
       <div className="text-center lg:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
           <Package className="w-4 h-4" />
@@ -87,7 +87,7 @@ export default function OrderHistory() {
         <p className="text-lg text-slate-300 max-w-2xl">Archived orders that have been completed.</p>
       </div>
 
-      {/* Summary */}
+      {/* summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-effect rounded-2xl p-6 border border-white/10">
           <div className="flex items-center">
@@ -113,7 +113,7 @@ export default function OrderHistory() {
         </div>
       </div>
 
-      {/* Grid Cards */}
+      {/* inquiry card */}
       <div>
         <div className="px-1 py-2">
           <h3 className="text-lg font-semibold text-white">Completed Orders ({orders.length})</h3>

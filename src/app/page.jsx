@@ -4,7 +4,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Waves, Fish, Leaf, Wrench, Utensils, Pill, Palette, MapPin, Phone, Mail, Clock, Truck, ShoppingCart, CheckCircle, AlertTriangle, Search, Sparkles, Lightbulb, FileText, ArrowRight } from 'lucide-react'
-import Footer from '@/components/footer'
+import Footer from '@/components/Footer'
 import NavigationBar from "@/components/navigation-bar"
 
 export default function HomePage() {

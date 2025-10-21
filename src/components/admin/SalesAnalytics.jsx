@@ -65,7 +65,7 @@ export default function SalesAnalytics() {
         setLoading(true)
         setError('')
         
-        // Simulate data fetching with sample data
+        // sample data
         const sampleData = {
           totalRevenue: 125000,
           totalOrders: 89,
@@ -110,7 +110,7 @@ export default function SalesAnalytics() {
     }).format(amount)
   }
 
-  // Chart data configuration
+  // chart data configures
   const chartData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     datasets: [
@@ -256,7 +256,7 @@ export default function SalesAnalytics() {
         <p className="text-lg text-slate-300 max-w-2xl">Track your aquatics store performance with detailed analytics and insights.</p>
       </div>
 
-      {/* Controls */}
+      {/* filters/control? */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
           <select
@@ -301,7 +301,7 @@ export default function SalesAnalytics() {
         </button>
       </div>
 
-      {/* Key Metrics */}
+      {/* revenue */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center justify-between mb-4">
@@ -372,7 +372,7 @@ export default function SalesAnalytics() {
         </div>
       </div>
 
-      {/* Line Chart */}
+      {/* line chart */}
       <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-8">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -399,7 +399,7 @@ export default function SalesAnalytics() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Orders by Status */}
+        {/* order filter status */}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
           <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
             <Target className="w-5 h-5 text-green-400" />
@@ -421,7 +421,7 @@ export default function SalesAnalytics() {
           </div>
         </div>
 
-        {/* Top Products */}
+        {/* top products */}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
           <div className="p-6 border-b border-white/10">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">

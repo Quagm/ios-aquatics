@@ -1,6 +1,6 @@
 "use client"
 import NavigationBar from "@/components/navigation-bar"
-import Footer from "@/components/footer"
+import Footer from "@/components/Footer"
 import ProductImageGallery from "@/components/ProductImageGallery"
 import ProductDetails from "@/components/ProductDetails"
 import ProductSpecifications from "@/components/ProductSpecifications"

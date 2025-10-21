@@ -1,6 +1,6 @@
 "use client"
 import NavigationBar from "@/components/navigation-bar"
-import Footer from "@/components/footer"
+import Footer from "@/components/Footer"
 import AquascapeForm from "@/components/AquascapeForm"
 
 export default function InquiryForm() {

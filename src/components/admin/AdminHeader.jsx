@@ -22,7 +22,7 @@ export default function AdminHeader() {
               <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
               <p className="text-sm text-slate-300">Manage your aquatics store</p>
             </div>
-            {/* Back to HomePage */}
+            {/* go to homepage */}
             <Link href="/#home" className="hidden md:inline-flex items-center gap-2 px-3 py-2 glass-effect rounded-lg border border-white/20 text-white/90 hover:bg-white/20 transition-colors ml-2">
               <ArrowLeft className="w-4 h-4" />
               <span>Back to HomePage</span>
@@ -30,12 +30,11 @@ export default function AdminHeader() {
           </div>
           
           <div className="flex items-center space-x-4">
-            {/* Back to Homepage (mobile) */}
+            {/* go to homepage (mobile version) */}
             <Link href="/#home" className="md:hidden inline-flex items-center gap-2 px-3 py-2 glass-effect rounded-lg border border-white/20 text-white/90 hover:bg-white/20 transition-colors">
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
             </Link>
-            {/* Search bar removed as requested */}
             
             
             <div className="glass-effect rounded-xl p-1">

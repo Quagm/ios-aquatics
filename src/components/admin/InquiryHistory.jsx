@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/ui/ToastProvider'
 
-// Reuse the same API used by InquiryManagement
+// reuse same API 
 async function apiFetchInquiries() {
   const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
   const data = await res.json()

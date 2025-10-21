@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ui/ToastProvider'
-// Use server API to bypass RLS
+
+// server API
 async function apiFetchInquiries() {
   const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
   const data = await res.json()
@@ -84,7 +85,7 @@ export default function InquiryManagement() {
       })
     }
 
-    // Exclude archived (completed/cancelled) from active by default
+    // not shown if status is completed or cancelled
     filtered = filtered.filter(inquiry => inquiry.status !== 'completed' && inquiry.status !== 'cancelled')
 
     if (statusFilter !== 'all') {

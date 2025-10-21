@@ -14,7 +14,7 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     if (!isLoaded) return
-    // When signed out, keep cart empty and do not load persisted items
+    // if there is no items set items as none
     if (!user) {
       setItems([])
       return
@@ -29,17 +29,6 @@ export function CartProvider({ children }) {
           return
         }
       }
-      // One-time migration from legacy anonymous key if present
-      const legacy = typeof window !== 'undefined' ? window.localStorage.getItem('cart-items') : null
-      if (legacy) {
-        const parsedLegacy = JSON.parse(legacy)
-        if (Array.isArray(parsedLegacy)) {
-          setItems(parsedLegacy)
-          // persist under user key and remove legacy
-          window.localStorage.setItem(key, JSON.stringify(parsedLegacy))
-          window.localStorage.removeItem('cart-items')
-        }
-      }
     } catch {}
   }, [user, isLoaded])
 
@@ -52,7 +41,7 @@ export function CartProvider({ children }) {
     } catch {}
   }, [items, user, isLoaded])
 
-  const addItem = (product, quantity = 1) => {
+  const addItem = (product, quantity = 1) => {x
     if (!user) return
     setItems(prev => {
       const index = prev.findIndex(p => p.id === product.id)
@@ -62,13 +51,13 @@ export function CartProvider({ children }) {
         const nextQty = copy[index].quantity + quantity
         copy[index] = { 
           ...copy[index], 
-          // keep existing stockCount if present, else store from product if provided
+          // keep existing stockCount; otherwise use product.stockCount
           stockCount: typeof copy[index].stockCount === 'number' ? copy[index].stockCount : product.stockCount,
           quantity: typeof effectiveStock === 'number' ? Math.min(effectiveStock, nextQty) : nextQty 
         }
         return copy
       }
-      // New item; if stockCount provided, cap initial quantity
+      // capping quantity of item by stockcount
       const cappedQty = typeof product.stockCount === 'number' ? Math.min(product.stockCount, quantity) : quantity
       return [...prev, { ...product, quantity: cappedQty }]
     })

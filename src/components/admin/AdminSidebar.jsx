@@ -67,8 +67,6 @@ export default function AdminSidebar() {
           )
         })}
       </nav>
-
-      {/* Settings card removed as requested */}
     </div>
   )
 }

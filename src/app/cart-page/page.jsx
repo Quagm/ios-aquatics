@@ -1,6 +1,6 @@
 "use client"
 import NavigationBar from "@/components/navigation-bar"
-import Footer from "@/components/footer"
+import Footer from "@/components/Footer"
 import CartItem from "@/components/CartItem"
 import OrderSummary from "@/components/OrderSummary"
 import EmptyCart from "@/components/EmptyCart"

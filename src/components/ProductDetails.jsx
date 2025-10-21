@@ -10,6 +10,7 @@ export default function ProductDetails({ product }) {
   const [isAdding, setIsAdding] = useState(false)
   const features = Array.isArray(product?.features) ? product.features : []
   const description = product?.description || ''
+  
   // Reflect inventory: derive stock availability from products.stock
   const stock = typeof product?.stock === 'number' ? product.stock : undefined
   const hasFiniteStock = typeof stock === 'number'
@@ -51,7 +52,7 @@ export default function ProductDetails({ product }) {
         )}
       </div>
 
-      {/* Stock Status */}
+      {/* stock status */}
       <div className="flex items-center space-x-3 mb-8">
         {inStock ? (
           <>
@@ -66,7 +67,7 @@ export default function ProductDetails({ product }) {
         )}
       </div>
 
-      {/* Quantity and Add to Cart */}
+      {/* quantity & add to cart */}
       <div className="space-y-6">
         <div className="flex items-center space-x-6">
           <label className="font-medium text-white text-lg">Quantity:</label>
@@ -116,7 +117,7 @@ export default function ProductDetails({ product }) {
         </div>
       </div>
 
-      {/* Description moved below Add to Cart */}
+      {/* description */}
       {description && (
         <div className="mt-12">
           <p className="text-white/80 leading-relaxed text-lg whitespace-pre-line">{description}</p>
