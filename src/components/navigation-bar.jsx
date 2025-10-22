@@ -157,7 +157,7 @@ export default function NavigationBar() {
           : "bg-transparent"
       }`}
     >
-      <div className="w-full mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 flex items-center justify-between gap-2 sm:gap-4 max-w-[95vw] xl:max-w-7xl">
+      <div className="page-container w-full flex items-center justify-between gap-2 sm:gap-4">
         {/* logo and title */}
         <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity flex-shrink-0">
           <Image

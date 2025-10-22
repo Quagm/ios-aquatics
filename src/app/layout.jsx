@@ -36,8 +36,8 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground font-sans`}>
           <CartProvider>
-            <main className="w-full">
-              <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 w-full">
+            <main className="w-full flex justify-center">
+              <div className="page-container w-full">
                 {children}
               </div>
             </main>
