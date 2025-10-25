@@ -4,6 +4,8 @@ import Footer from "@/components/Footer"
 import AccountForm from "@/components/AccountForm"
 import OrderHistory from "@/components/OrderHistory"
 
+
+
 export default function AccountPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
