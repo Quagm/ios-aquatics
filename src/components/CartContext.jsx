@@ -41,7 +41,7 @@ export function CartProvider({ children }) {
     } catch {}
   }, [items, user, isLoaded])
 
-  const addItem = (product, quantity = 1) => {x
+  const addItem = (product, quantity = 1) => {
     if (!user) return
     setItems(prev => {
       const index = prev.findIndex(p => p.id === product.id)

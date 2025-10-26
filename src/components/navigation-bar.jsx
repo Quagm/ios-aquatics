@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { SignedOut, SignInButton, SignedIn, UserButton, useUser } from "@clerk/nextjs"
+import { SignedOut, SignInButton, SignUpButton, SignedIn, UserButton, useUser } from "@clerk/nextjs"
 import { ShoppingCart, Bell } from "lucide-react"
 import { supabase } from "@/supabaseClient"
 import { useCart } from "@/components/CartContext"
@@ -151,24 +151,24 @@ export default function NavigationBar() {
     <>
     <nav
       ref={navRef}
-      className={`fixed inset-x-0 top-0 z-50 py-2 sm:py-3 lg:py-4 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 transition-all duration-300 ${
         isScrolled
           ? "bg-white shadow-lg border-b border-slate-200"
           : "bg-slate-800"
       }`}
     >
-      <div className="page-container w-full flex items-center justify-between gap-2 sm:gap-4">
+      <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-3 sm:gap-4 lg:gap-6">
         {/* logo and title */}
-        <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity flex-shrink-0">
+        <Link href="/" className="flex items-center space-x-3 sm:space-x-4 hover:opacity-80 transition-opacity flex-shrink-0">
           <Image
             src="/logo-aquatics.jpg"
             alt="IOS Aquatics Logo"
             width={40}
             height={40}
-            className="rounded-full w-8 h-8 sm:w-10 sm:h-10"
+            className="rounded-full w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14"
           />
           <h2
-            className={`text-base sm:text-lg lg:text-xl font-bold transition-colors ${
+            className={`text-lg sm:text-xl lg:text-2xl font-bold transition-colors ${
               isScrolled ? "text-slate-800" : "text-white"
             }`}
           >
@@ -177,16 +177,16 @@ export default function NavigationBar() {
         </Link>
 
         {/* desktop version */}
-        <div className="hidden md:flex items-center gap-2 lg:gap-4 xl:gap-6 flex-wrap justify-end">
+        <div className="hidden md:flex items-center gap-3 lg:gap-5 xl:gap-6 flex-wrap justify-end">
           {navLinks.map(({ href, label }) => (
             <a
               key={href}
               href={href}
               onClick={(e) => handleSmoothScroll(e, href)}
-              className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors cursor-pointer ${
+              className={`px-3 lg:px-4 xl:px-5 py-2.5 rounded-lg font-medium text-sm lg:text-base transition-colors cursor-pointer ${
                 isScrolled
-                  ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                  : "text-white/90 hover:text-white hover:bg-white/10"
+                  ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                  : "text-white/90 hover:text-white hover:bg-white/20"
               }`}
             >
               {label}
@@ -194,20 +194,20 @@ export default function NavigationBar() {
           ))}
           <Link
             href="/store-page"
-            className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
+            className={`px-3 lg:px-4 xl:px-5 py-2.5 rounded-lg font-medium text-sm lg:text-base transition-colors ${
               isScrolled
-                ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                : "text-white/90 hover:text-white hover:bg-white/10"
+                ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                : "text-white/90 hover:text-white hover:bg-white/20"
             }`}
           >
             Store
           </Link>
           <Link
             href="/inquiry-form"
-            className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
+            className={`px-3 lg:px-4 xl:px-5 py-2.5 rounded-lg font-medium text-sm lg:text-base transition-colors ${
               isScrolled
-                ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                : "text-white/90 hover:text-white hover:bg-white/10"
+                ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                : "text-white/90 hover:text-white hover:bg-white/20"
             }`}
           >
             Aquascape
@@ -215,10 +215,10 @@ export default function NavigationBar() {
           <SignedIn>
             <Link
               href="/checkout-page"
-              className={`relative px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
+              className={`relative px-3 lg:px-4 xl:px-5 py-2.5 rounded-lg font-medium text-sm lg:text-base transition-colors ${
                 isScrolled
-                  ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                  : "text-white/90 hover:text-white hover:bg-white/10"
+                  ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                  : "text-white/90 hover:text-white hover:bg-white/20"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -239,28 +239,39 @@ export default function NavigationBar() {
           </SignedIn>
 
           {/* Login buttons */}
-          <div className="ml-1 lg:ml-2">
+          <div className="ml-2 lg:ml-4 flex gap-2">
             <SignedOut>
-              <SignInButton>
+              <SignInButton mode="modal">
                 <button
-                  className={`px-3 lg:px-4 xl:px-6 py-2 lg:py-3 rounded-md font-medium text-xs lg:text-sm transition-all ${
+                  className={`px-4 lg:px-5 xl:px-6 py-2.5 lg:py-3 rounded-lg font-semibold text-sm lg:text-base transition-all duration-300 backdrop-blur-sm ${
                     isScrolled
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                      ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/25"
+                      : "bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 hover:shadow-lg hover:shadow-white/10"
                   }`}
                 >
                   Login
                 </button>
               </SignInButton>
+              <SignUpButton mode="modal">
+                <button
+                  className={`px-4 lg:px-5 xl:px-6 py-2.5 lg:py-3 rounded-lg font-semibold text-sm lg:text-base transition-all duration-300 backdrop-blur-sm ${
+                    isScrolled
+                      ? "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg shadow-emerald-500/25"
+                      : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10"
+                  }`}
+                >
+                  Register
+                </button>
+              </SignUpButton>
             </SignedOut>
             <SignedIn>
               <div className="flex items-center gap-2 lg:gap-3 xl:gap-4">
                 <Link
                   href="/account-page"
-                  className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
+                  className={`px-3 lg:px-4 xl:px-5 py-2.5 rounded-lg font-medium text-sm lg:text-base transition-colors ${
                     isScrolled
-                      ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                      : "text-white/90 hover:text-white hover:bg-white/10"
+                      ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                      : "text-white/90 hover:text-white hover:bg-white/20"
                   }`}
                 >
                   Account
@@ -268,10 +279,10 @@ export default function NavigationBar() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className={`px-2 lg:px-3 xl:px-4 py-2 rounded-md font-medium text-sm lg:text-base transition-colors ${
+                    className={`px-3 lg:px-4 xl:px-5 py-2.5 rounded-lg font-medium text-sm lg:text-base transition-colors ${
                       isScrolled
-                        ? "text-slate-700 hover:text-slate-900 hover:bg-white/10"
-                        : "text-white/90 hover:text-white hover:bg-white/10"
+                        ? "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                        : "text-white/90 hover:text-white hover:bg-white/20"
                     }`}
                   >
                     Admin
@@ -281,8 +292,8 @@ export default function NavigationBar() {
                 <div className="relative">
                   <button
                     onClick={() => setIsNotifOpen((v) => !v)}
-                    className={`relative p-2 rounded-md transition-colors ${
-                      isScrolled ? 'text-slate-700 hover:text-slate-900 hover:bg-white/10' : 'text-white/90 hover:text-white hover:bg-white/10'
+                    className={`relative p-2.5 rounded-lg transition-colors ${
+                      isScrolled ? 'text-slate-700 hover:text-slate-900 hover:bg-slate-100' : 'text-white/90 hover:text-white hover:bg-white/20'
                     }`}
                     aria-label="Notifications"
                   >
@@ -323,7 +334,7 @@ export default function NavigationBar() {
 
         {/* mobile hamburg */}
         <button
-          className="md:hidden flex flex-col gap-1.5 p-2"
+          className="md:hidden flex flex-col gap-1.5 p-3 rounded-lg hover:bg-white/10 transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -359,7 +370,7 @@ export default function NavigationBar() {
           isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
       >
-        <div className="px-4 py-6 space-y-4">
+        <div className="px-6 py-8 space-y-5">
           {navLinks.map(({ href, label }) => (
             <a
               key={href}
@@ -368,7 +379,7 @@ export default function NavigationBar() {
                 handleSmoothScroll(e, href)
                 setIsMobileMenuOpen(false)
               }}
-              className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
+              className="block py-3 px-2 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
             >
               {label}
             </a>
@@ -376,14 +387,14 @@ export default function NavigationBar() {
           <Link
             href="/store-page"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+            className="block py-3 px-2 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
           >
             Store
           </Link>
           <Link
             href="/inquiry-form"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+            className="block py-3 px-2 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
           >
             Aquascape
           </Link>
@@ -391,7 +402,7 @@ export default function NavigationBar() {
             <Link
               href="/checkout-page"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="relative block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              className="relative block py-3 px-2 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
             >
               <div className="flex items-center gap-2">
                 <ShoppingCart className={`w-5 h-5 transition-transform duration-300 ${
@@ -409,20 +420,27 @@ export default function NavigationBar() {
             </Link>
           </SignedIn>
 
-          <div className="pt-4 border-t border-slate-200">
+          <div className="pt-6 mt-6 border-t border-slate-200">
             <SignedOut>
-              <SignInButton>
-                <button className="w-full rounded-md bg-blue-600 py-3 px-4 font-medium text-white hover:bg-blue-700 transition-colors">
-                  Login
-                </button>
-              </SignInButton>
+              <div className="space-y-3">
+                <SignInButton mode="modal">
+                  <button className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-4 px-6 font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30">
+                    Login
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 py-4 px-6 font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30">
+                    Register
+                  </button>
+                </SignUpButton>
+              </div>
             </SignedOut>
             <SignedIn>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Link
                   href="/account-page"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+                  className="block py-3 px-2 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
                 >
                   Account
                 </Link>
@@ -430,7 +448,7 @@ export default function NavigationBar() {
                   <Link
                     href="/admin"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block py-2 font-medium text-slate-700 hover:text-slate-900 transition-colors"
+                    className="block py-3 px-2 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
                   >
                     Admin
                   </Link>

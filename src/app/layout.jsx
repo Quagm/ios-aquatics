@@ -32,7 +32,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (  
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: 'dark'
+      }}
+    >
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground font-sans`}>
           <CartProvider>

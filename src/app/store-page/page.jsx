@@ -97,26 +97,27 @@ export default function StorePage() {
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 pt-6 sm:pt-8 lg:pt-10 pb-16 sm:pb-20 lg:pb-24">
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
+      <div className="flex-1 w-full" style={{paddingTop: '120px', paddingBottom: '120px'}}>
+        <div className="max-w-[1600px] mx-auto w-full" style={{paddingLeft: '24px', paddingRight: '24px'}}>
           {/* Header Section */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-6">
+          <div className="flex flex-col items-center justify-center text-center" style={{marginBottom: '80px', padding: '60px 40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)'}}>
+            <div className="inline-flex items-center gap-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20" style={{padding: '16px 32px', marginBottom: '48px'}}>
               <ShoppingCart className="w-4 h-4" />
               Our Store
             </div>
-          {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-16 sm:my-20 lg:my-24" />
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight" style={{marginBottom: '48px'}}>
               <span className="gradient-text">Premium</span> Aquatics Store
             </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed" style={{marginBottom: '48px'}}>
               Discover our wide selection of freshwater fish, plants, equipment, and accessories at the best prices
             </p>
           </div>
 
-          {/* Services Slideshow (smaller, no heading) */}
-          <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden rounded-3xl shadow-2xl border border-white/10 mb-12">
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{marginBottom: '80px'}} />
+
+          {/* Services Slideshow */}
+          <div className="relative overflow-hidden rounded-3xl shadow-2xl border border-white/10" style={{marginBottom: '80px', height: '400px', width: '100%', maxWidth: '1200px', margin: '0 auto 80px auto'}}>
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
                 <div
@@ -160,46 +161,50 @@ export default function StorePage() {
               </div>
             </div>
           </div>
+
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-16 sm:my-20 lg:my-24" />
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{marginBottom: '80px'}} />
 
           {/* Search + Filter Section */}
-          <div className="mb-12 space-y-6">
-            <div className="max-w-xl mx-auto">
+          <div className="flex flex-col items-center justify-center" style={{marginBottom: '80px', padding: '40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)'}}>
+            <div className="w-full max-w-2xl" style={{marginBottom: '40px'}}>
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Search products..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                  className="w-full pl-12 pr-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm text-base"
+                  style={{padding: '16px', fontSize: '16px'}}
                 />
               </div>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+            <div className="flex flex-wrap justify-center items-center" style={{gap: '12px', maxWidth: '100%'}}>
               {categories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => { setSelectedCategory(cat); setVisibleCount(8) }}
-                  className={`px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all duration-300 font-semibold border text-sm sm:text-base ${
-                    selectedCategory === cat 
+                  className={`rounded-full transition-all duration-300 font-semibold border text-sm sm:text-base ${selectedCategory === cat 
                       ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 border-blue-500/50 shadow-lg shadow-blue-500/25" 
                       : "glass-effect text-white hover:bg-white/30 border-white/30 hover:border-white/50 hover:scale-105"
                   }`}
+                  style={{padding: '8px 16px', fontSize: '13px', minWidth: '100px'}}
                 >
                   {cat === "all" ? "All Products" : cat}
                 </button>
               ))}
             </div>
           </div>
+
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-8 sm:my-10 lg:my-12" />
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{marginBottom: '80px'}} />
 
           {/* Products Grid */}
+          <div className="flex flex-col items-center" style={{marginBottom: '80px'}}>
           {error && (
-            <div className="text-center mb-8">
+              <div className="text-center mb-12">
               <div className="glass-effect rounded-2xl p-8 border border-red-500/20 max-w-md mx-auto">
                 <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
                 <p className="text-red-300 text-lg font-semibold mb-2">Oops! Something went wrong</p>
@@ -208,7 +213,7 @@ export default function StorePage() {
             </div>
           )}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{gap: '32px', width: '100%', maxWidth: '1400px'}}>
               {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="glass-effect rounded-2xl overflow-hidden border border-white/10">
                   <div className="aspect-square skeleton"></div>
@@ -224,12 +229,12 @@ export default function StorePage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{gap: '32px', width: '100%', maxWidth: '1400px'}}>
               {visibleProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
               {!visibleProducts.length && (
-                <div className="col-span-full text-center py-16">
+                  <div className="col-span-full text-center py-20">
                   <div className="glass-effect rounded-2xl p-12 border border-white/10 max-w-md mx-auto">
                     <Search className="w-16 h-16 text-slate-400 mx-auto mb-6" />
                     <h3 className="text-2xl font-bold text-white mb-4">No products found</h3>
@@ -245,13 +250,15 @@ export default function StorePage() {
               )}
             </div>
           )}
+          </div>
 
           {/* Load More Button */}
-          <div className="text-center mt-16 sm:mt-20 lg:mt-24">
+          <div className="flex justify-center items-center" style={{marginTop: '80px'}}>
             {canLoadMore ? (
               <button 
                 onClick={() => setVisibleCount(c => c + 8)} 
-                className="group glass-effect text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl font-semibold hover:bg-white/30 transition-all duration-300 border border-white/30 text-base sm:text-lg hover:scale-105 hover:shadow-xl"
+                className="group glass-effect text-white rounded-2xl font-semibold hover:bg-white/30 transition-all duration-300 border border-white/30 text-base sm:text-lg hover:scale-105 hover:shadow-xl"
+                style={{padding: '20px 40px'}}
               >
                 <span className="flex items-center justify-center gap-2">
                   Load More Products
@@ -259,8 +266,8 @@ export default function StorePage() {
                 </span>
               </button>
             ) : (
-              <div className="glass-effect rounded-2xl p-6 border border-white/10 max-w-sm mx-auto mt-8 mb-8">
-                <Sparkles className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+              <div className="glass-effect rounded-2xl p-8 border border-white/10 max-w-sm mx-auto">
+                <Sparkles className="w-8 h-8 text-blue-400 mx-auto mb-3" />
                 <p className="text-slate-300 font-medium text-center">You've seen all our products!</p>
               </div>
             )}

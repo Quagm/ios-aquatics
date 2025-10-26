@@ -111,27 +111,33 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Navigation */}
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-12 text-center">
-            Checkout
-          </h1>
+      <div className="flex-1 w-full" style={{paddingTop: '120px', paddingBottom: '120px'}}>
+        <div className="max-w-[1600px] mx-auto w-full" style={{paddingLeft: '24px', paddingRight: '24px'}}>
+          {/* Header Section */}
+          <div className="flex flex-col items-center justify-center text-center" style={{marginBottom: '80px', padding: '60px 40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)'}}>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight" style={{marginBottom: '24px'}}>
+              <span className="gradient-text">Checkout</span>
+            </h1>
+            <p className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              Review your order and complete your purchase
+            </p>
+          </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2" style={{gap: '48px'}}>
             {/* Left: Cart Review */}
-            <div className="space-y-12">
+            <div className="flex flex-col" style={{gap: '32px'}}>
               {/* Cart Review */}
-              <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-6">Your Cart</h2>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-white/20">
+                <h2 className="text-2xl font-semibold text-white" style={{marginBottom: '32px'}}>Your Cart</h2>
                 {items.length === 0 ? (
                   <EmptyCart />
                 ) : (
-                  <div className="space-y-6">
+                  <div style={{gap: '24px'}}>
                     {items.map((item) => (
                       <CartItem
                         key={item.id}
@@ -147,15 +153,14 @@ export default function CheckoutPage() {
 
             {/* Right: Order Summary + Place Order */}
             <div className="lg:col-span-1">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-8 sticky top-4 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-8">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 sticky top-4 border border-white/20">
+                <h2 className="text-2xl font-semibold text-white" style={{marginBottom: '32px'}}>
                   Order Summary
                 </h2>
                 {error && <p className="text-red-300 mb-4">{error}</p>}
                 
-                {/* Order Items */
-                }
-                <div className="space-y-6 mb-8">
+                {/* Order Items */}
+                <div style={{gap: '24px', marginBottom: '32px'}}>
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4">
                       <div className="w-16 h-16 relative">
@@ -176,9 +181,9 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Delivery Address + Payment inside Order Summary */}
-                <div className="space-y-6 mb-8">
+                <div style={{gap: '24px', marginBottom: '32px'}}>
                   {/* Delivery Address (read-only from Account) */}
-                  <div className="bg-white/5 rounded-lg p-6 border border-white/20">
+                  <div className="bg-white/5 rounded-xl p-6 border border-white/20">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-xl font-semibold text-white">Delivery Address</h3>
                       <a
@@ -201,14 +206,14 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Payment Note */}
-                  <div className="bg-white/5 rounded-lg p-6 border border-white/20">
+                  <div className="bg-white/5 rounded-xl p-6 border border-white/20">
                     <h3 className="text-xl font-semibold text-white mb-3">Payment</h3>
                     <p className="text-sm text-white/70">You will choose GCash or Card on the PayMongo page after you click Checkout.</p>
                   </div>
                 </div>
                 
                 {/* Price Breakdown */}
-                <div className="space-y-4 mb-8 border-t border-white/30 pt-6">
+                <div style={{gap: '16px', marginBottom: '32px', borderTop: '1px solid rgba(255,255,255,0.3)', paddingTop: '24px'}}>
                   <div className="flex justify-between">
                     <span className="text-white/70 text-lg">Subtotal</span>
                     <span className="font-medium text-white text-lg">₱{subtotal.toFixed(2)}</span>
@@ -216,7 +221,7 @@ export default function CheckoutPage() {
                   
                   
                   
-                  <div className="border-t border-white/30 pt-4">
+                  <div style={{borderTop: '1px solid rgba(255,255,255,0.3)', paddingTop: '16px'}}>
                     <div className="flex justify-between text-xl font-bold">
                       <span className="text-white">Total</span>
                       <span className="text-[#6c47ff]">₱{total.toFixed(2)}</span>
@@ -225,7 +230,7 @@ export default function CheckoutPage() {
                 </div>
                 
                 {/* Checkout Button */}
-                <button className="w-full bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors mb-0 disabled:opacity-60 disabled:cursor-not-allowed" onClick={handlePlaceOrder} disabled={placing || items.length === 0}>
+                <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100" style={{padding: '20px'}} onClick={handlePlaceOrder} disabled={placing || items.length === 0}>
                   {placing ? "Processing..." : "Checkout"}
                 </button>
               </div>

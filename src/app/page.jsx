@@ -141,7 +141,7 @@ export default function HomePage() {
       <NavigationBar />
 
       {/*landing page */}
-      <section id="home" className="relative h-screen overflow-hidden flex items-center justify-center">
+      <section id="home" className="relative h-screen overflow-hidden flex items-center justify-center pt-20 sm:pt-24 lg:pt-28">
         <div className="absolute inset-0">
           {slides.map((slide, index) => (
             <div
@@ -185,31 +185,31 @@ export default function HomePage() {
         </div>
 
         {/* Welcome Message Overlay */}
-        <div className="relative z-10 text-center text-white max-w-5xl px-4 sm:px-6 lg:px-8 animate-fade-in">
-          <div className="mb-6">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm sm:text-base font-medium border border-white/20 mb-4">
-              <Waves className="w-4 h-4" />
+        <div className="relative z-10 text-center text-white w-full max-w-6xl px-0 animate-fade-in">
+          <div className="mb-8">
+            <span className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full text-sm sm:text-base font-medium border border-white/20 mb-6">
+              <Waves className="w-5 h-5" />
               Premium Aquatics Store
             </span>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-8 leading-tight">
             <span className="gradient-text">Welcome to</span>
             <br />
             <span className="text-white">IOS Aquatics</span>
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed font-light">
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-16 opacity-90 max-w-4xl mx-auto leading-relaxed font-light">
             Experience the beauty of <span className="text-blue-300 font-medium">underwater gardens</span> and create stunning aquascapes
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center">
             <Link href="/store-page">
-              <button className="group w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-12 py-6 text-sm sm:text-base rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
+              <button className="group w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-16 py-6 text-sm sm:text-base rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
                 <span className="flex items-center justify-center gap-3">
                   Shop Now
                 </span>
               </button>
             </Link>
             <Link href="/inquiry-form">
-              <button className="group w-full sm:w-auto glass-effect text-white px-12 py-6 text-sm sm:text-base rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
+              <button className="group w-full sm:w-auto glass-effect text-white px-16 py-6 text-sm sm:text-base rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
                 <span className="flex items-center justify-center gap-3">
                   Inqure Aquascape
                   <Lightbulb className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
@@ -221,15 +221,15 @@ export default function HomePage() {
       </section>
 
       {/* landing page sections */}
-      <section id="about" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-slate-800 to-slate-900">
-        <div className="max-w-[1600px] mx-auto sm:px-4 lg:px-6">
-          <div className="w-full flex flex-col items-center text-center mb-12">
-            <div className="inline-flex items-center gap-4 px-4 top- py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-6">
-              <Fish className="w-4 h-4" />
+      <section id="about" className="py-20 sm:py-24 lg:py-28 bg-gradient-to-b from-slate-800 to-slate-900">
+        <div className="max-w-[1600px] mx-auto px-0">
+          <div className="w-full flex flex-col items-center text-center mb-16">
+            <div className="inline-flex items-center gap-4 px-6 py-3 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-8">
+              <Fish className="w-5 h-5" />
               About Our Store
             </div>
 
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white text-center">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white text-center">
               <span className="gradient-text lg:text-6xl">About</span> IOS Aquatics
             </h2>
             <p className="text-lg sm:text-xl lg:text-xl text-slate-300 leading-relaxed text-center max-w-5xl px-8">
@@ -237,13 +237,13 @@ export default function HomePage() {
             </p>
           </div>
           <div className="w-full flex justify-center">
-            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 lg:gap-10 items-center w-full max-w-7xl px-6 sm:px-10 lg:px-16">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-center w-full max-w-7xl px-8 sm:px-12 lg:px-20">
 
 
-              <div className="space-y-6 lg:pl-16 xl:pl-28 lg:translate-x-12 xl:translate-x-18 transition-all duration-300">
+              <div className="space-y-8 lg:pl-16 xl:pl-28 lg:translate-x-12 xl:translate-x-18 transition-all duration-300">
                 <div className="glass-effect rounded-2xl border border-white/10">
-                  <div className="p-8 sm:p-10 lg:p-12 text-center">
-                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">Our Story</h3>
+                  <div className="p-10 sm:p-12 lg:p-14 text-center">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Our Story</h3>
                     <p className="text-slate-300 leading-relaxed text-base sm:text-lg">
                       IOS Aquatics is a home-based aquarium and accessories store located in Moonwalk Village,
                       Las Piñas City. We specialize in providing a wide variety of freshwater livestock, plants,
@@ -252,13 +252,13 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6 pt-10 relative top-6">
-                  <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
-                    <div className="text-3xl font-bold text-blue-400 mb-1">5+</div>
+                <div className="grid grid-cols-2 gap-8 pt-12 relative top-8">
+                  <div className="glass-effect rounded-xl p-8 sm:p-10 text-center border border-white/10">
+                    <div className="text-3xl font-bold text-blue-400 mb-2">5+</div>
                     <div className="text-slate-300">Years Experience</div>
                   </div>
-                  <div className="glass-effect rounded-xl p-6 sm:p-8 text-center border border-white/10">
-                    <div className="text-3xl font-bold text-blue-400 mb-1">1000+</div>
+                  <div className="glass-effect rounded-xl p-8 sm:p-10 text-center border border-white/10">
+                    <div className="text-3xl font-bold text-blue-400 mb-2">1000+</div>
                     <div className="text-slate-300">Happy Customers</div>
                   </div>
                 </div>
@@ -282,20 +282,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="services" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-slate-900 to-slate-800">
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="text-center mb-8 flex flex-col items-center">
-            <h2 className="text-4xl sm:text-5xl lg:text-4xl font-bold mb-6 text-white text-center">
-              <span className="gradient-text lg:text-4xl">IOS Aquatics</span> Services
+      <section id="services" className="py-20 sm:py-24 lg:py-28 bg-gradient-to-b from-slate-900 to-slate-800">
+        <div className="max-w-[1600px] mx-auto px-0">
+          <div className="text-center mb-12 flex flex-col items-center">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white text-center">
+              <span className="gradient-text lg:text-6xl">IOS Aquatics</span> Services
             </h2>
-            <p className="text-lg sm:text-xl lg:text-xl text-slate-300 leading-relaxed text-center max-w-5xl px-6">
+            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed text-center max-w-5xl px-8">
               From equipment to livestock, we provide everything you need for your aquatic journey
             </p>
           </div>
 
           {/* services with icons */}
           <div className="w-full flex justify-center">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16 w-full max-w-6xl px-6 sm:px-8 lg:px-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-20 w-full max-w-6xl px-8 sm:px-10 lg:px-16">
               {[
                 { icon: Fish, title: "Freshwater Livestock", desc: "Healthy fish, shrimp, and aquatic creatures" },
                 { icon: Leaf, title: "Aquatic Plants", desc: "Live plants for natural aquascaping" },
@@ -308,11 +308,11 @@ export default function HomePage() {
                   key={index}
                   className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300"
                 >
-                  <div className="p-8 flex flex-col items-center text-center">
-                    <div className="mb-4">
-                      <service.icon className="w-12 h-12 text-blue-400" />
+                  <div className="p-10 flex flex-col items-center text-center">
+                    <div className="mb-6">
+                      <service.icon className="w-14 h-14 text-blue-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
+                    <h3 className="text-xl font-bold text-white mb-4">{service.title}</h3>
                     <p className="text-slate-300 leading-relaxed">{service.desc}</p>
                   </div>
                 </div>
@@ -320,10 +320,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="h-16 sm:h-20"></div>
+          <div className="h-20 sm:h-24"></div>
 
           {/* services slideshow */}
-          <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl border border-white/10 mt-12 sm:mt-16">
+          <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl border border-white/10 mt-16 sm:mt-20">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
                 <div
@@ -373,11 +373,11 @@ export default function HomePage() {
 
 
       {/* Contact us secdtion */}
-      <section id="contact" className="py-16 sm:py-20 lg:py-28 bg-gradient-to-b from-slate-800 to-slate-900 relative z-10">
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="text-center mb-8">
+      <section id="contact" className="py-20 sm:py-24 lg:py-28 bg-gradient-to-b from-slate-800 to-slate-900 relative z-10">
+        <div className="max-w-[1600px] mx-auto px-0">
+          <div className="text-center mb-12">
 
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white">
               <span className="gradient-text">Contact</span> Us
             </h2>
             <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto">
@@ -385,39 +385,39 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="space-y-8">
-              <div className="glass-effect rounded-2xl border border-white/10 p-12">
-                <h3 className="text-2xl font-bold text-white mb-5">Visit Our Store</h3>
-                <div className="space-y-5">
-                  <div className="flex items-start gap-5">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-blue-400" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+            <div className="space-y-10">
+              <div className="glass-effect rounded-2xl border border-white/10 p-14">
+                <h3 className="text-2xl font-bold text-white mb-6">Visit Our Store</h3>
+                <div className="space-y-6">
+                  <div className="flex items-start gap-6">
+                    <div className="w-14 h-14 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-7 h-7 text-blue-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold mb-1">Address</h4>
+                      <h4 className="text-white font-semibold mb-2">Address</h4>
                       <p className="text-slate-300">Moonwalk Village, Las Piñas City, Philippines</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-5">
-                    <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-6 h-6 text-green-400" />
+                  <div className="flex items-start gap-6">
+                    <div className="w-14 h-14 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-7 h-7 text-green-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold mb-1">Phone</h4>
+                      <h4 className="text-white font-semibold mb-2">Phone</h4>
                       <a href="tel:+639266125840" className="text-blue-300 hover:text-blue-200 transition-colors">
                         +63 926-612-5840
                       </a>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-5">
-                    <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6 text-purple-400" />
+                  <div className="flex items-start gap-6">
+                    <div className="w-14 h-14 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-7 h-7 text-purple-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold mb-1">Email</h4>
+                      <h4 className="text-white font-semibold mb-2">Email</h4>
                       <a href="mailto:irasabanal08@gmail.com" className="text-blue-300 hover:text-blue-200 transition-colors">
                         irasabanal08@gmail.com
                       </a>
@@ -430,17 +430,17 @@ export default function HomePage() {
             </div>
 
             {/* Contact us buttons */}
-            <div className="space-y-6">
-              <div className="glass-effect rounded-2xl p-10 sm:p-12 border border-white/10 text-center">
-                <h3 className="text-2xl font-bold text-white mb-4">Ready to Get Started?</h3>
-                <p className="text-slate-300 mb-8 leading-relaxed">
+            <div className="space-y-8">
+              <div className="glass-effect rounded-2xl p-12 sm:p-14 border border-white/10 text-center">
+                <h3 className="text-2xl font-bold text-white mb-6">Ready to Get Started?</h3>
+                <p className="text-slate-300 mb-10 leading-relaxed">
                   Whether you're a beginner or an experienced aquarist, we have everything you need to create beautiful underwater ecosystems.
                 </p>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <a href="https://web.facebook.com/iosaquatics" target="_blank" rel="noopener noreferrer">
-                    <button className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
-                      <span className="flex items-center justify-center gap-2">
+                    <button className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-5 text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
+                      <span className="flex items-center justify-center gap-3">
                         Message us on Facebook
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                       </span>
@@ -448,8 +448,8 @@ export default function HomePage() {
                   </a>
 
                   <Link href="/store-page">
-                    <button className="group w-full glass-effect text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
-                      <span className="flex items-center justify-center gap-2">
+                    <button className="group w-full glass-effect text-white px-10 py-5 text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
+                      <span className="flex items-center justify-center gap-3">
                         Browse Store
                         <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
                       </span>
