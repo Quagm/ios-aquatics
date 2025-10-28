@@ -82,9 +82,11 @@ function ProductPageContent() {
       ) : !product ? (
         <div className="text-white/80">Product not found</div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-          <ProductImageGallery product={product} />
-          <div className="space-y-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-12 lg:gap-16 xl:gap-20">
+          <div className="w-full flex justify-center">
+            <ProductImageGallery product={product} />
+          </div>
+          <div className="space-y-10 w-full max-w-xl justify-self-start">
             <ProductDetails product={product} />
             {product.specifications && (
               <ProductSpecifications specifications={product.specifications} />

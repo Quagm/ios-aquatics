@@ -18,12 +18,12 @@ export default function ProductDetails({ product }) {
   const inStock = hasFiniteStock ? stock > 0 : true
   const canAdd = inStock && (!hasFiniteStock || qty <= stockCount)
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-white mb-3">{product.name}</h1>
-        <p className="text-xl text-white/70 mb-6">{product.category}</p>
+        <h1 className="text-4xl font-bold text-white mb-2">{product.name}</h1>
+        <p className="text-lg text-white/70 mb-4">{product.category}</p>
         
-        <div className="flex items-center space-x-6 mb-8">
+        <div className="flex items-center space-x-5 mb-6">
           <span className="text-4xl font-bold text-[#6c47ff]">₱{product.price}</span>
           {product.originalPrice && (
             <span className="text-2xl text-gray-500 line-through">₱{product.originalPrice}</span>
@@ -53,7 +53,7 @@ export default function ProductDetails({ product }) {
       </div>
 
       {/* stock status */}
-      <div className="flex items-center space-x-3 mb-8">
+      <div className="flex items-center space-x-3 mb-6">
         {inStock ? (
           <>
             <span className="w-4 h-4 bg-green-400 rounded-full"></span>
@@ -68,10 +68,10 @@ export default function ProductDetails({ product }) {
       </div>
 
       {/* quantity & add to cart */}
-      <div className="space-y-6">
-        <div className="flex items-center space-x-6">
-          <label className="font-medium text-white text-lg">Quantity:</label>
-          <div className="flex items-center space-x-3">
+      <div className="space-y-4">
+        <div className="flex items-center space-x-5">
+          <label className="font-medium text-white text-base">Quantity:</label>
+          <div className="flex items-center space-x-2.5">
             <button
               type="button"
               className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white text-lg"
@@ -80,7 +80,7 @@ export default function ProductDetails({ product }) {
             >
               -
             </button>
-            <span className="w-16 text-center text-white text-lg font-medium" aria-live="polite">{qty}</span>
+            <span className="w-14 text-center text-white text-base font-medium" aria-live="polite">{qty}</span>
             <button
               type="button"
               className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white text-lg"
@@ -95,9 +95,9 @@ export default function ProductDetails({ product }) {
           <p className="text-sm text-white/60">Max quantity reached.</p>
         )}
         
-        <div className="flex space-x-4">
+        <div className="flex space-x-3">
           <button
-            className="flex-1 bg-[#6c47ff] text-white py-4 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            className="flex-1 bg-[#6c47ff] text-white py-3.5 rounded-full font-medium hover:bg-[#5a3ae6] transition-colors text-base disabled:opacity-70 disabled:cursor-not-allowed"
             onClick={async () => {
               if (isAdding) return
               if (!isLoaded) return

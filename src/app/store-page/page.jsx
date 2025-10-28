@@ -47,7 +47,7 @@ export default function StorePage() {
     "LIGHTS",
     "FILTER",
     "HEATER",
-    "Submersible Pump"
+    "SUBMERSIBLE PUMP"
   ]
 
   useEffect(() => {
@@ -92,12 +92,12 @@ export default function StorePage() {
   const canLoadMore = visibleCount < filteredProducts.length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 w-full flex flex-col">
       {/* Navigation */}
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 w-full" style={{paddingTop: '120px', paddingBottom: '120px'}}>
+      <div className="flex-1 w-full flex flex-col items-center pb-16 sm:pb-20 lg:pb-24" style={{paddingTop: '120px'}}>
         <div className="max-w-[1600px] mx-auto w-full" style={{paddingLeft: '24px', paddingRight: '24px'}}>
           {/* Header Section */}
           <div className="flex flex-col items-center justify-center text-center" style={{marginBottom: '80px', padding: '60px 40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)'}}>
@@ -106,7 +106,7 @@ export default function StorePage() {
               Our Store
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight" style={{marginBottom: '48px'}}>
-              <span className="gradient-text">Premium</span> Aquatics Store
+              <span className="gradient-text">IOS Aquatics</span>  Store
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed" style={{marginBottom: '48px'}}>
               Discover our wide selection of freshwater fish, plants, equipment, and accessories at the best prices
@@ -266,9 +266,13 @@ export default function StorePage() {
                 </span>
               </button>
             ) : (
-              <div className="glass-effect rounded-2xl p-8 border border-white/10 max-w-sm mx-auto">
-                <Sparkles className="w-8 h-8 text-blue-400 mx-auto mb-3" />
-                <p className="text-slate-300 font-medium text-center">You've seen all our products!</p>
+              <div className="glass-effect rounded-2xl p-10 sm:p-12 lg:p-16 border border-white/10 max-w-sm mx-auto">
+                <div className="flex flex-col items-center space-y-6">
+                  <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
+                  <p className="text-slate-300 font-medium text-center text-base sm:text-lg leading-relaxed px-4 py-2">
+                    You've seen all our products!
+                  </p>
+                </div>
               </div>
             )}
           </div>

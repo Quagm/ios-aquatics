@@ -27,23 +27,23 @@ export default function ProductCard({ product, showAddToCart = true }) {
             </div>
           </div>
         </div>
-        <div className="p-6 sm:p-8 space-y-4">
+        <div className="p-6 sm:p-7 space-y-3.5">
           <div>
             {product.category && (
-              <span className="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30">
+              <span className="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 text-[11px] font-medium rounded-full border border-blue-500/30">
                 {product.category}
               </span>
             )}
           </div>
-          <div className="space-y-2">
-            <h3 className="font-bold text-white text-lg line-clamp-2 group-hover:text-blue-300 transition-colors duration-300">
+          <div className="space-y-1.5">
+            <h3 className="font-bold text-white text-[1.05rem] line-clamp-2 group-hover:text-blue-300 transition-colors duration-300">
               {product.name}
             </h3>
             {product.sku && (
               <p className="text-xs text-slate-400">Code: {product.sku}</p>
             )}
           </div>
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-6 pt-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3.5 sm:gap-5 pt-1.5">
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold text-blue-400">
                 ₱{product.price}
@@ -51,7 +51,7 @@ export default function ProductCard({ product, showAddToCart = true }) {
             </div>
             {showAddToCart && (
               <button 
-                className={`group/btn w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20 ${
+                className={`group/btn w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20 ${
                   isAdding ? 'animate-cart-pulse' : ''
                 }`}
                 onClick={async (e) => {

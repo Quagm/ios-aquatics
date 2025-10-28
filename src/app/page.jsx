@@ -136,36 +136,41 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 w-full">
+      <main className="flex-1 w-full flex flex-col items-center pb-16 sm:pb-20 lg:pb-24">
 
       <NavigationBar />
 
       {/*landing page */}
-      <section id="home" className="relative h-screen overflow-hidden flex items-center justify-center pt-20 sm:pt-24 lg:pt-28">
-        <div className="absolute inset-0">
+      <section id="home" className="relative h-screen w-full overflow-hidden flex items-center justify-center pt-12 sm:pt-16 lg:pt-20">
+        <div className="absolute inset-0 w-full">
           {slides.map((slide, index) => (
             <div
               key={index}
-              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${index === currentSlide ? "opacity-100" : "opacity-0"}`}
+              className={`absolute inset-0 w-full bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${index === currentSlide ? "opacity-100" : "opacity-0"}`}
               style={{ backgroundImage: `url(${slide})` }}
             />
           ))}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60" />
+          <div className="absolute inset-0 w-full bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60" />
 
-          {/* Slideshow buttons */}
+          {/* Slideshow buttons - Full screen clickable areas */}
           <button
-            className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
+            className="absolute left-0 top-0 w-1/2 h-full z-10 cursor-pointer"
             onClick={prevSlide}
             aria-label="Previous slide"
           >
-            <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
+            <div className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full group">
+              <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
+            </div>
           </button>
           <button
-            className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
+            className="absolute right-0 top-0 w-1/2 h-full z-10 cursor-pointer"
             onClick={nextSlide}
             aria-label="Next slide"
           >
-            <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
+            <div className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full group">
+              <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
+            </div>
           </button>
 
           {/* indcator for slides */}
@@ -185,31 +190,25 @@ export default function HomePage() {
         </div>
 
         {/* Welcome Message Overlay */}
-        <div className="relative z-10 text-center text-white w-full max-w-6xl px-0 animate-fade-in">
-          <div className="mb-8">
-            <span className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full text-sm sm:text-base font-medium border border-white/20 mb-6">
-              <Waves className="w-5 h-5" />
-              Premium Aquatics Store
-            </span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-8 leading-tight">
+        <div className="relative z-10 text-center text-white w-full max-w-6xl mx-auto px-4 animate-fade-in">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 leading-tight text-center">
             <span className="gradient-text">Welcome to</span>
             <br />
             <span className="text-white">IOS Aquatics</span>
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-16 opacity-90 max-w-4xl mx-auto leading-relaxed font-light">
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-8 opacity-90 leading-relaxed font-light text-center px-4">
             Experience the beauty of <span className="text-blue-300 font-medium">underwater gardens</span> and create stunning aquascapes
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center px-4 py-2">
             <Link href="/store-page">
-              <button className="group w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-16 py-6 text-sm sm:text-base rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
+              <button className="group w-full sm:w-auto my-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-24 py-9 text-sm sm:text-base rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20" style={{padding: '10px 18px'}}>
                 <span className="flex items-center justify-center gap-3">
                   Shop Now
                 </span>
               </button>
             </Link>
             <Link href="/inquiry-form">
-              <button className="group w-full sm:w-auto glass-effect text-white px-16 py-6 text-sm sm:text-base rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
+              <button className="group w-full sm:w-auto my-2 glass-effect text-white px-24 py-9 text-sm sm:text-base rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30" style={{padding: '10px 18px'}}>
                 <span className="flex items-center justify-center gap-3">
                   Inqure Aquascape
                   <Lightbulb className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
@@ -221,24 +220,18 @@ export default function HomePage() {
       </section>
 
       {/* landing page sections */}
-      <section id="about" className="py-20 sm:py-24 lg:py-28 bg-gradient-to-b from-slate-800 to-slate-900">
-        <div className="max-w-[1600px] mx-auto px-0">
-          <div className="w-full flex flex-col items-center text-center mb-16">
-            <div className="inline-flex items-center gap-4 px-6 py-3 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-8">
-              <Fish className="w-5 h-5" />
-              About Our Store
-            </div>
-
+      <section id="about" className="py-12 sm:py-16 lg:py-20 w-full flex justify-center" style={{marginTop: '20px', backgroundColor: 'transparent'}}>
+        <div className="max-w-[1600px] mx-auto w-full" style={{paddingTop: '30px', paddingLeft: '20px', paddingRight: '20px'}}>
+          <div className="w-full flex flex-col items-center text-center" style={{marginBottom: '40px'}}>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white text-center">
               <span className="gradient-text lg:text-6xl">About</span> IOS Aquatics
             </h2>
-            <p className="text-lg sm:text-xl lg:text-xl text-slate-300 leading-relaxed text-center max-w-5xl px-8">
+            <p className="text-lg sm:text-xl lg:text-xl text-slate-300 leading-relaxed text-center max-w-5xl">
               Your trusted partner in creating beautiful underwater ecosystems
             </p>
           </div>
           <div className="w-full flex justify-center">
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-center w-full max-w-7xl px-8 sm:px-12 lg:px-20">
-
 
               <div className="space-y-8 lg:pl-16 xl:pl-28 lg:translate-x-12 xl:translate-x-18 transition-all duration-300">
                 <div className="glass-effect rounded-2xl border border-white/10">
@@ -282,13 +275,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="services" className="py-20 sm:py-24 lg:py-28 bg-gradient-to-b from-slate-900 to-slate-800">
-        <div className="max-w-[1600px] mx-auto px-0">
-          <div className="text-center mb-12 flex flex-col items-center">
+      <section id="services" className="py-12 sm:py-16 lg:py-20 w-full flex justify-center" style={{marginTop: '20px', backgroundColor: 'transparent'}}>
+        <div className="max-w-[1600px] mx-auto w-full" style={{paddingTop: '30px', paddingLeft: '20px', paddingRight: '20px'}}>
+          <div className="text-center flex flex-col items-center" style={{marginBottom: '40px'}}>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white text-center">
               <span className="gradient-text lg:text-6xl">IOS Aquatics</span> Services
             </h2>
-            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed text-center max-w-5xl px-8">
+            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed text-center max-w-5xl">
               From equipment to livestock, we provide everything you need for your aquatic journey
             </p>
           </div>
@@ -323,7 +316,7 @@ export default function HomePage() {
           <div className="h-20 sm:h-24"></div>
 
           {/* services slideshow */}
-          <div className="relative h-96 sm:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl border border-white/10 mt-16 sm:mt-20">
+          <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden rounded-3xl shadow-2xl border border-white/10 mt-16 sm:mt-20">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
                 <div
@@ -334,20 +327,24 @@ export default function HomePage() {
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-slate-900/40" />
 
-              {/* slideshow buttons */}
+              {/* slideshow buttons - Full screen clickable areas */}
               <button
-                className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
+                className="absolute left-0 top-0 w-1/2 h-full z-10 cursor-pointer"
                 onClick={prevServiceSlide}
                 aria-label="Previous service slide"
               >
-                <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
+                <div className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full group">
+                  <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
+                </div>
               </button>
               <button
-                className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
+                className="absolute right-0 top-0 w-1/2 h-full z-10 cursor-pointer"
                 onClick={nextServiceSlide}
                 aria-label="Next service slide"
               >
-                <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
+                <div className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full group">
+                  <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
+                </div>
               </button>
 
               {/* slide index indicators */}
@@ -371,36 +368,36 @@ export default function HomePage() {
         </div>
       </section>
 
-
-      {/* Contact us secdtion */}
-      <section id="contact" className="py-20 sm:py-24 lg:py-28 bg-gradient-to-b from-slate-800 to-slate-900 relative z-10">
-        <div className="max-w-[1600px] mx-auto px-0">
-          <div className="text-center mb-12">
+      {/* Contact us section */}
+      <section id="contact" className="py-12 sm:py-16 lg:py-20 relative z-10 w-full flex justify-center" style={{marginTop: '20px', backgroundColor: 'transparent'}}>
+        <div className="max-w-[1600px] mx-auto w-full" style={{paddingTop: '30px', paddingLeft: '20px', paddingRight: '20px'}}>
+          <div className="text-center flex flex-col items-center justify-center" style={{marginBottom: '40px'}}>
 
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 text-white">
               <span className="gradient-text">Contact</span> Us
             </h2>
-            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto">
+            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 leading-relaxed max-w-4xl mx-auto text-center">
               Ready to start your aquatic journey? We're here to help you every step of the way
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
             <div className="space-y-10">
-              <div className="glass-effect rounded-2xl border border-white/10 p-14">
-                <h3 className="text-2xl font-bold text-white mb-6">Visit Our Store</h3>
-                <div className="space-y-6">
-                  <div className="flex items-start gap-6">
+              <div className="glass-effect rounded-2xl border border-white/10 p-10 sm:p-12 lg:p-14" style={{padding: '16px 48px'}}>
+                <div className="px-8 sm:px-12 lg:px-16 py-4 sm:py-5">
+                  <h3 className="text-2xl font-bold text-white mb-5">Visit Our Store</h3>
+                  <div className="space-y-5">
+                   <div className="flex items-start gap-6 py-3">
                     <div className="w-14 h-14 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-7 h-7 text-blue-400" />
                     </div>
                     <div>
                       <h4 className="text-white font-semibold mb-2">Address</h4>
-                      <p className="text-slate-300">Moonwalk Village, Las Piñas City, Philippines</p>
+                      <p className="text-slate-300">Relay 1747 Las Piñas, Philippines</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-6">
+                   <div className="flex items-start gap-6 py-3">
                     <div className="w-14 h-14 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Phone className="w-7 h-7 text-green-400" />
                     </div>
@@ -412,7 +409,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-6">
+                   <div className="flex items-start gap-6 py-3">
                     <div className="w-14 h-14 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Mail className="w-7 h-7 text-purple-400" />
                     </div>
@@ -423,6 +420,7 @@ export default function HomePage() {
                       </a>
                     </div>
                   </div>
+                  </div>
                 </div>
               </div>
 
@@ -431,36 +429,40 @@ export default function HomePage() {
 
             {/* Contact us buttons */}
             <div className="space-y-8">
-              <div className="glass-effect rounded-2xl p-12 sm:p-14 border border-white/10 text-center">
-                <h3 className="text-2xl font-bold text-white mb-6">Ready to Get Started?</h3>
-                <p className="text-slate-300 mb-10 leading-relaxed">
-                  Whether you're a beginner or an experienced aquarist, we have everything you need to create beautiful underwater ecosystems.
-                </p>
+              <div className="glass-effect rounded-2xl p-12 sm:p-14 md:p-16 border border-white/10 text-center" style={{padding: '20px 56px'}}>
+                <div className="px-8 sm:px-12 lg:px-16 py-4 sm:py-5">
+                  <h3 className="text-2xl font-bold text-white mb-5">Ready to Get Started?</h3>
+                  <p className="text-slate-300 mb-6 leading-relaxed">
+                    Whether you're a beginner or an experienced aquarist, we have everything you need to create beautiful underwater ecosystems.
+                  </p>
 
-                <div className="space-y-6">
-                  <a href="https://web.facebook.com/iosaquatics" target="_blank" rel="noopener noreferrer">
-                    <button className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-5 text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
-                      <span className="flex items-center justify-center gap-3">
-                        Message us on Facebook
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                      </span>
-                    </button>
-                  </a>
+                  <div className="space-y-5">
+                    <a href="https://web.facebook.com/iosaquatics" target="_blank" rel="noopener noreferrer">
+                      <button className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-5 text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
+                        <span className="flex items-center justify-center gap-3">
+                          Message us on Facebook
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        </span>
+                      </button>
+                    </a>
 
-                  <Link href="/store-page">
-                    <button className="group w-full glass-effect text-white px-10 py-5 text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
-                      <span className="flex items-center justify-center gap-3">
-                        Browse Store
-                        <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-                      </span>
-                    </button>
-                  </Link>
+                    <Link href="/store-page">
+                      <button className="group w-full glass-effect text-white px-10 py-5 text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
+                        <span className="flex items-center justify-center gap-3">
+                          Browse Store
+                          <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                        </span>
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+      
+      </main>
       <Footer />
     </div>
   )

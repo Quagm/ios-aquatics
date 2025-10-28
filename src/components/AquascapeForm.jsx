@@ -96,8 +96,8 @@ const aquascapeMessage = `
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full">
-      <div className="space-y-12">
+    <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
+      <div className="space-y-10 px-2 sm:px-4">
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
           <p className="text-red-300 text-sm sm:text-base">{error}</p>
@@ -105,15 +105,15 @@ const aquascapeMessage = `
       )}
       
       {/* Personal Information */}
-      <div className="space-y-8">
+      <div className="space-y-6 px-1 sm:px-2">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Personal Information
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="group">
-            <label htmlFor="firstName" className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="group space-y-3">
+            <label htmlFor="firstName" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               First Name *
             </label>
             <input
@@ -126,8 +126,8 @@ const aquascapeMessage = `
             />
           </div>
           
-          <div className="group">
-            <label htmlFor="lastName" className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+          <div className="group space-y-3">
+            <label htmlFor="lastName" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Last Name *
             </label>
             <input
@@ -143,15 +143,15 @@ const aquascapeMessage = `
       </div>
 
       {/* Contact Information */}
-      <div className="space-y-8">
+      <div className="space-y-6 px-1 sm:px-2">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Contact Information
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="group">
-            <label htmlFor="contactNo" className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="group space-y-3">
+            <label htmlFor="contactNo" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Contact Number *
             </label>
             <input
@@ -164,8 +164,8 @@ const aquascapeMessage = `
             />
           </div>
           
-          <div className="group">
-            <label htmlFor="email" className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+          <div className="group space-y-3">
+            <label htmlFor="email" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Email Address *
             </label>
             <input
@@ -181,14 +181,14 @@ const aquascapeMessage = `
       </div>
       
       {/* Location Information */}
-      <div className="space-y-8">
+      <div className="space-y-6 px-1 sm:px-2">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Location Information
         </h3>
         
-        <div className="group">
-          <label htmlFor="address" className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+        <div className="group space-y-3">
+          <label htmlFor="address" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
             Full Address *
           </label>
           <textarea
@@ -203,15 +203,15 @@ const aquascapeMessage = `
       </div>
 
       {/* Aquascape Preferences */}
-      <div className="space-y-8">
+      <div className="space-y-6 px-1 sm:px-2">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Aquascape Preferences
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="group">
-            <label htmlFor="aquariumSize" className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="group space-y-3">
+            <label htmlFor="aquariumSize" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Aquarium Size *
             </label>
             <select
@@ -230,11 +230,11 @@ const aquascapeMessage = `
             </select>
           </div>
           
-          <div className="group">
-            <label className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+          <div className="group space-y-3">
+            <label className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Price Range *
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3.5">
               <div>
                 <input
                   type="number"
@@ -263,14 +263,14 @@ const aquascapeMessage = `
       </div>
       
       {/* Additional Preferences */}
-      <div className="space-y-8">
+      <div className="space-y-6 px-1 sm:px-2">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Additional Preferences
         </h3>
         
-        <div className="group">
-          <label htmlFor="preferences" className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+        <div className="group space-y-3">
+          <label htmlFor="preferences" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
             Preferences/Suggestions
           </label>
           <textarea
@@ -288,8 +288,8 @@ const aquascapeMessage = `
           ></textarea>
         </div>
         
-        <div className="group">
-          <label htmlFor="imageReference" className="block text-sm font-semibold text-slate-300 mb-4 group-focus-within:text-slate-200 transition-colors">
+        <div className="group space-y-3">
+          <label htmlFor="imageReference" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
             Image Reference Attachment
           </label>
           <div className="relative">
@@ -308,11 +308,11 @@ const aquascapeMessage = `
       </div>
       
       {/* Submit Button */}
-      <div className="text-center pt-12">
+      <div className="text-center pt-10">
         <button
           type="submit"
           disabled={submitting || !isSignedIn}
-          className="group relative inline-flex items-center justify-center px-16 py-5 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-slate-500/25 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+          className="group relative inline-flex items-center justify-center px-12 py-4 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-slate-500/25 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
         >
           <span className="relative z-10 flex items-center gap-3">
             {submitting ? (
@@ -322,7 +322,7 @@ const aquascapeMessage = `
               </>
             ) : (
               <>
-                Submit Aquascape Inquiry
+                Submit Inquiry
                 <div className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300">→</div>
               </>
             )}

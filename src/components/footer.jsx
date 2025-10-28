@@ -2,15 +2,15 @@ import Image from "next/image"
 import Link from "next/link"
 import { Waves, MapPin, Phone, Mail, ArrowRight, Facebook, Youtube, Heart} from 'lucide-react'
 
-function Footer() {
+function Footer({ className = "" }) {
   return (
-    <footer className="relative z-0 mt-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-t border-white/10 py-8 sm:py-10 px-4 sm:px-6 lg:px-8">
+    <footer className={`relative z-0 mt-12 sm:mt-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-t border-white/10 py-10 sm:py-12 px-4 sm:px-6 lg:px-8 w-full flex justify-center ${className}`}>
       {/* container */}
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 text-white">
           
           {/* social media account*/}
-          <div className="flex flex-col items-center sm:items-start space-y-4">
+          <div className="flex flex-col items-center sm:items-start space-y-4 p-2 sm:p-3">
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Image 
@@ -26,7 +26,6 @@ function Footer() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white">IOS Aquatics</h3>
-                <p className="text-slate-400 text-sm">Premium Aquatics Store</p>
               </div>
             </div>
             <div className="space-y-4">
@@ -63,19 +62,19 @@ function Footer() {
           </div>
 
           {/* contacts */}
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col items-center sm:items-start space-y-4 text-center sm:text-left p-2 sm:p-3">
             <h2 className="font-semibold text-xl text-white mb-2">Contact Info</h2>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
+            <div className="space-y-5">
+              <div className="flex items-start gap-4 py-1.5 sm:py-2">
                 <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
                   <MapPin className="w-4 h-4 text-green-400" />
                 </div>
                 <div>
                   <h4 className="text-white font-medium mb-1">Address</h4>
-                  <p className="text-slate-300 text-sm">Moonwalk Village, Las Piñas City, Philippines</p>
+                  <p className="text-slate-300 text-sm">Relay 1747 Las Piñas, Philippines</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4 py-1.5 sm:py-2">
                 <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
                   <Phone className="w-4 h-4 text-blue-400" />
                 </div>
@@ -89,7 +88,7 @@ function Footer() {
                   </a>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4 py-1.5 sm:py-2">
                 <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
                   <Mail className="w-4 h-4 text-purple-400" />
                 </div>
@@ -107,9 +106,9 @@ function Footer() {
           </div>
 
           {/* shortcuts */}
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col items-center sm:items-start space-y-4 text-center sm:text-left p-2 sm:p-3">
             <h2 className="font-semibold text-xl text-white mb-2">Account</h2>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               <li>
                 <Link href="/account-page" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -138,9 +137,9 @@ function Footer() {
           </div>
 
           {/* shortcuts/quick links */}
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col items-center sm:items-start space-y-4 text-center sm:text-left p-2 sm:p-3">
             <h2 className="font-semibold text-xl text-white mb-2">Quick Links</h2>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               <li>
                 <Link href="/inquiry-form" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -154,10 +153,26 @@ function Footer() {
                 </Link>
               </li>
               <li>
-                <span className="text-slate-500 text-sm">Privacy Policy</span>
+                <a 
+                  href="https://sites.google.com/view/privacy-policy-for-ios-aquatic/home" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group"
+                >
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  Privacy Policy
+                </a>
               </li>
               <li>
-                <span className="text-slate-500 text-sm">Terms of Service</span>
+                <a 
+                  href="https://sites.google.com/view/terms-of-service-for-ios-aquat/home" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group"
+                >
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  Terms of Service
+                </a>
               </li>
             </ul>
           </div>
@@ -165,7 +180,7 @@ function Footer() {
 
         {/* copyright?? ba tawag dito */}
         <div className="text-center mt-8 sm:mt-10 border-t border-white/10 pt-6 sm:pt-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4">
             <p className="text-slate-400 text-sm sm:text-base">
               © {new Date().getFullYear()} IOS Aquatics. All rights reserved.
             </p>

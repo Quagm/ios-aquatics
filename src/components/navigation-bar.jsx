@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { SignedOut, SignInButton, SignUpButton, SignedIn, UserButton, useUser } from "@clerk/nextjs"
@@ -10,8 +10,7 @@ import { useCart } from "@/components/CartContext"
 export default function NavigationBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const navRef = useRef(null)
-  const [navHeight, setNavHeight] = useState(0)
+  
   const { items, animationState } = useCart()
   const { user } = useUser()
   const role = user?.publicMetadata?.role || user?.unsafeMetadata?.role || user?.privateMetadata?.role
@@ -88,22 +87,7 @@ export default function NavigationBar() {
     }
   }, [userEmail])
 
-  // push page content down by size of navigation bar
-  useEffect(() => {
-    const measure = () => {
-      const h = navRef.current ? navRef.current.offsetHeight : 0
-      setNavHeight(h)
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [])
-
-  // Recalculate when nav padding/style changes or mobile menu toggles
-  useEffect(() => {
-    const h = navRef.current ? navRef.current.offsetHeight : 0
-    setNavHeight(h)
-  }, [isScrolled, isMobileMenuOpen])
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -150,8 +134,7 @@ export default function NavigationBar() {
   return (
     <>
     <nav
-      ref={navRef}
-      className={`fixed inset-x-0 top-0 z-50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 transition-all duration-300 flex justify-center ${
         isScrolled
           ? "bg-white shadow-lg border-b border-slate-200"
           : "bg-slate-800"
@@ -436,11 +419,11 @@ export default function NavigationBar() {
               </div>
             </SignedOut>
             <SignedIn>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Link
                   href="/account-page"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-3 px-2 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                  className="block py-4 px-3 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
                 >
                   Account
                 </Link>
@@ -448,7 +431,7 @@ export default function NavigationBar() {
                   <Link
                     href="/admin"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block py-3 px-2 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                    className="block py-4 px-3 font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
                   >
                     Admin
                   </Link>
@@ -459,8 +442,7 @@ export default function NavigationBar() {
         </div>
       </div>
     </nav>
-    {/* space */}
-    <div aria-hidden style={{ height: navHeight }} />
+    
     </>
   )
 }

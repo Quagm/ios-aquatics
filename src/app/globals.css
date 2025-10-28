@@ -109,13 +109,13 @@
 }
 
 .page-section {
-  padding-block: 2.5rem; /* 40px */
+  padding-block: 3rem; /* 48px */
 }
 @media (min-width: 640px) { /* sm */
-  .page-section { padding-block: 3rem; }
+  .page-section { padding-block: 4rem; }
 }
 @media (min-width: 1024px) { /* lg */
-  .page-section { padding-block: 4rem; }
+  .page-section { padding-block: 5rem; }
 }
 
 /* Vertical rhythm utilities */
@@ -123,14 +123,25 @@
 .stack-md > * + * { margin-top: 1rem; }
 .stack-lg > * + * { margin-top: 1.5rem; }
 .stack-xl > * + * { margin-top: 2rem; }
+.stack-2xl > * + * { margin-top: 3rem; }
 
 /* Responsive grid gaps */
+.grid-gap-sm { gap: 0.75rem; }
 .grid-gap-md { gap: 1rem; }
+.grid-gap-lg { gap: 1.5rem; }
+.grid-gap-xl { gap: 2rem; }
+
 @media (min-width: 768px) { /* md */
+  .grid-gap-sm { gap: 1rem; }
   .grid-gap-md { gap: 1.25rem; }
+  .grid-gap-lg { gap: 1.75rem; }
+  .grid-gap-xl { gap: 2.5rem; }
 }
 @media (min-width: 1024px) { /* lg */
+  .grid-gap-sm { gap: 1.25rem; }
   .grid-gap-md { gap: 1.5rem; }
+  .grid-gap-lg { gap: 2rem; }
+  .grid-gap-xl { gap: 3rem; }
 }
 
 /* Form defaults for better usability */
@@ -177,7 +188,8 @@ form .form-group > textarea:focus { outline: 2px solid var(--primary-500); outli
 @media (min-width: 640px) { .glass-effect .section-header { margin-bottom: 1.25rem; } }
 @media (min-width: 1024px) { .glass-effect .section-header { margin-bottom: 1.5rem; } }
 
-@theme inline {
+/* Theme variables for Tailwind integration */
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
