@@ -36,7 +36,7 @@ export default function InquiryForm() {
 
           {/* Form Container */}
           <div className="relative flex justify-center">
-            <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden w-full max-w-3xl mx-auto">
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden w-full max-w-3xl mx-auto px-4 sm:px-6 md:px-8 my-6 sm:my-8 md:my-10">
               {/* Decorative Top Border */}
               <div className="h-1 bg-gradient-to-r from-slate-600 via-slate-500 to-slate-600"></div>
               

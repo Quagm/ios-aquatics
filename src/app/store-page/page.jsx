@@ -97,10 +97,10 @@ export default function StorePage() {
       <NavigationBar />
       
       {/* Main Content */}
-      <div className="flex-1 w-full flex flex-col items-center pb-16 sm:pb-20 lg:pb-24" style={{paddingTop: '120px'}}>
-        <div className="max-w-[1600px] mx-auto w-full" style={{paddingLeft: '24px', paddingRight: '24px'}}>
+      <div className="flex-1 w-full flex flex-col items-center pb-16 sm:pb-20 lg:pb-24 pt-28 sm:pt-32">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
-          <div className="flex flex-col items-center justify-center text-center" style={{marginBottom: '80px', padding: '60px 40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)'}}>
+          <div className="flex flex-col items-center justify-center text-center mb-20 sm:mb-24 bg-white/5 rounded-3xl border border-white/10" style={{padding: '60px 40px'}}>
             <div className="inline-flex items-center gap-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20" style={{padding: '16px 32px', marginBottom: '48px'}}>
               <ShoppingCart className="w-4 h-4" />
               Our Store
@@ -114,10 +114,10 @@ export default function StorePage() {
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{marginBottom: '80px'}} />
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
           {/* Services Slideshow */}
-          <div className="relative overflow-hidden rounded-3xl shadow-2xl border border-white/10" style={{marginBottom: '80px', height: '400px', width: '100%', maxWidth: '1200px', margin: '0 auto 80px auto'}}>
+          <div className="relative overflow-hidden rounded-3xl shadow-2xl border border-white/10 mb-20 sm:mb-24 h-[360px] sm:h-[400px] w-full max-w-5xl mx-auto">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
                 <div
@@ -163,11 +163,11 @@ export default function StorePage() {
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{marginBottom: '80px'}} />
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
           {/* Search + Filter Section */}
-          <div className="flex flex-col items-center justify-center" style={{marginBottom: '80px', padding: '40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)'}}>
-            <div className="w-full max-w-2xl" style={{marginBottom: '40px'}}>
+          <div className="flex flex-col items-center justify-center mb-20 sm:mb-24 bg-white/5 rounded-2xl border border-white/10 px-6 sm:px-8 py-8">
+            <div className="w-full max-w-2xl mb-10">
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
                 <input
@@ -181,7 +181,7 @@ export default function StorePage() {
               </div>
             </div>
             
-            <div className="flex flex-wrap justify-center items-center" style={{gap: '12px', maxWidth: '100%'}}>
+            <div className="flex flex-wrap justify-center items-center gap-3 w-full">
               {categories.map(cat => (
                 <button
                   key={cat}
@@ -199,10 +199,10 @@ export default function StorePage() {
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{marginBottom: '80px'}} />
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
           {/* Products Grid */}
-          <div className="flex flex-col items-center" style={{marginBottom: '80px'}}>
+          <div className="flex flex-col items-center mb-20 sm:mb-24">
           {error && (
               <div className="text-center mb-12">
               <div className="glass-effect rounded-2xl p-8 border border-red-500/20 max-w-md mx-auto">
@@ -213,7 +213,7 @@ export default function StorePage() {
             </div>
           )}
           {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{gap: '32px', width: '100%', maxWidth: '1400px'}}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full max-w-7xl">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="glass-effect rounded-2xl overflow-hidden border border-white/10">
                   <div className="aspect-square skeleton"></div>
@@ -229,7 +229,7 @@ export default function StorePage() {
               ))}
             </div>
           ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{gap: '32px', width: '100%', maxWidth: '1400px'}}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full max-w-7xl">
               {visibleProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -253,7 +253,7 @@ export default function StorePage() {
           </div>
 
           {/* Load More Button */}
-          <div className="flex justify-center items-center" style={{marginTop: '80px'}}>
+          <div className="flex justify-center items-center mt-20 sm:mt-24">
             {canLoadMore ? (
               <button 
                 onClick={() => setVisibleCount(c => c + 8)} 

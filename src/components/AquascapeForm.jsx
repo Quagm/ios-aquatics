@@ -96,8 +96,8 @@ const aquascapeMessage = `
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto">
-      <div className="space-y-10 px-2 sm:px-4">
+    <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="space-y-10 px-4 sm:px-6 md:px-8 lg:px-10 max-w-2xl mx-auto">
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
           <p className="text-red-300 text-sm sm:text-base">{error}</p>
@@ -105,13 +105,13 @@ const aquascapeMessage = `
       )}
       
       {/* Personal Information */}
-      <div className="space-y-6 px-1 sm:px-2">
+      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Personal Information
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
           <div className="group space-y-3">
             <label htmlFor="firstName" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               First Name *
@@ -143,13 +143,13 @@ const aquascapeMessage = `
       </div>
 
       {/* Contact Information */}
-      <div className="space-y-6 px-1 sm:px-2">
+      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Contact Information
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
           <div className="group space-y-3">
             <label htmlFor="contactNo" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Contact Number *
@@ -181,7 +181,7 @@ const aquascapeMessage = `
       </div>
       
       {/* Location Information */}
-      <div className="space-y-6 px-1 sm:px-2">
+      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Location Information
@@ -203,13 +203,13 @@ const aquascapeMessage = `
       </div>
 
       {/* Aquascape Preferences */}
-      <div className="space-y-6 px-1 sm:px-2">
+      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Aquascape Preferences
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
           <div className="group space-y-3">
             <label htmlFor="aquariumSize" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Aquarium Size *
@@ -234,7 +234,7 @@ const aquascapeMessage = `
             <label className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Price Range *
             </label>
-            <div className="grid grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-2 gap-4 items-start">
               <div>
                 <input
                   type="number"
@@ -263,7 +263,7 @@ const aquascapeMessage = `
       </div>
       
       {/* Additional Preferences */}
-      <div className="space-y-6 px-1 sm:px-2">
+      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Additional Preferences
