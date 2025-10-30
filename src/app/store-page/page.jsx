@@ -4,6 +4,7 @@ import Footer from "@/components/Footer"
 import ProductCard from "@/components/ProductCard"
 import { useEffect, useMemo, useState } from "react"
 import { fetchProducts } from "@/lib/queries"
+import { supabase } from "@/supabaseClient"
 import { ShoppingCart, AlertTriangle, Search, Sparkles, ArrowDown, Fish, Leaf, Wrench, Utensils, Pill, Palette } from 'lucide-react'
 
 export default function StorePage() {
@@ -70,6 +71,27 @@ export default function StorePage() {
       })
     return () => {
       isMounted = false
+    }
+  }, [selectedCategory])
+
+  // Subscribe to realtime product changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('store-products-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+        if (payload.eventType === 'DELETE') {
+          setProducts(prev => prev.filter((p) => p.id !== payload.old.id))
+        } else {
+          fetchProducts({ category: selectedCategory })
+            .then((data) => {
+              setProducts(data)
+              setVisibleCount(8)
+            })
+        }
+      })
+      .subscribe()
+    return () => {
+      try { supabase.removeChannel(channel) } catch {}
     }
   }, [selectedCategory])
 

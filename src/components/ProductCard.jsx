@@ -49,6 +49,15 @@ export default function ProductCard({ product, showAddToCart = true }) {
                 ₱{product.price}
               </span>
             </div>
+            <div>
+              {typeof product.stock === 'number' && (
+                product.stock > 0 ? (
+                  <span className="text-xs text-slate-300">Stock: {product.stock} left</span>
+                ) : (
+                  <span className="text-xs text-red-400 font-semibold">Out of stock</span>
+                )
+              )}
+            </div>
             {showAddToCart && (
               <button 
                 className={`group/btn w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20 ${
@@ -73,7 +82,7 @@ export default function ProductCard({ product, showAddToCart = true }) {
                     setIsAdding(false);
                   }, 1000);
                 }}
-                disabled={isAdding || !isLoaded}
+                disabled={isAdding || !isLoaded || typeof product.stock === 'number' && product.stock === 0}
               >
                 <span className="flex items-center justify-center gap-2">
                   {isAdding ? (

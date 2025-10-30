@@ -201,40 +201,46 @@ export default function InquiryManagement() {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredInquiries.map((inq) => (
-          <div key={inq.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <h3
-                  onClick={() => setSelectedInquiry(inq)}
-                  className="text-lg font-semibold text-white truncate cursor-pointer hover:underline"
-                >
-                  {inq.subject || 'No subject'}
-                </h3>
-                <p className="text-slate-300 text-sm mt-1 truncate">
-                  {(inq.first_name || '') + ' ' + (inq.last_name || '')} • {inq.email}
-                </p>
+          <div key={inq.id} className="glass-effect rounded-2xl border border-white/10 mb-2 hover:border-white/20 transition-all shadow-lg p-4 sm:p-6 md:p-8">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <h3
+                    onClick={() => setSelectedInquiry(inq)}
+                    className="text-lg font-semibold text-white truncate cursor-pointer hover:underline"
+                  >
+                    {inq.subject || 'No subject'}
+                  </h3>
+                  <p className="text-slate-300 text-sm mt-1 truncate">
+                    {(inq.first_name || '') + ' ' + (inq.last_name || '')} • {inq.email}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedInquiry(inq)}
+                    className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                    title="View Details"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <span className="text-xs px-2 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{inq.status || 'accepted'}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setSelectedInquiry(inq)}
-                  className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                  title="View Details"
+              <div className="mt-4 flex flex-wrap gap-2">
+                <select
+                  value={inq.status}
+                  onChange={e => updateInquiryStatus(inq.id, e.target.value)}
+                  className="px-3 py-2 text-xs rounded bg-white/10 text-white focus:ring-2 focus:ring-blue-500 border border-white/20 min-w-[120px]"
                 >
-                  <Eye className="w-4 h-4" />
-                </button>
-                <span className="text-xs px-2 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{inq.status || 'accepted'}</span>
+                  <option value="accepted" className="bg-slate-800">Accepted</option>
+                  <option value="in_progress" className="bg-yellow-700">In Progress</option>
+                  <option value="completed" className="bg-green-700">Completed</option>
+                  <option value="cancelled" className="bg-red-700">Cancelled</option>
+                </select>
+                <button onClick={() => deleteInquiry(inq.id)} className="ml-auto px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Delete</button>
               </div>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button onClick={() => updateInquiryStatus(inq.id, 'accepted')} className="px-3 py-2 text-xs rounded bg-white/10 text-white hover:bg-white/20">Accepted</button>
-              <button onClick={() => updateInquiryStatus(inq.id, 'in_progress')} className="px-3 py-2 text-xs rounded bg-yellow-600/20 text-yellow-200 hover:bg-yellow-600/30">In Progress</button>
-              <button onClick={() => updateInquiryStatus(inq.id, 'completed')} className="px-3 py-2 text-xs rounded bg-green-600/20 text-green-200 hover:bg-green-600/30">Completed</button>
-              <button onClick={() => updateInquiryStatus(inq.id, 'cancelled')} className="px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Cancelled</button>
-              <button onClick={() => deleteInquiry(inq.id)} className="ml-auto px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Delete</button>
-            </div>
-          </div>
         ))}
         {filteredInquiries.length === 0 && (
           <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No inquiries found</div>
@@ -243,68 +249,69 @@ export default function InquiryManagement() {
 
       {/* View Inquiry Modal */}
       {selectedInquiry && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="glass-effect rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-2 py-4 z-50">
+          <div className="glass-effect rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-white/20 p-4 sm:p-6 md:p-8">
+            <div className="border-b border-white/10 flex items-center justify-between pb-6 mb-6">
               <h3 className="text-xl font-bold text-white">Inquiry Details</h3>
               <button onClick={() => setSelectedInquiry(null)} className="px-3 py-1 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20">Close</button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="space-y-6">
               <div>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-slate-400 text-sm">Subject</div>
-                    <div className="text-white text-lg font-semibold">{selectedInquiry.subject || 'No subject'}</div>
-                  </div>
-                  <span className="text-xs px-2 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{selectedInquiry.status || 'accepted'}</span>
-                </div>
-                <div className="mt-2 text-slate-400 text-xs">
-                  {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : ''}
-                </div>
+                <div className="text-slate-400 text-sm">Subject</div>
+                <div className="text-white text-lg font-semibold">{selectedInquiry.subject || 'No subject'}</div>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <div className="text-slate-400 text-sm">Name</div>
-                  <div className="text-white">{(selectedInquiry.first_name || '') + ' ' + (selectedInquiry.last_name || '')}</div>
-                </div>
-                <div>
-                  <div className="text-slate-400 text-sm">Email</div>
-                  <div className="text-white break-all">{selectedInquiry.email}</div>
-                </div>
-                {selectedInquiry.phone && (
-                  <div>
-                    <div className="text-slate-400 text-sm">Phone</div>
-                    <div className="text-white">{selectedInquiry.phone}</div>
-                  </div>
-                )}
+              <div className="mt-3 text-slate-400 text-xs">
+                {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : ''}
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <div className="text-slate-400 text-sm mb-1">Message</div>
-                <div className="text-slate-200 whitespace-pre-line break-words">{getCleanMessage(selectedInquiry.message)}</div>
+                <div className="text-slate-400 text-sm">Name</div>
+                <div className="text-white">{(selectedInquiry.first_name || '') + ' ' + (selectedInquiry.last_name || '')}</div>
               </div>
-
-              {extractImageUrls(selectedInquiry.message).length > 0 && (
+              <div>
+                <div className="text-slate-400 text-sm">Email</div>
+                <div className="text-white break-all">{selectedInquiry.email}</div>
+              </div>
+              {selectedInquiry.phone && (
                 <div>
-                  <div className="text-slate-400 text-sm mb-2">Images</div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {extractImageUrls(selectedInquiry.message).map((url, idx) => (
-                      <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-white/20 bg-white/5">
-                        <img src={url} alt={`reference-${idx + 1}`} className="w-full h-32 object-cover" />
-                      </a>
-                    ))}
-                  </div>
+                  <div className="text-slate-400 text-sm">Phone</div>
+                  <div className="text-white">{selectedInquiry.phone}</div>
                 </div>
               )}
+            </div>
 
-              <div className="flex flex-wrap gap-2 pt-2">
-                <button onClick={() => updateInquiryStatus(selectedInquiry.id, 'accepted')} className="px-3 py-2 text-xs rounded bg-white/10 text-white hover:bg-white/20">Accepted</button>
-                <button onClick={() => updateInquiryStatus(selectedInquiry.id, 'in_progress')} className="px-3 py-2 text-xs rounded bg-yellow-600/20 text-yellow-200 hover:bg-yellow-600/30">In Progress</button>
-                <button onClick={() => updateInquiryStatus(selectedInquiry.id, 'completed')} className="px-3 py-2 text-xs rounded bg-green-600/20 text-green-200 hover:bg-green-600/30">Completed</button>
-                <button onClick={() => updateInquiryStatus(selectedInquiry.id, 'cancelled')} className="px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Cancelled</button>
-                <button onClick={() => { deleteInquiry(selectedInquiry.id); setSelectedInquiry(null) }} className="ml-auto px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Delete</button>
+            <div>
+              <div className="text-slate-400 text-sm mb-1">Message</div>
+              <div className="text-slate-200 whitespace-pre-line break-words">{getCleanMessage(selectedInquiry.message)}</div>
+            </div>
+
+            {extractImageUrls(selectedInquiry.message).length > 0 && (
+              <div>
+                <div className="text-slate-400 text-sm mb-2">Images</div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {extractImageUrls(selectedInquiry.message).map((url, idx) => (
+                    <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-white/20 bg-white/5">
+                      <img src={url} alt={`reference-${idx + 1}`} className="w-full h-32 object-cover" />
+                    </a>
+                  ))}
+                </div>
               </div>
+            )}
+
+            <div className="flex flex-wrap gap-3 pt-3">
+              <select
+                value={selectedInquiry.status}
+                onChange={e => updateInquiryStatus(selectedInquiry.id, e.target.value)}
+                className="px-3 py-2 text-xs rounded bg-white/10 text-white focus:ring-2 focus:ring-blue-500 border border-white/20 min-w-[120px]"
+              >
+                <option value="accepted" className="bg-slate-800">Accepted</option>
+                <option value="in_progress" className="bg-yellow-700">In Progress</option>
+                <option value="completed" className="bg-green-700">Completed</option>
+                <option value="cancelled" className="bg-red-700">Cancelled</option>
+              </select>
+              <button onClick={() => { deleteInquiry(selectedInquiry.id); setSelectedInquiry(null) }} className="ml-auto px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Delete</button>
             </div>
           </div>
         </div>

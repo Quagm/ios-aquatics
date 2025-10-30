@@ -42,13 +42,15 @@ export default function NavigationBar() {
       })
     }
 
-    // Inquiries: filter by email client-side
+    // For admins: subscribe to all updates
+    // For non-admin: subscribe to own events only
     const chInq = supabase
-      .channel(`inq_status_${userEmail}`)
+      .channel(`inq_status_${isAdmin ? 'admin_all' : userEmail}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'inquiries' }, (payload) => {
         const row = payload?.new || payload?.record
         if (!row) return
-        if ((row.email || '').toLowerCase() !== (userEmail || '').toLowerCase()) return
+        // Admin gets all, user gets only their own
+        if (!isAdmin && (row.email || '').toLowerCase() !== (userEmail || '').toLowerCase()) return
         if (payload.eventType === 'UPDATE' && payload.old?.status !== row.status) {
           addNotif({
             id: `inq_${row.id}_${Date.now()}`,
@@ -61,14 +63,14 @@ export default function NavigationBar() {
       })
       .subscribe()
 
-    // Orders: customer is JSON; check customer.email
     const chOrder = supabase
-      .channel(`order_status_${userEmail}`)
+      .channel(`order_status_${isAdmin ? 'admin_all' : userEmail}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
         const row = payload?.new || payload?.record
         if (!row) return
         const email = (row.customer?.email || '').toLowerCase()
-        if (email !== (userEmail || '').toLowerCase()) return
+        // Admin gets all, user only their own
+        if (!isAdmin && email !== (userEmail || '').toLowerCase()) return
         if (payload.eventType === 'UPDATE' && payload.old?.status !== row.status) {
           addNotif({
             id: `ord_${row.id}_${Date.now()}`,
@@ -85,7 +87,7 @@ export default function NavigationBar() {
       try { supabase.removeChannel(chInq) } catch {}
       try { supabase.removeChannel(chOrder) } catch {}
     }
-  }, [userEmail])
+  }, [userEmail, isAdmin])
 
   
 

@@ -175,7 +175,16 @@ useEffect(() => {
     try {
       const ok = window.confirm('Delete this product? This action cannot be undone.')
       if (!ok) return
-      await deleteProductById(id)
+      const res = await fetch('/api/products', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id })
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data?.error || 'Delete failed')
+      }
       setProducts(prev => prev.filter(product => product.id !== id))
     } catch {}
   }
@@ -436,6 +445,24 @@ function AddProductModal({ onClose, onSave, categories }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    // require either image file upload or image URL
+    if (!formData.imageFile && !String(formData.image || '').trim()) {
+      alert('Please provide a product image (upload a file or paste an image URL).')
+      return
+    }
+    // basic required validations for numeric fields
+    if (String(formData.price).trim() === '' || isNaN(Number(formData.price))) {
+      alert('Please enter a valid price.')
+      return
+    }
+    if (String(formData.stock).trim() === '' || isNaN(Number(formData.stock))) {
+      alert('Please enter a valid stock value.')
+      return
+    }
+    if (String(formData.minStock).trim() === '' || isNaN(Number(formData.minStock))) {
+      alert('Please enter a valid minimum stock value.')
+      return
+    }
     onSave({
       ...formData,
       price: parseFloat(formData.price),
@@ -467,6 +494,7 @@ function AddProductModal({ onClose, onSave, categories }) {
               <label className="block text-sm font-medium text-slate-300 mb-2">Product Code (SKU)</label>
               <input
                 type="text"
+                required
                 value={formData.sku}
                 onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
@@ -477,6 +505,7 @@ function AddProductModal({ onClose, onSave, categories }) {
               <label className="block text-sm font-medium text-slate-300 mb-2">Category</label>
               <select
                 value={formData.category}
+                required
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
               >
@@ -490,6 +519,7 @@ function AddProductModal({ onClose, onSave, categories }) {
             <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
             <textarea
               rows={4}
+              required
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm resize-none"
@@ -520,6 +550,7 @@ function AddProductModal({ onClose, onSave, categories }) {
                 />
                 <input
                   type="url"
+                  required={!formData.imageFile}
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
@@ -535,6 +566,7 @@ function AddProductModal({ onClose, onSave, categories }) {
                 type="number"
                 min={0}
                 step={1}
+                required
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
@@ -547,6 +579,7 @@ function AddProductModal({ onClose, onSave, categories }) {
                 type="number"
                 min={0}
                 step={1}
+                required
                 value={formData.minStock}
                 onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
