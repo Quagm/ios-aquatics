@@ -9,6 +9,16 @@ export async function fetchProducts({ category } = {}) {
   return data || []
 }
 
+export async function fetchProductById(productId) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", productId)
+    .single()
+  if (error) throw error
+  return data
+}
+
 export async function createProduct(product) {
   const { data, error } = await supabase.from("products").insert(product).select().single()
   if (error) throw error
