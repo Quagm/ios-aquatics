@@ -200,6 +200,18 @@ export async function updateOrderStatus(orderId, status) {
   return data
 }
 
+export async function deleteOrderById(orderId) {
+  const res = await fetch('/api/orders', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ id: orderId })
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.error || 'Failed to delete order')
+  return data
+}
+
 // Analytics
 export async function getSalesAnalytics() {
   const { data: revenueData, error: revenueError } = await supabase.from("orders").select("total")

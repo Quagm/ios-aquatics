@@ -134,8 +134,11 @@ const normalize = (data) => (data || []).map((o) => {
       )
     }
 
-    // completed orders will not be shown
-    filtered = filtered.filter(order => String(order.status || '').toLowerCase() !== 'completed')
+    // completed and cancelled orders will not be shown (they go to order history)
+    filtered = filtered.filter(order => {
+      const status = String(order.status || '').toLowerCase()
+      return status !== 'completed' && status !== 'cancelled'
+    })
 
     if (statusFilter !== 'all') {
       filtered = filtered.filter(order => normalizeOrderStatus(order.status) === statusFilter)
@@ -171,6 +174,10 @@ const normalize = (data) => (data || []).map((o) => {
         const ok = window.confirm('Mark this order as finished? It will be moved to Order History and removed from active orders.')
         if (!ok) return
       }
+      if (normalizedNext === 'cancelled') {
+        const ok = window.confirm('Cancel this order? It will be moved to Order History and removed from active orders.')
+        if (!ok) return
+      }
       const updated = await updateOrderStatusDb(id, newStatus)
       // Refetch to ensure both active and history views reflect the change
       await loadOrders()
@@ -180,6 +187,8 @@ const normalize = (data) => (data || []).map((o) => {
       push({ title: 'Status updated', description: `Order ${id} new status: ${label}`, variant: 'default' })
       if (us === 'completed') {
         push({ title: 'Order archived', description: `Order ${id} moved to history.`, variant: 'success' })
+      } else if (us === 'cancelled') {
+        push({ title: 'Order cancelled', description: `Order ${id} moved to history.`, variant: 'success' })
       } else {
         push({ title: 'Order updated', description: `Order ${id} set to ${label}.`, variant: 'success' })
       }

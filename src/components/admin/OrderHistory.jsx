@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { fetchOrders } from '@/lib/queries'
-import { Package, CheckCircle, Calendar, DollarSign } from 'lucide-react'
+import { fetchOrders, deleteOrderById } from '@/lib/queries'
+import { Package, CheckCircle, Calendar, DollarSign, AlertCircle, Trash2 } from 'lucide-react'
 import { useToast } from '@/components/ui/ToastProvider'
 import { supabase } from '@/supabaseClient'
 
@@ -40,7 +40,10 @@ export default function OrderHistory() {
       .then((data) => {
         if (!mounted) return
         const completed = (data || [])
-          .filter(o => normalizeOrderStatus(o.status) === 'completed')
+          .filter(o => {
+            const status = normalizeOrderStatus(o.status)
+            return status === 'completed' || status === 'cancelled'
+          })
           .map((o) => {
             const snapshot = o.customer_snapshot || {}
             const customer = o.customer || {}
@@ -59,7 +62,7 @@ export default function OrderHistory() {
           })
         setOrders(completed)
         if (completed.length === 0) {
-          push({ title: 'No archived orders', description: 'No completed orders found.', variant: 'default' })
+          push({ title: 'No archived orders', description: 'No completed or cancelled orders found.', variant: 'default' })
         }
       })
       .catch((e) => {
@@ -69,7 +72,7 @@ export default function OrderHistory() {
     return () => { mounted = false }
   }, [])
 
-  // shows cancelled?? or completed orders
+  // shows cancelled or completed orders (archived orders)
   useEffect(() => {
     const channel = supabase
       .channel('orders_history_updates')
@@ -77,7 +80,10 @@ export default function OrderHistory() {
         try {
           const data = await fetchOrders()
           const archived = (data || [])
-            .filter(o => normalizeOrderStatus(o.status) === 'completed')
+            .filter(o => {
+              const status = normalizeOrderStatus(o.status)
+              return status === 'completed' || status === 'cancelled'
+            })
             .map((o) => {
               const snapshot = o.customer_snapshot || {}
               const customer = o.customer || {}
@@ -101,6 +107,20 @@ export default function OrderHistory() {
 
   const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0)
 
+  const handleDeleteOrder = async (orderId) => {
+    const confirmed = window.confirm('Are you sure you want to delete this order? This action cannot be undone.')
+    if (!confirmed) return
+
+    try {
+      await deleteOrderById(orderId)
+      // Remove the order from local state
+      setOrders(orders.filter(o => o.id !== orderId))
+      push({ title: 'Order deleted', description: `Order ${orderId} has been permanently deleted.`, variant: 'success' })
+    } catch (e) {
+      push({ title: 'Delete failed', description: e?.message || 'Could not delete order', variant: 'error' })
+    }
+  }
+
   return (
     <div className="space-y-8 ml-6">
       {/* header */}
@@ -112,7 +132,7 @@ export default function OrderHistory() {
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Order</span> History
         </h1>
-        <p className="text-lg text-slate-300 max-w-2xl">Archived orders that have been completed.</p>
+        <p className="text-lg text-slate-300 max-w-2xl">Archived orders that have been completed or cancelled.</p>
       </div>
 
       {/* summary */}
@@ -123,7 +143,7 @@ export default function OrderHistory() {
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-slate-400">Completed Orders</p>
+              <p className="text-sm font-medium text-slate-400">Archived Orders</p>
               <p className="text-2xl font-bold text-white">{orders.length}</p>
             </div>
           </div>
@@ -144,7 +164,7 @@ export default function OrderHistory() {
       {/* inquiry card */}
       <div>
         <div className="px-1 py-2">
-          <h3 className="text-lg font-semibold text-white">Completed Orders ({orders.length})</h3>
+          <h3 className="text-lg font-semibold text-white">Archived Orders ({orders.length})</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {orders.map(order => (
@@ -153,13 +173,28 @@ export default function OrderHistory() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-slate-300">#{order.id}</span>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      <CheckCircle className="w-4 h-4" />
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      order.status === 'cancelled' 
+                        ? 'bg-red-100 text-red-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {order.status === 'cancelled' ? (
+                        <AlertCircle className="w-4 h-4" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4" />
+                      )}
                       <span className="ml-1">{getOrderStatusLabel(order.status)}</span>
                     </span>
                   </div>
                   <p className="text-slate-300 text-sm mt-1">{order.orderDate}</p>
                 </div>
+                <button
+                  onClick={() => handleDeleteOrder(order.id)}
+                  className="text-red-400 hover:text-red-300 transition-colors p-1 hover:bg-red-500/10 rounded-lg"
+                  title="Delete Order"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
               <div className="mt-4 space-y-1">
                 <p className="text-white text-sm font-medium">{order.items.length} items</p>
@@ -171,7 +206,7 @@ export default function OrderHistory() {
             </div>
           ))}
           {(!loading && orders.length === 0) && (
-            <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No completed orders yet.</div>
+            <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No archived orders yet.</div>
           )}
         </div>
       </div>
