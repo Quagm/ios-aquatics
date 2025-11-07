@@ -4,7 +4,6 @@ import { useToast } from '@/components/ui/ToastProvider'
 import { fetchOrders, updateOrderStatus as updateOrderStatusDb } from '@/lib/queries'
 import { 
   Search, 
-  Filter, 
   Eye, 
   Edit, 
   Package, 
@@ -12,7 +11,6 @@ import {
   CheckCircle, 
   Clock,
   AlertCircle,
-  DollarSign,
   Calendar,
   User,
   Phone,
@@ -197,12 +195,6 @@ const normalize = (data) => (data || []).map((o) => {
     }
   }
 
-  const getTotalRevenue = () => {
-    return filteredOrders
-      .filter(order => order.status !== 'cancelled')
-      .reduce((total, order) => total + order.total, 0)
-  }
-
   const getOrderStats = () => {
     const stats = {
       total: filteredOrders.length,
@@ -231,7 +223,7 @@ const normalize = (data) => (data || []).map((o) => {
       </div>
 
       {/* Order Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
@@ -276,17 +268,6 @@ const normalize = (data) => (data || []).map((o) => {
             </div>
           </div>
         </div>
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
-          <div className="flex items-center">
-            <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600">
-              <DollarSign className="w-6 h-6 text-white" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-slate-400">Revenue</p>
-              <p className="text-2xl font-bold text-white">₱{getTotalRevenue().toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Filters and Search */}
@@ -327,10 +308,6 @@ const normalize = (data) => (data || []).map((o) => {
               <option className="bg-slate-800 text-white" value="week">This Week</option>
               <option className="bg-slate-800 text-white" value="month">This Month</option>
             </select>
-            <button className="flex items-center px-4 py-2 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors border border-white/20">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </button>
           </div>
         </div>
       </div>
