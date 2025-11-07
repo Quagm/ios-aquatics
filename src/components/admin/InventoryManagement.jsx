@@ -470,8 +470,8 @@ function AddProductModal({ onClose, onSave, categories }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="glass-effect rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
+      <div className="glass-effect rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20 pointer-events-auto">
         <div className="p-6 border-b border-white/10">
           <h3 className="text-xl font-bold text-white">Add New Product</h3>
         </div>
@@ -631,8 +631,8 @@ function EditProductModal({ product, onClose, onSave, categories }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="glass-effect rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
+      <div className="glass-effect rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20 pointer-events-auto">
         <div className="p-6 border-b border-white/10">
           <h3 className="text-xl font-bold text-white">Edit Product</h3>
         </div>

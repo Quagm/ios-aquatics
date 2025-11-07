@@ -405,8 +405,8 @@ const normalize = (data) => (data || []).map((o) => {
 function OrderDetailModal({ order, onClose }) {
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-      <div className="glass-effect rounded-2xl border border-white/10 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
+      <div className="glass-effect rounded-2xl border border-white/10 max-w-4xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto">
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between gap-4">
             <div>

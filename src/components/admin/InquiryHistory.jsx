@@ -48,6 +48,7 @@ export default function InquiryHistory() {
     const lines = text.split(/\r?\n/)
     const cleaned = lines.filter((line) => {
       const l = line.trim()
+      if (l.toLowerCase().startsWith('- image reference')) return false
       if (l.toLowerCase().startsWith('- image references')) return false
       if (l.toLowerCase().startsWith('- image urls')) return false
       if (/^https?:\/\//i.test(l)) return false
@@ -139,9 +140,8 @@ export default function InquiryHistory() {
       </div>
 
       {selectedInquiry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setSelectedInquiry(null)}></div>
-          <div className="relative w-full max-w-3xl bg-slate-900 border border-white/20 rounded-2xl shadow-xl p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="relative w-full max-w-3xl bg-slate-900 border border-white/20 rounded-2xl shadow-xl p-6 pointer-events-auto max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="min-w-0">
                 <h3 className="text-xl font-semibold text-white break-words">{selectedInquiry.subject || 'No subject'}</h3>

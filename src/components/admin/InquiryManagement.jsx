@@ -133,6 +133,7 @@ export default function InquiryManagement() {
     const lines = text.split(/\r?\n/)
     const cleaned = lines.filter((line) => {
       const l = line.trim()
+      if (l.toLowerCase().startsWith('- image reference')) return false
       if (l.toLowerCase().startsWith('- image references')) return false
       if (l.toLowerCase().startsWith('- image urls')) return false
       if (/^https?:\/\//i.test(l)) return false
@@ -271,8 +272,8 @@ export default function InquiryManagement() {
       </div>
 
       {selectedInquiry && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-2 py-4 z-50">
-          <div className="glass-effect rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-white/20 p-4 sm:p-6 md:p-8">
+        <div className="fixed inset-0 flex items-center justify-center px-2 py-4 z-50 pointer-events-none">
+          <div className="glass-effect rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-white/20 p-4 sm:p-6 md:p-8 pointer-events-auto">
             <div className="border-b border-white/10 flex items-center justify-between pb-6 mb-6">
               <h3 className="text-xl font-bold text-white">Inquiry Details</h3>
               <button onClick={() => setSelectedInquiry(null)} className="px-3 py-1 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20">Close</button>
@@ -340,8 +341,8 @@ export default function InquiryManagement() {
       )}
 
       {schedulingInquiryId && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-2 py-4 z-50">
-          <div className="glass-effect rounded-3xl max-w-md w-full border border-white/20 p-6">
+        <div className="fixed inset-0 flex items-center justify-center px-2 py-4 z-50 pointer-events-none">
+          <div className="glass-effect rounded-3xl max-w-md w-full border border-white/20 p-6 pointer-events-auto">
             <div className="border-b border-white/10 pb-4 mb-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-white">Schedule Appointment</h3>
               <button onClick={() => { setSchedulingInquiryId(null); setAppointmentInput('') }} className="px-3 py-1 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20">Close</button>
