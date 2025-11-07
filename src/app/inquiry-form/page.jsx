@@ -17,23 +17,23 @@ export default function InquiryForm() {
 
       <NavigationBar />
       
-      <div className="relative z-10 w-full flex-1 pt-24 sm:pt-28 lg:pt-32 pb-20 sm:pb-24 lg:pb-28 flex flex-col items-center">
+      <div className="relative z-10 w-full flex-1 pt-6 sm:pt-8 lg:pt-10 pb-36 sm:pb-44 lg:pb-56 flex flex-col items-center">
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 sm:mb-20 flex flex-col items-center">
+          <div className="text-center mb-6 sm:mb-8 lg:mb-10 flex flex-col items-center">
             
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-12 max-w-4xl mx-auto">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-4 max-w-4xl mx-auto">
               <span className="text-white">Aquascape</span> <span className="text-slate-300">Inquiry</span>
             </h1>
             
-            <p className="text-xl sm:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed mb-12 text-center">
+            <p className="text-xl sm:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-6 text-center">
               Let us help you create the perfect aquascape for your space!
             </p>
             
           </div>
 
           <div className="relative flex justify-center">
-            <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden w-full max-w-3xl mx-auto px-4 sm:px-6 md:px-8 my-6 sm:my-8 md:my-10">
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden w-full max-w-4xl xl:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 -mt-14 sm:-mt-12 lg:-mt-10 mb-36 sm:mb-48 lg:mb-60">
               <div className="h-1 bg-gradient-to-r from-slate-600 via-slate-500 to-slate-600"></div>
               
               <div className="p-8 sm:p-12 lg:p-16">
@@ -48,7 +48,7 @@ export default function InquiryForm() {
         </div>
       </div>
       
-      <Footer />
+      <Footer className="mt-24 sm:mt-32" />
     </div>
     </ToastProvider>
   )

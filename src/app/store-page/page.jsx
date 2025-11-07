@@ -115,25 +115,21 @@ export default function StorePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 w-full flex flex-col">
       <NavigationBar />
       
-      <div className="flex-1 w-full flex flex-col items-center pb-16 sm:pb-20 lg:pb-24 pt-28 sm:pt-32">
+      <div className="flex-1 w-full flex flex-col items-center pb-16 sm:pb-20 lg:pb-24 pt-6 sm:pt-8">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-center text-center mb-20 sm:mb-24 bg-white/5 rounded-3xl border border-white/10" style={{padding: '60px 40px'}}>
-            <div className="inline-flex items-center gap-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20" style={{padding: '16px 32px', marginBottom: '48px'}}>
-              <ShoppingCart className="w-4 h-4" />
-              Our Store
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight" style={{marginBottom: '48px'}}>
-              <span className="gradient-text">IOS Aquatics</span>  Store
+          <div className="flex flex-col items-center justify-center text-center mb-10 sm:mb-14 bg-white/5 rounded-3xl border border-white/10 px-6 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-6 sm:mb-8">
+              <span className="gradient-text">IOS Aquatics</span> Store
             </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed" style={{marginBottom: '48px'}}>
+            <p className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Discover our wide selection of freshwater fish, plants, equipment, and accessories at the best prices
             </p>
           </div>
 
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
-          <div className="flex justify-center mb-20 sm:mb-24">
-            <div className="relative overflow-hidden rounded-3xl shadow-2xl border border-white/10 h-[360px] sm:h-[400px] w-full max-w-5xl">
+          <div className="flex justify-center mb-12 sm:mb-16">
+            <div className="relative overflow-hidden rounded-3xl shadow-2xl border border-white/10 h-[360px] sm:h-[400px] w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl px-0 sm:px-2">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
                 <div
@@ -179,8 +175,8 @@ export default function StorePage() {
 
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
-          <div className="flex flex-col items-center justify-center mb-20 sm:mb-24 bg-white/5 rounded-2xl border border-white/10 px-6 sm:px-8 py-8">
-            <div className="w-full max-w-2xl mb-10">
+          <div className="flex flex-col items-center justify-center mt-6 sm:mt-8 mb-20 sm:mb-24 bg-white/5 rounded-2xl border border-white/10 px-6 sm:px-8 py-12 sm:py-14 space-y-10 sm:space-y-12">
+            <div className="w-full max-w-2xl">
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
                 <input
@@ -194,7 +190,7 @@ export default function StorePage() {
               </div>
             </div>
             
-            <div className="flex flex-wrap justify-center items-center gap-3 w-full">
+            <div className="flex flex-wrap justify-center items-center gap-3 w-full pt-4">
               {categories.map(cat => (
                 <button
                   key={cat}
