@@ -210,7 +210,10 @@ export default function AquascapeForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-4xl xl:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 pb-12 sm:pb-16 lg:pb-20 flex flex-col items-center">
-      <div className="w-full space-y-12">
+      <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
+      <div className="w-full space-y-12 flex">
+        <div className="w-4 sm:w-6 lg:w-8 flex-shrink-0"></div>
+        <div className="flex-1 space-y-12">
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
           <p className="text-red-300 text-sm sm:text-base">{error}</p>
@@ -222,26 +225,30 @@ export default function AquascapeForm() {
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Delivery Address
         </h3>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-          {((accountInfo.name||'').trim()&& (accountInfo.email||'').trim()&& (accountInfo.phone||'').trim()&& (accountInfo.address||'').trim()&& (accountInfo.city||'').trim()&& (accountInfo.province||'').trim()&& (accountInfo.postal||'').trim()) ? (
-            <div className="space-y-2 text-slate-200">
-              <div className="font-medium">{accountInfo.name}</div>
-              <div className="text-slate-300 text-sm">{accountInfo.email} • {accountInfo.phone}</div>
-              <div className="text-sm">
-                {accountInfo.address}{accountInfo.city ? `, ${accountInfo.city}` : ''}{accountInfo.province ? ` , ${accountInfo.province}` : ''} {accountInfo.postal ? accountInfo.postal : ''}
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 max-w-2xl">
+          <div className="h-2 sm:h-3"></div>
+          <div className="px-2 sm:px-3 pl-4 sm:pl-6">
+            {((accountInfo.name||'').trim()&& (accountInfo.email||'').trim()&& (accountInfo.phone||'').trim()&& (accountInfo.address||'').trim()&& (accountInfo.city||'').trim()&& (accountInfo.province||'').trim()&& (accountInfo.postal||'').trim()) ? (
+              <div className="space-y-2 text-slate-200">
+                <div className="font-medium">{accountInfo.name}</div>
+                <div className="text-slate-300 text-sm">{accountInfo.email} • {accountInfo.phone}</div>
+                <div className="text-sm">
+                  {accountInfo.address}{accountInfo.city ? `, ${accountInfo.city}` : ''}{accountInfo.province ? ` , ${accountInfo.province}` : ''} {accountInfo.postal ? accountInfo.postal : ''}
+                </div>
+                <div className="pt-2">
+                  <a href="/account-page" className="text-[#6c47ff] hover:underline">Edit</a>
+                </div>
               </div>
-              <div className="pt-2">
-                <a href="/account-page" className="text-[#6c47ff] hover:underline">Edit</a>
+            ) : (
+              <div className="text-slate-300 text-sm">
+                Please complete your Account Information first. This inquiry will use your saved delivery details.
+                <div className="mt-3">
+                  <a href="/account-page" className="inline-block px-4 py-2 rounded-lg bg-[#6c47ff] text-white hover:bg-[#5a3ae6]">Edit Account Info</a>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="text-slate-300 text-sm">
-              Please complete your Account Information first. This inquiry will use your saved delivery details.
-              <div className="mt-3">
-                <a href="/account-page" className="inline-block px-4 py-2 rounded-lg bg-[#6c47ff] text-white hover:bg-[#5a3ae6]">Edit Account Info</a>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
+          <div className="h-2 sm:h-3"></div>
         </div>
       </div>
       
@@ -529,7 +536,10 @@ export default function AquascapeForm() {
           </p>
         )}
       </div>
+        </div>
+        <div className="w-4 sm:w-6 lg:w-8 flex-shrink-0"></div>
       </div>
+      <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
     </form>
   )
 }
