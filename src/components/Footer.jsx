@@ -148,26 +148,16 @@ function Footer({ className = "" }) {
                 </Link>
               </li>
               <li>
-                <a 
-                  href="https://sites.google.com/view/privacy-policy-for-ios-aquatic/home" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group"
-                >
+                <Link href="/privacy-policy" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="https://sites.google.com/view/terms-of-service-for-ios-aquat/home" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group"
-                >
+                <Link href="/terms-of-service" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

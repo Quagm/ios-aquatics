@@ -127,6 +127,19 @@ export default function AquascapeForm() {
 
       const aquascapeMessage = messageLines.filter(Boolean).join("\n")
 
+      // Create customer snapshot with account information
+      const customerSnapshot = {
+        name: fullName,
+        first_name: derivedFirst,
+        last_name: derivedLast,
+        email: derivedEmail,
+        phone: derivedPhone || null,
+        address: derivedAddress,
+        city: derivedCity,
+        province: derivedProvince,
+        postal_code: derivedPostal
+      }
+
       await createInquiry({
         first_name: derivedFirst,
         last_name: derivedLast,
@@ -134,7 +147,8 @@ export default function AquascapeForm() {
         phone: derivedPhone || null,
         subject: "Aquascape Inquiry",
         message: aquascapeMessage,
-        status: "pending"
+        status: "pending",
+        customer_snapshot: customerSnapshot
       })
       setSubmitted(true)
       ;(e.currentTarget).reset()

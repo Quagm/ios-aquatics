@@ -41,6 +41,20 @@ ChartJS.register(
   Filler
 )
 
+/**
+ * Sales Analytics Component
+ * 
+ * HOW IT WORKS (Simplified):
+ * 1. Fetches all orders from your database
+ * 2. Filters orders by selected time range (7d, 30d, or 90d)
+ * 3. Calculates metrics:
+ *    - Total Revenue: Sum of all order totals (excluding cancelled)
+ *    - Total Orders: Count of orders in the period
+ *    - Average Order Value: Revenue ÷ Orders
+ *    - Growth %: Compares current period vs previous period
+ * 4. Shows top 5 products by revenue
+ * 5. Displays a chart showing last 12 months of data
+ */
 export default function SalesAnalytics() {
   const [timeRange, setTimeRange] = useState('30d')
   const [analytics, setAnalytics] = useState({
@@ -54,7 +68,8 @@ export default function SalesAnalytics() {
     customersGrowth: 0,
     totalCustomers: 0,
     salesData: [],
-    revenueData: []
+    revenueData: [],
+    chartLabels: []
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -65,33 +80,30 @@ export default function SalesAnalytics() {
         setLoading(true)
         setError('')
         
-        // sample data
-        const sampleData = {
-          totalRevenue: 125000,
-          totalOrders: 89,
-          averageOrderValue: 1404,
-          totalCustomers: 1247,
-          revenueGrowth: 15.2,
-          ordersGrowth: 8.5,
-          customersGrowth: 12.3,
-          ordersByStatus: {
-            'Processing': 12,
-            'Shipped': 25,
-            'Delivered': 45,
-            'Cancelled': 7
-          },
-          topProducts: [
-            { name: 'Aquarium Filter', sales: 45, revenue: 2250 },
-            { name: 'Fish Food Premium', sales: 78, revenue: 1560 },
-            { name: 'Water Conditioner', sales: 32, revenue: 960 },
-            { name: 'LED Light Strip', sales: 28, revenue: 1400 },
-            { name: 'Aquarium Heater', sales: 22, revenue: 1100 }
-          ],
-          salesData: [12, 19, 15, 25, 22, 18, 30, 28, 35, 32, 28, 40],
-          revenueData: [15000, 22000, 18000, 30000, 25000, 20000, 35000, 32000, 40000, 38000, 32000, 45000]
+        // Fetch real analytics data from database
+        const analyticsData = await getSalesAnalytics(timeRange)
+        
+        // Get total customers count from Clerk
+        let totalCustomers = 0
+        let customersGrowth = 0
+        try {
+          const usersRes = await fetch('/api/users/count', { method: 'GET', credentials: 'include' })
+          const usersData = await usersRes.json()
+          if (usersData && typeof usersData.count === 'number') {
+            totalCustomers = usersData.count
+            // For now, set growth to 0 (can be calculated later with historical data)
+            customersGrowth = 0
+          }
+        } catch (err) {
+          console.warn('Failed to fetch customer count:', err)
         }
         
-        setAnalytics(sampleData)
+        // Combine all analytics data
+        setAnalytics({
+          ...analyticsData,
+          totalCustomers,
+          customersGrowth
+        })
       } catch (err) {
         setError(err.message || 'Failed to load analytics')
         console.error('Analytics error:', err)
@@ -110,13 +122,18 @@ export default function SalesAnalytics() {
     }).format(amount)
   }
 
-  // chart data configures
+  // Chart data - Shows revenue and orders over the last 12 months
+  // If no data yet, show empty arrays (chart will display as flat line)
   const chartData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    labels: analytics.chartLabels && analytics.chartLabels.length > 0 
+      ? analytics.chartLabels 
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     datasets: [
       {
         label: 'Revenue (₱)',
-        data: analytics.revenueData,
+        data: analytics.revenueData && analytics.revenueData.length > 0 
+          ? analytics.revenueData 
+          : Array(12).fill(0),
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         fill: true,
@@ -129,7 +146,9 @@ export default function SalesAnalytics() {
       },
       {
         label: 'Orders',
-        data: analytics.salesData,
+        data: analytics.salesData && analytics.salesData.length > 0 
+          ? analytics.salesData 
+          : Array(12).fill(0),
         borderColor: 'rgb(16, 185, 129)',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
         fill: true,
@@ -246,12 +265,8 @@ export default function SalesAnalytics() {
     <div className="space-y-8 ml-6">
       {/* Header */}
       <div className="text-center lg:text-left">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
-          <BarChart3 className="w-4 h-4" />
-          Sales & Analytics
-        </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-          <span className="gradient-text">Business</span> Performance
+          <span className="gradient-text">Sales and Analytics</span>
         </h1>
         <p className="text-lg text-slate-300 max-w-2xl">Track your aquatics store performance with detailed analytics and insights.</p>
       </div>
@@ -302,21 +317,27 @@ export default function SalesAnalytics() {
       </div>
 
       {/* revenue */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
               <PhilippinePeso className="w-6 h-6 text-white" />
             </div>
             <div className="flex items-center gap-1 text-green-400 text-sm font-semibold">
-              <ArrowUp className="w-4 h-4" />
-              {analytics.revenueGrowth}%
+              {analytics.revenueGrowth >= 0 ? (
+                <ArrowUp className="w-4 h-4" />
+              ) : (
+                <ArrowDown className="w-4 h-4" />
+              )}
+              {Math.abs(analytics.revenueGrowth)}%
             </div>
           </div>
           <div>
             <p className="text-sm font-medium text-slate-400 mb-1">Total Revenue</p>
             <p className="text-3xl font-bold text-white mb-2">{formatCurrency(analytics.totalRevenue)}</p>
-            <p className="text-xs text-slate-500">This month</p>
+            <p className="text-xs text-slate-500">
+              {timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 90 days'}
+            </p>
           </div>
         </div>
 
@@ -326,31 +347,20 @@ export default function SalesAnalytics() {
               <ShoppingCart className="w-6 h-6 text-white" />
             </div>
             <div className="flex items-center gap-1 text-blue-400 text-sm font-semibold">
-              <ArrowUp className="w-4 h-4" />
-              {analytics.ordersGrowth}%
+              {analytics.ordersGrowth >= 0 ? (
+                <ArrowUp className="w-4 h-4" />
+              ) : (
+                <ArrowDown className="w-4 h-4" />
+              )}
+              {Math.abs(analytics.ordersGrowth)}%
             </div>
           </div>
           <div>
             <p className="text-sm font-medium text-slate-400 mb-1">Total Orders</p>
             <p className="text-3xl font-bold text-white mb-2">{analytics.totalOrders}</p>
-            <p className="text-xs text-slate-500">This month</p>
-          </div>
-        </div>
-
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600">
-              <Users className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex items-center gap-1 text-purple-400 text-sm font-semibold">
-              <ArrowUp className="w-4 h-4" />
-              {analytics.customersGrowth}%
-            </div>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-400 mb-1">Total Customers</p>
-            <p className="text-3xl font-bold text-white mb-2">{analytics.totalCustomers.toLocaleString()}</p>
-            <p className="text-xs text-slate-500">Active users</p>
+            <p className="text-xs text-slate-500">
+              {timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 90 days'}
+            </p>
           </div>
         </div>
 

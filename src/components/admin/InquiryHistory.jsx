@@ -152,6 +152,56 @@ export default function InquiryHistory() {
                 <span className="text-xs px-3 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{selectedInquiry.status}</span>
               </div>
             </div>
+            {/* Account Information Section */}
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold text-white mb-4">Account Information</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <div className="text-slate-400 text-sm">Full Name</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.name || 
+                     `${(selectedInquiry.first_name || '')} ${(selectedInquiry.last_name || '')}`.trim() || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Email Address</div>
+                  <div className="text-white break-all">
+                    {selectedInquiry.customer_snapshot?.email || selectedInquiry.email || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Phone Number</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.phone || selectedInquiry.phone || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Address</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.address || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">City</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.city || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Province</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.province || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Postal Code</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.postal_code || '—'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="text-sm text-white/80 whitespace-pre-line leading-relaxed">
               {getCleanMessage(selectedInquiry.message)}
             </div>

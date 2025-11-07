@@ -288,21 +288,54 @@ export default function InquiryManagement() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <div className="text-slate-400 text-sm">Name</div>
-                <div className="text-white">{(selectedInquiry.first_name || '') + ' ' + (selectedInquiry.last_name || '')}</div>
-              </div>
-              <div>
-                <div className="text-slate-400 text-sm">Email</div>
-                <div className="text-white break-all">{selectedInquiry.email}</div>
-              </div>
-              {selectedInquiry.phone && (
+            {/* Account Information Section */}
+            <div>
+              <h4 className="text-lg font-semibold text-white mb-4">Account Information</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <div className="text-slate-400 text-sm">Phone</div>
-                  <div className="text-white">{selectedInquiry.phone}</div>
+                  <div className="text-slate-400 text-sm">Full Name</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.name || 
+                     `${(selectedInquiry.first_name || '')} ${(selectedInquiry.last_name || '')}`.trim() || '—'}
+                  </div>
                 </div>
-              )}
+                <div>
+                  <div className="text-slate-400 text-sm">Email Address</div>
+                  <div className="text-white break-all">
+                    {selectedInquiry.customer_snapshot?.email || selectedInquiry.email || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Phone Number</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.phone || selectedInquiry.phone || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Address</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.address || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">City</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.city || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Province</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.province || '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 text-sm">Postal Code</div>
+                  <div className="text-white">
+                    {selectedInquiry.customer_snapshot?.postal_code || '—'}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div>

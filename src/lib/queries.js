@@ -212,53 +212,170 @@ export async function deleteOrderById(orderId) {
   return data
 }
 
-// Analytics
-export async function getSalesAnalytics() {
-  const { data: revenueData, error: revenueError } = await supabase.from("orders").select("total")
-  if (revenueError) throw revenueError
+// Analytics - Simplified function that calculates sales metrics from your database
+export async function getSalesAnalytics(timeRange = '30d') {
+  // Step 1: Calculate date ranges (current period and previous period for growth comparison)
+  const now = new Date()
+  let startDate = new Date()
+  let previousStartDate = new Date()
+  
+  if (timeRange === '7d') {
+    startDate.setDate(now.getDate() - 7)
+    previousStartDate.setDate(now.getDate() - 14)
+  } else if (timeRange === '30d') {
+    startDate.setDate(now.getDate() - 30)
+    previousStartDate.setDate(now.getDate() - 60)
+  } else if (timeRange === '90d') {
+    startDate.setDate(now.getDate() - 90)
+    previousStartDate.setDate(now.getDate() - 180)
+  }
 
-  const totalRevenue = revenueData?.reduce((sum, order) => sum + parseFloat(order.total || 0), 0) || 0
-
-  const { count: totalOrders, error: ordersError } = await supabase.from("orders").select("*", { count: "exact", head: true })
+  // Step 2: Fetch all orders (we'll filter by date in JavaScript for simplicity)
+  const { data: allOrders, error: ordersError } = await supabase
+    .from("orders")
+    .select("id, total, status, created_at")
+    .order("created_at", { ascending: false })
+  
   if (ordersError) throw ordersError
 
-  const { data: ordersByStatus, error: statusError } = await supabase.from("orders").select("status")
-  if (statusError) throw statusError
+  // Step 3: Filter orders by time range
+  const currentPeriodOrders = (allOrders || []).filter(order => {
+    const orderDate = new Date(order.created_at)
+    return orderDate >= startDate && orderDate <= now
+  })
 
-  const statusCounts = ordersByStatus?.reduce((acc, order) => {
-    acc[order.status] = (acc[order.status] || 0) + 1
+  const previousPeriodOrders = (allOrders || []).filter(order => {
+    const orderDate = new Date(order.created_at)
+    return orderDate >= previousStartDate && orderDate < startDate
+  })
+
+  // Step 4: Calculate current period metrics
+  const totalRevenue = currentPeriodOrders
+    .filter(o => String(o.status || '').toLowerCase() !== 'cancelled')
+    .reduce((sum, order) => sum + parseFloat(order.total || 0), 0)
+
+  const totalOrders = currentPeriodOrders.length
+
+  // Step 5: Calculate previous period metrics (for growth comparison)
+  const previousRevenue = previousPeriodOrders
+    .filter(o => String(o.status || '').toLowerCase() !== 'cancelled')
+    .reduce((sum, order) => sum + parseFloat(order.total || 0), 0)
+
+  const previousOrders = previousPeriodOrders.length
+
+  // Step 6: Calculate growth percentages
+  const revenueGrowth = previousRevenue > 0 
+    ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 
+    : (totalRevenue > 0 ? 100 : 0)
+  
+  const ordersGrowth = previousOrders > 0 
+    ? ((totalOrders - previousOrders) / previousOrders) * 100 
+    : (totalOrders > 0 ? 100 : 0)
+
+  // Step 7: Count orders by status
+  const statusCounts = currentPeriodOrders.reduce((acc, order) => {
+    const status = order.status || 'processing'
+    // Normalize status names for display
+    const normalizedStatus = status === 'completed' ? 'Delivered' :
+                             status === 'shipped' ? 'Shipped' :
+                             status === 'processing' ? 'Processing' :
+                             status === 'cancelled' ? 'Cancelled' : status
+    acc[normalizedStatus] = (acc[normalizedStatus] || 0) + 1
     return acc
-  }, {}) || {}
+  }, {})
 
-  const { data: topProducts, error: productsError } = await supabase
+  // Step 8: Get top products from order items
+  // Fetch order items and products separately to avoid relationship ambiguity
+  const currentOrderIds = currentPeriodOrders.map(o => o.id)
+  
+  if (currentOrderIds.length === 0) {
+    // No orders in current period, return empty top products
+    return {
+      totalRevenue,
+      totalOrders,
+      averageOrderValue: 0,
+      ordersByStatus: statusCounts,
+      topProducts: [],
+      revenueGrowth: Math.round(revenueGrowth * 10) / 10,
+      ordersGrowth: Math.round(ordersGrowth * 10) / 10,
+      revenueData: [],
+      salesData: [],
+      chartLabels: []
+    }
+  }
+
+  const { data: orderItems, error: itemsError } = await supabase
     .from("order_items")
-    .select(`
-      quantity,
-      price,
-      products (
-        name
-      )
-    `)
-  if (productsError) throw productsError
+    .select("id, order_id, product_id, quantity, price")
+    .in("order_id", currentOrderIds)
+  
+  if (itemsError) throw itemsError
 
-  const productSales = topProducts?.reduce((acc, item) => {
-    const productName = item.products?.name || 'Unknown'
+  // Get unique product IDs and fetch products separately
+  const productIds = [...new Set((orderItems || []).map(item => item.product_id).filter(Boolean))]
+  let productsById = new Map()
+  
+  if (productIds.length > 0) {
+    const { data: products, error: productsError } = await supabase
+      .from("products")
+      .select("id, name")
+      .in("id", productIds)
+    
+    if (productsError) throw productsError
+    productsById = new Map((products || []).map((product) => [product.id, product]))
+  }
+
+  // Calculate product sales by joining order items with products
+  const productSales = (orderItems || []).reduce((acc, item) => {
+    const product = item.product_id ? productsById.get(item.product_id) : null
+    const productName = product?.name || 'Unknown'
     if (!acc[productName]) acc[productName] = { sales: 0, revenue: 0 }
-    acc[productName].sales += item.quantity
-    acc[productName].revenue += item.quantity * parseFloat(item.price)
+    acc[productName].sales += item.quantity || 0
+    acc[productName].revenue += (item.quantity || 0) * parseFloat(item.price || 0)
     return acc
-  }, {}) || {}
+  }, {})
 
   const topProductsList = Object.entries(productSales)
     .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5)
 
+  // Step 9: Generate monthly chart data (last 12 months)
+  const monthlyData = {}
+  const nowForChart = new Date()
+  
+  for (let i = 11; i >= 0; i--) {
+    const monthDate = new Date(nowForChart.getFullYear(), nowForChart.getMonth() - i, 1)
+    const monthKey = monthDate.toLocaleDateString('en-US', { month: 'short' })
+    monthlyData[monthKey] = { orders: 0, revenue: 0 }
+  }
+
+  // Group orders by month
+  allOrders.forEach(order => {
+    const orderDate = new Date(order.created_at)
+    const monthKey = orderDate.toLocaleDateString('en-US', { month: 'short' })
+    if (monthlyData[monthKey]) {
+      monthlyData[monthKey].orders += 1
+      if (String(order.status || '').toLowerCase() !== 'cancelled') {
+        monthlyData[monthKey].revenue += parseFloat(order.total || 0)
+      }
+    }
+  })
+
+  const chartLabels = Object.keys(monthlyData)
+  const revenueData = Object.values(monthlyData).map(m => m.revenue)
+  const salesData = Object.values(monthlyData).map(m => m.orders)
+
   return {
     totalRevenue,
-    totalOrders: totalOrders || 0,
+    totalOrders,
     averageOrderValue: totalOrders > 0 ? totalRevenue / totalOrders : 0,
     ordersByStatus: statusCounts,
-    topProducts: topProductsList
+    topProducts: topProductsList,
+    revenueGrowth: Math.round(revenueGrowth * 10) / 10, // Round to 1 decimal
+    ordersGrowth: Math.round(ordersGrowth * 10) / 10,
+    revenueData,
+    salesData,
+    chartLabels
   }
 }

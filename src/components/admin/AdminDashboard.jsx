@@ -46,6 +46,16 @@ export default function AdminDashboard() {
           }
         } catch { }
 
+        // Get total users count from Clerk
+        let totalUsers = 0
+        try {
+          const usersRes = await fetch('/api/users/count', { method: 'GET', credentials: 'include' })
+          const usersData = await usersRes.json()
+          if (usersData && typeof usersData.count === 'number') {
+            totalUsers = usersData.count
+          }
+        } catch { }
+
         const totalRevenue = (orders || [])
           .filter(o => String(o.status || '').toLowerCase() !== 'cancelled')
           .reduce((sum, o) => sum + (o.total || 0), 0)
@@ -63,7 +73,7 @@ export default function AdminDashboard() {
 
         if (!mounted) return
         setStats({
-          totalUsers: 0, // not tracked, integrate auth user count first
+          totalUsers,
           totalOrders: (orders || []).length,
           totalProducts: (products || []).length,
           totalRevenue,
