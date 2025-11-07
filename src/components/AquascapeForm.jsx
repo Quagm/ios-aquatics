@@ -220,35 +220,31 @@ export default function AquascapeForm() {
         </div>
       )}
       {/* Delivery Address summary pulled from Account Information */}
-      <div className="w-full space-y-6">
+      <div className="w-full space-y-4">
         <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Delivery Address
         </h3>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 max-w-2xl">
-          <div className="h-2 sm:h-3"></div>
-          <div className="px-2 sm:px-3 pl-4 sm:pl-6">
-            {((accountInfo.name||'').trim()&& (accountInfo.email||'').trim()&& (accountInfo.phone||'').trim()&& (accountInfo.address||'').trim()&& (accountInfo.city||'').trim()&& (accountInfo.province||'').trim()&& (accountInfo.postal||'').trim()) ? (
-              <div className="space-y-2 text-slate-200">
-                <div className="font-medium">{accountInfo.name}</div>
-                <div className="text-slate-300 text-sm">{accountInfo.email} • {accountInfo.phone}</div>
-                <div className="text-sm">
-                  {accountInfo.address}{accountInfo.city ? `, ${accountInfo.city}` : ''}{accountInfo.province ? ` , ${accountInfo.province}` : ''} {accountInfo.postal ? accountInfo.postal : ''}
-                </div>
-                <div className="pt-2">
-                  <a href="/account-page" className="text-[#6c47ff] hover:underline">Edit</a>
-                </div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8 max-w-2xl">
+          {((accountInfo.name||'').trim()&& (accountInfo.email||'').trim()&& (accountInfo.phone||'').trim()&& (accountInfo.address||'').trim()&& (accountInfo.city||'').trim()&& (accountInfo.province||'').trim()&& (accountInfo.postal||'').trim()) ? (
+            <div className="space-y-3 text-slate-200">
+              <div className="font-medium">{accountInfo.name}</div>
+              <div className="text-slate-300 text-sm">{accountInfo.email} • {accountInfo.phone}</div>
+              <div className="text-sm">
+                {accountInfo.address}{accountInfo.city ? `, ${accountInfo.city}` : ''}{accountInfo.province ? ` , ${accountInfo.province}` : ''} {accountInfo.postal ? accountInfo.postal : ''}
               </div>
-            ) : (
-              <div className="text-slate-300 text-sm">
-                Please complete your Account Information first. This inquiry will use your saved delivery details.
-                <div className="mt-3">
-                  <a href="/account-page" className="inline-block px-4 py-2 rounded-lg bg-[#6c47ff] text-white hover:bg-[#5a3ae6]">Edit Account Info</a>
-                </div>
+              <div className="pt-2">
+                <a href="/account-page" className="text-[#6c47ff] hover:underline">Edit</a>
               </div>
-            )}
-          </div>
-          <div className="h-2 sm:h-3"></div>
+            </div>
+          ) : (
+            <div className="text-slate-300 text-sm">
+              Please complete your Account Information first. This inquiry will use your saved delivery details.
+              <div className="mt-3">
+                <a href="/account-page" className="inline-block px-4 py-2 rounded-lg bg-[#6c47ff] text-white hover:bg-[#5a3ae6]">Edit Account Info</a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       

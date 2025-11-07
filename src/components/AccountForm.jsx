@@ -90,10 +90,14 @@ export default function AccountForm() {
 
   return (
     <div className="space-y-10">
+      <div className="h-4 sm:h-6 lg:h-8"></div>
+      <div className="flex">
+        <div className="w-4 sm:w-6 lg:w-8 flex-shrink-0"></div>
+        <div className="flex-1 space-y-10">
       {/* title */}
       <div className="text-center md:text-left mb-4">
         <h2 className="text-2xl font-bold text-white mb-3">Account Information</h2>
-        <p className="text-sm text-white/60">Update your personal details below</p>
+        <div className="h-5"></div>
       </div>
 
       {/* form container */}
@@ -115,6 +119,7 @@ export default function AccountForm() {
           />
           {errors.name && <p className="text-red-300 text-xs mt-2">{errors.name}</p>}
         </div>
+        <div className="h-2 sm:h-3 lg:h-4"></div>
         
         <div>
           <label className="block text-sm font-medium text-white mb-3">
@@ -136,6 +141,7 @@ export default function AccountForm() {
             <p className="text-red-300 text-xs mt-2">{errors.email}</p>
           )}
         </div>
+        <div className="h-2 sm:h-3 lg:h-4"></div>
         
         <div>
           <label className="block text-sm font-medium text-white mb-3">
@@ -154,6 +160,7 @@ export default function AccountForm() {
           />
           {errors.phone && <p className="text-red-300 text-xs mt-2">{errors.phone}</p>}
         </div>
+        <div className="h-2 sm:h-3 lg:h-4"></div>
 
         <div>
           <label className="block text-sm font-medium text-white mb-3">
@@ -170,6 +177,7 @@ export default function AccountForm() {
           />
           {errors.address && <p className="text-red-300 text-xs mt-2">{errors.address}</p>}
         </div>
+        <div className="h-2 sm:h-3 lg:h-4"></div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
@@ -224,6 +232,7 @@ export default function AccountForm() {
             {errors.postal && <p className="text-red-300 text-xs mt-2">{errors.postal}</p>}
           </div>
         </div>
+        <div className="h-2 sm:h-3 lg:h-4"></div>
       </div>
 
       {/* actions */}
@@ -243,6 +252,10 @@ export default function AccountForm() {
           Reset
         </button>
       </div>
+        </div>
+        <div className="w-4 sm:w-6 lg:w-8 flex-shrink-0"></div>
+      </div>
+      <div className="h-4 sm:h-6 lg:h-8"></div>
     </div>
   )
 }

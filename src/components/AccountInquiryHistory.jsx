@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 import { useUser } from "@clerk/nextjs"
 import { fetchInquiries } from "@/lib/queries"
 
@@ -110,7 +111,7 @@ export default function AccountInquiryHistory() {
   }, [isLoaded, userEmail])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-hidden w-full">
       <h2 className="text-2xl font-semibold text-white border-b border-white/10 pb-3">
         Inquiry History
       </h2>
@@ -134,11 +135,11 @@ export default function AccountInquiryHistory() {
             <button
               key={inquiry.id}
               type="button"
-              className="w-full text-left border border-white/20 rounded-xl p-4 bg-white/5 hover:bg-white/10 transition-colors"
+              className="w-full text-left border border-white/20 rounded-xl p-4 bg-white/5 hover:bg-white/10 transition-colors overflow-hidden"
               onClick={() => setSelectedInquiry(inquiry)}
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
+              <div className="flex items-center justify-between gap-3 min-w-0">
+                <div className="min-w-0 flex-1 overflow-hidden">
                   <h3 className="text-sm sm:text-base font-semibold text-white truncate">{inquiry.subject}</h3>
                   <p className="text-xs text-white/60 truncate">
                     {preview}
@@ -150,7 +151,7 @@ export default function AccountInquiryHistory() {
                       {createdAt.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                     </span>
                   )}
-                  <span className={`text-[10px] sm:text-xs font-medium px-2.5 py-1 rounded-full ${labelClass}`}>
+                  <span className={`text-[10px] sm:text-xs font-medium px-2.5 py-1 rounded-full ${labelClass} whitespace-nowrap`}>
                     {inquiry.status.replace(/_/g, " ")}
                   </span>
                 </div>
@@ -160,10 +161,10 @@ export default function AccountInquiryHistory() {
         })}
       </div>
 
-      {selectedInquiry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setSelectedInquiry(null)}></div>
-          <div className="relative w-full max-w-xl bg-slate-900 border border-white/20 rounded-2xl shadow-xl p-6">
+      {selectedInquiry && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedInquiry(null)}></div>
+          <div className="relative w-full max-w-xl bg-slate-900 border border-white/20 rounded-2xl shadow-xl p-6 z-10 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="min-w-0">
                 <h3 className="text-xl font-semibold text-white break-words">{selectedInquiry.subject}</h3>
@@ -206,7 +207,8 @@ export default function AccountInquiryHistory() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

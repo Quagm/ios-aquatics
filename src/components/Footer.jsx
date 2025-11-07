@@ -147,10 +147,20 @@ function Footer({ className = "" }) {
                 </Link>
               </li>
               <li>
-                <Link href="/inquiry-form" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
+                <a 
+                  href="/inquiry-form" 
+                  onClick={(e) => {
+                    // If on account page, open modal instead
+                    if (typeof window !== 'undefined' && window.location.pathname === '/account-page') {
+                      e.preventDefault()
+                      window.dispatchEvent(new Event('openAquascapeModal'))
+                    }
+                  }}
+                  className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group"
+                >
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   Aquascape Inquiry
-                </Link>
+                </a>
               </li>
               <li>
                 <Link href="/privacy-policy" className="text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
