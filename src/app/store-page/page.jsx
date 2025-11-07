@@ -126,6 +126,8 @@ export default function StorePage() {
             </p>
           </div>
 
+          <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
+
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
           <div className="flex justify-center mb-12 sm:mb-16">
@@ -141,18 +143,22 @@ export default function StorePage() {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-slate-900/40" />
 
               <button
-                className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
+                className="absolute left-0 top-0 w-1/2 h-full z-10 cursor-pointer"
                 onClick={prevServiceSlide}
                 aria-label="Previous service slide"
               >
-                <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
+                <div className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full group">
+                  <span className="group-hover:-translate-x-1 transition-transform duration-300">&#8249;</span>
+                </div>
               </button>
               <button
-                className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
+                className="absolute right-0 top-0 w-1/2 h-full z-10 cursor-pointer"
                 onClick={nextServiceSlide}
                 aria-label="Next service slide"
               >
-                <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
+                <div className="absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full group">
+                  <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
+                </div>
               </button>
 
               <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
@@ -173,9 +179,12 @@ export default function StorePage() {
             </div>
           </div>
 
+          <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
+
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
           <div className="flex flex-col items-center justify-center mt-6 sm:mt-8 mb-20 sm:mb-24 bg-white/5 rounded-2xl border border-white/10 px-6 sm:px-8 py-12 sm:py-14 space-y-10 sm:space-y-12">
+            <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
             <div className="w-full max-w-2xl">
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
@@ -189,6 +198,7 @@ export default function StorePage() {
                 />
               </div>
             </div>
+            <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
             
             <div className="flex flex-wrap justify-center items-center gap-3 w-full pt-4">
               {categories.map(cat => (
@@ -205,7 +215,10 @@ export default function StorePage() {
                 </button>
               ))}
             </div>
+            <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
           </div>
+
+          <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
 
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
@@ -272,14 +285,17 @@ export default function StorePage() {
                 </span>
               </button>
             ) : (
-              <div className="glass-effect rounded-2xl p-10 sm:p-12 lg:p-16 border border-white/10 max-w-sm mx-auto">
-                <div className="flex flex-col items-center space-y-6">
-                  <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
-                  <p className="text-slate-300 font-medium text-center text-base sm:text-lg leading-relaxed px-4 py-2">
-                    You've seen all our products!
-                  </p>
+              <>
+                <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
+                <div className="glass-effect rounded-2xl p-10 sm:p-12 lg:p-16 border border-white/10 max-w-sm mx-auto">
+                  <div className="flex flex-col items-center space-y-6">
+                    <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
+                    <p className="text-slate-300 font-medium text-center text-base sm:text-lg leading-relaxed px-4 py-2">
+                      You've seen all our products!
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>
