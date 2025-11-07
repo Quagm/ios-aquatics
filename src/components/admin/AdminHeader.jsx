@@ -21,16 +21,16 @@ export default function AdminHeader() {
             <div>
               <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
               <p className="text-sm text-slate-300">Manage your aquatics store</p>
+              <div className="mt-2">
+                <Link href="/#home" className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 text-white/90 hover:bg-white/10 transition-colors text-sm">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Home</span>
+                </Link>
+              </div>
             </div>
-            {/* go to homepage */}
-            <Link href="/#home" className="hidden md:inline-flex items-center gap-2 px-3 py-2 glass-effect rounded-lg border border-white/20 text-white/90 hover:bg-white/20 transition-colors ml-2">
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to HomePage</span>
-            </Link>
           </div>
           
           <div className="flex items-center space-x-4">
-            {/* go to homepage (mobile version) */}
             <Link href="/#home" className="md:hidden inline-flex items-center gap-2 px-3 py-2 glass-effect rounded-lg border border-white/20 text-white/90 hover:bg-white/20 transition-colors">
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
@@ -43,7 +43,7 @@ export default function AdminHeader() {
                   elements: {
                     avatarBox: "w-8 h-8"
                   }
-                }}bell
+                }}
               />
             </div>
           </div>

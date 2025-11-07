@@ -15,7 +15,6 @@ export default function StorePage() {
   const [error, setError] = useState("")
   const [query, setQuery] = useState("")
 
-  // Services slideshow state (ported from HomePage)
   const [currentServiceSlide, setCurrentServiceSlide] = useState(0)
   const serviceSlides = [
     "/services-slides/planted-aquarium.png",
@@ -74,7 +73,6 @@ export default function StorePage() {
     }
   }, [selectedCategory])
 
-  // Subscribe to realtime product changes
   useEffect(() => {
     const channel = supabase
       .channel('store-products-realtime')
@@ -115,13 +113,10 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 w-full flex flex-col">
-      {/* Navigation */}
       <NavigationBar />
       
-      {/* Main Content */}
       <div className="flex-1 w-full flex flex-col items-center pb-16 sm:pb-20 lg:pb-24 pt-28 sm:pt-32">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header Section */}
           <div className="flex flex-col items-center justify-center text-center mb-20 sm:mb-24 bg-white/5 rounded-3xl border border-white/10" style={{padding: '60px 40px'}}>
             <div className="inline-flex items-center gap-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20" style={{padding: '16px 32px', marginBottom: '48px'}}>
               <ShoppingCart className="w-4 h-4" />
@@ -135,11 +130,10 @@ export default function StorePage() {
             </p>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
-          {/* Services Slideshow */}
-          <div className="relative overflow-hidden rounded-3xl shadow-2xl border border-white/10 mb-20 sm:mb-24 h-[360px] sm:h-[400px] w-full max-w-5xl mx-auto">
+          <div className="flex justify-center mb-20 sm:mb-24">
+            <div className="relative overflow-hidden rounded-3xl shadow-2xl border border-white/10 h-[360px] sm:h-[400px] w-full max-w-5xl">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
                 <div
@@ -150,7 +144,6 @@ export default function StorePage() {
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-slate-900/40" />
 
-              {/* Slideshow Controls */}
               <button
                 className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 text-white text-2xl sm:text-3xl px-4 sm:px-6 py-3 sm:py-4 rounded-full glass-effect hover:bg-white/30 transition-all duration-300 z-10 group"
                 onClick={prevServiceSlide}
@@ -166,7 +159,6 @@ export default function StorePage() {
                 <span className="group-hover:translate-x-1 transition-transform duration-300">&#8250;</span>
               </button>
 
-              {/* Slide Indicators */}
               <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
                 {serviceSlides.map((_, index) => (
                   <button
@@ -182,12 +174,11 @@ export default function StorePage() {
                 ))}
               </div>
             </div>
+            </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
-          {/* Search + Filter Section */}
           <div className="flex flex-col items-center justify-center mb-20 sm:mb-24 bg-white/5 rounded-2xl border border-white/10 px-6 sm:px-8 py-8">
             <div className="w-full max-w-2xl mb-10">
               <div className="relative">
@@ -220,10 +211,8 @@ export default function StorePage() {
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-20 sm:mb-24" />
 
-          {/* Products Grid */}
           <div className="flex flex-col items-center mb-20 sm:mb-24">
           {error && (
               <div className="text-center mb-12">
@@ -274,7 +263,6 @@ export default function StorePage() {
           )}
           </div>
 
-          {/* Load More Button */}
           <div className="flex justify-center items-center mt-20 sm:mt-24">
             {canLoadMore ? (
               <button 
@@ -301,7 +289,6 @@ export default function StorePage() {
         </div>
       </div>
       
-      {/* Footer */}
       <Footer />
     </div>
   )

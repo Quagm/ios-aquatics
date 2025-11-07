@@ -56,14 +56,12 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [serviceSlides.length])
 
-  // hash navigation
   useEffect(() => {
     const handleHashNavigation = () => {
       const hash = window.location.hash
       if (hash) {
         const element = document.querySelector(hash)
         if (element) {
-          // Delay a bit to make sure the page is fully loaded
           setTimeout(() => {
             element.scrollIntoView({
               behavior: 'smooth',
@@ -76,7 +74,6 @@ export default function HomePage() {
 
     handleHashNavigation()
 
-    // handle hash navigation
     window.addEventListener('hashchange', handleHashNavigation)
     return () => window.removeEventListener('hashchange', handleHashNavigation)
   }, [])
@@ -141,7 +138,6 @@ export default function HomePage() {
 
       <NavigationBar />
 
-      {/*landing page */}
       <section id="home" className="relative h-screen w-full overflow-hidden flex items-center justify-center pt-12 sm:pt-16 lg:pt-20">
         <div className="absolute inset-0 w-full">
           {slides.map((slide, index) => (
@@ -153,7 +149,6 @@ export default function HomePage() {
           ))}
           <div className="absolute inset-0 w-full bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60" />
 
-          {/* Slideshow buttons - Full screen clickable areas */}
           <button
             className="absolute left-0 top-0 w-1/2 h-full z-10 cursor-pointer"
             onClick={prevSlide}
@@ -173,7 +168,6 @@ export default function HomePage() {
             </div>
           </button>
 
-          {/* indcator for slides */}
           <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
             {slides.map((_, index) => (
               <button
@@ -189,7 +183,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Welcome Message Overlay */}
         <div className="relative z-10 text-center text-white w-full max-w-6xl mx-auto px-4 animate-fade-in">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 leading-tight text-center">
             <span className="gradient-text">Welcome to</span>
@@ -219,7 +212,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* landing page sections */}
       <section id="about" className="py-12 sm:py-16 lg:py-20 w-full flex justify-center" style={{marginTop: '20px', backgroundColor: 'transparent'}}>
         <div className="max-w-[1600px] mx-auto w-full" style={{paddingTop: '30px', paddingLeft: '20px', paddingRight: '20px'}}>
           <div className="w-full flex flex-col items-center text-center" style={{marginBottom: '40px'}}>
@@ -286,7 +278,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* services with icons */}
           <div className="w-full flex justify-center">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-20 w-full max-w-6xl px-8 sm:px-10 lg:px-16">
               {[
@@ -315,7 +306,6 @@ export default function HomePage() {
 
           <div className="h-20 sm:h-24"></div>
 
-          {/* services slideshow */}
           <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden rounded-3xl shadow-2xl border border-white/10 mt-16 sm:mt-20">
             <div className="absolute inset-0">
               {serviceSlides.map((slide, index) => (
@@ -327,7 +317,6 @@ export default function HomePage() {
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-slate-900/40" />
 
-              {/* slideshow buttons - Full screen clickable areas */}
               <button
                 className="absolute left-0 top-0 w-1/2 h-full z-10 cursor-pointer"
                 onClick={prevServiceSlide}
@@ -347,7 +336,6 @@ export default function HomePage() {
                 </div>
               </button>
 
-              {/* slide index indicators */}
               <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
                 {serviceSlides.map((_, index) => (
                   <button
@@ -368,7 +356,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Contact us section */}
       <section id="contact" className="py-12 sm:py-16 lg:py-20 relative z-10 w-full flex justify-center" style={{marginTop: '20px', backgroundColor: 'transparent'}}>
         <div className="max-w-[1600px] mx-auto w-full" style={{paddingTop: '30px', paddingLeft: '20px', paddingRight: '20px'}}>
           <div className="text-center flex flex-col items-center justify-center" style={{marginBottom: '40px'}}>
@@ -427,7 +414,6 @@ export default function HomePage() {
               
             </div>
 
-            {/* Contact us buttons */}
             <div className="space-y-8">
               <div className="glass-effect rounded-2xl p-12 sm:p-14 md:p-16 border border-white/10 text-center" style={{padding: '20px 56px'}}>
                 <div className="px-8 sm:px-12 lg:px-16 py-4 sm:py-5">

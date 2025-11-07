@@ -1,21 +1,32 @@
 "use client"
 import { useEffect, useState } from 'react'
+import { useUser } from '@clerk/nextjs'
 import { fetchOrders } from '@/lib/queries'
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const { user, isLoaded } = useUser()
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress || user?.primaryEmailAddress?.emailAddress
 
   useEffect(() => {
+    if (!isLoaded) return
     let mounted = true
     const load = async () => {
       try {
-        const accRaw = typeof window !== 'undefined' ? window.localStorage.getItem('account-info') : null
-        const acc = accRaw ? JSON.parse(accRaw) : null
-        const email = acc?.email || ''
+        if (mounted) setError("")
+        const email = userEmail || ''
+        if (!email) {
+          if (mounted) setLoading(false)
+          return
+        }
         const data = await fetchOrders()
         const mine = (data || [])
-          .filter(o => (o.customer?.email || '').toLowerCase() === (email || '').toLowerCase())
+          .filter(o => {
+            const orderEmail = (o.customer_email || o.customer?.email || '').toLowerCase()
+            return orderEmail === email.toLowerCase()
+          })
           .map(o => ({
             id: o.id,
             date: (o.created_at || '').split('T')[0],
@@ -25,17 +36,27 @@ export default function OrderHistory() {
           }))
         if (!mounted) return
         setOrders(mine)
+      } catch (err) {
+        if (!mounted) return
+        console.error('Failed to load orders', err)
+        setError(err?.message || 'Failed to load orders. Please try again later.')
       } finally {
         if (mounted) setLoading(false)
       }
     }
     load()
     return () => { mounted = false }
-  }, [])
+  }, [isLoaded, userEmail])
 
   return (
     <div className="space-y-8">
       <h2 className="text-xl font-semibold text-white border-b border-white/30 pb-3">Recent Orders</h2>
+
+      {error && (
+        <div className="text-sm text-red-300 bg-red-500/20 border border-red-500/30 rounded-lg p-3">
+          {error}
+        </div>
+      )}
 
       {!loading && orders.length === 0 && (
         <div className="text-slate-300 text-sm">No orders yet.</div>

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useUser } from '@clerk/nextjs'
 import { SignInButton } from '@clerk/nextjs'
 import { createInquiry } from "@/lib/queries"
@@ -9,12 +9,30 @@ export default function AquascapeForm() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [accountInfo, setAccountInfo] = useState({ name: "", email: "", phone: "", address: "", city: "", province: "", postal: "" })
+
+  useEffect(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('account-info') : null
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        setAccountInfo({
+          name: parsed.name || "",
+          email: parsed.email || "",
+          phone: parsed.phone || "",
+          address: parsed.address || "",
+          city: parsed.city || "",
+          province: parsed.province || "",
+          postal: parsed.postal || ""
+        })
+      }
+    } catch {}
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    // Check if user is signed in
-    if (!isLoaded) return // Wait for Clerk to load
+    if (!isLoaded) return
     if (!isSignedIn) {
       setError("Please sign in to submit an inquiry.")
       return
@@ -22,26 +40,70 @@ export default function AquascapeForm() {
     
     const data = new FormData(e.currentTarget)
     const payload = Object.fromEntries(data.entries())
+    // Prefer saved account information for consistency with orders
+    const fullName = (accountInfo.name || '').trim()
+    const [fname, ...lnameParts] = fullName.split(/\s+/)
+    const derivedFirst = fname || payload.firstName || ''
+    const derivedLast = (lnameParts.join(' ') || payload.lastName || '').trim()
+    const derivedEmail = (accountInfo.email || payload.email || '').trim()
+    const derivedPhone = (accountInfo.phone || payload.contactNo || '').trim()
+    const derivedAddress = (accountInfo.address || payload.address || '').trim()
+    const imageFile = data.get("imageReference")
+    const imageName = imageFile instanceof File ? imageFile.name : ""
+    if (payload.imageReference) {
+      delete payload.imageReference
+    }
     setSubmitting(true)
     setError("")
     
     try {
-      // Create a detailed message for aquascape inquiry
-const aquascapeMessage = `
-    Aquascape Inquiry Details:
-    - Contact: ${payload.contactNo}
-    - Address: ${payload.address}
-    - Aquarium Size: ${payload.aquariumSize}
-    - Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}
-    - Preferences/Suggestions: ${payload.preferences}
-    ${payload.imageReference ? `- Image Reference: ${payload.imageReference.name}` : ''}
-          `.trim()
+      let imageUrl = ""
+      if (imageFile instanceof File && imageFile.size > 0) {
+        const uploadData = new FormData()
+        uploadData.append("file", imageFile)
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadData,
+          credentials: "include"
+        })
+
+        const uploadJson = await uploadRes.json()
+        if (!uploadRes.ok) {
+          throw new Error(uploadJson?.error || "Failed to upload reference image.")
+        }
+        imageUrl = uploadJson?.url || ""
+      }
+
+      const preferences = typeof payload.preferences === "string" && payload.preferences.trim()
+        ? payload.preferences.trim()
+        : "Not specified"
+
+      const messageLines = [
+        "Aquascape Inquiry Details:",
+        `- Contact: ${derivedPhone}`,
+        `- Address: ${derivedAddress}`,
+        (accountInfo.city ? `- City: ${accountInfo.city}` : ''),
+        (accountInfo.province ? `- Province: ${accountInfo.province}` : ''),
+        (accountInfo.postal ? `- Postal Code: ${accountInfo.postal}` : ''),
+        `- Aquarium Size: ${payload.aquariumSize}`,
+        `- Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}`,
+        `- Preferences/Suggestions: ${preferences}`
+      ]
+
+      if (imageUrl) {
+        messageLines.push(`- Image Reference: ${imageUrl}`)
+      } else if (imageName) {
+        messageLines.push(`- Image Reference: ${imageName}`)
+      }
+
+      const aquascapeMessage = messageLines.filter(Boolean).join("\n")
 
       await createInquiry({
-        first_name: payload.firstName,
-        last_name: payload.lastName,
-        email: payload.email,
-        phone: payload.contactNo || null,
+        first_name: derivedFirst,
+        last_name: derivedLast,
+        email: derivedEmail,
+        phone: derivedPhone || null,
         subject: "Aquascape Inquiry",
         message: aquascapeMessage,
         status: "pending"
@@ -55,7 +117,6 @@ const aquascapeMessage = `
     }
   }
 
-  // Show loading state while Clerk is loading
   if (!isLoaded) {
     return (
       <div className="text-center space-y-4">
@@ -65,7 +126,6 @@ const aquascapeMessage = `
     )
   }
 
-  // Show login prompt if not signed in
   if (!isSignedIn) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -103,9 +163,36 @@ const aquascapeMessage = `
           <p className="text-red-300 text-sm sm:text-base">{error}</p>
         </div>
       )}
+      {/* Delivery Address summary pulled from Account Information */}
+      <div className="space-y-4 px-4 sm:px-6 md:px-8 lg:px-10">
+        <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-3">
+          <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
+          Delivery Address
+        </h3>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          {((accountInfo.name||'').trim()&& (accountInfo.email||'').trim()&& (accountInfo.phone||'').trim()&& (accountInfo.address||'').trim()&& (accountInfo.city||'').trim()&& (accountInfo.province||'').trim()&& (accountInfo.postal||'').trim()) ? (
+            <div className="space-y-2 text-slate-200">
+              <div className="font-medium">{accountInfo.name}</div>
+              <div className="text-slate-300 text-sm">{accountInfo.email} • {accountInfo.phone}</div>
+              <div className="text-sm">
+                {accountInfo.address}{accountInfo.city ? `, ${accountInfo.city}` : ''}{accountInfo.province ? ` , ${accountInfo.province}` : ''} {accountInfo.postal ? accountInfo.postal : ''}
+              </div>
+              <div className="pt-2">
+                <a href="/account-page" className="text-[#6c47ff] hover:underline">Edit</a>
+              </div>
+            </div>
+          ) : (
+            <div className="text-slate-300 text-sm">
+              Please complete your Account Information first. This inquiry will use your saved delivery details.
+              <div className="mt-3">
+                <a href="/account-page" className="inline-block px-4 py-2 rounded-lg bg-[#6c47ff] text-white hover:bg-[#5a3ae6]">Edit Account Info</a>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
       
-      {/* Personal Information */}
-      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="hidden space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Personal Information
@@ -122,6 +209,7 @@ const aquascapeMessage = `
               name="firstName"
               className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
               placeholder="Enter your first name"
+              defaultValue={(accountInfo.name || '').split(/\s+/)[0] || ''}
               required
             />
           </div>
@@ -136,14 +224,18 @@ const aquascapeMessage = `
               name="lastName"
               className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
               placeholder="Enter your last name"
+              defaultValue={() => {
+                const parts = (accountInfo.name || '').trim().split(/\s+/)
+                parts.shift()
+                return parts.join(' ')
+              }}
               required
             />
           </div>
         </div>
       </div>
 
-      {/* Contact Information */}
-      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="hidden space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Contact Information
@@ -160,6 +252,7 @@ const aquascapeMessage = `
               name="contactNo"
               className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
               placeholder="e.g., +63 912 345 6789"
+              defaultValue={accountInfo.phone || ''}
               required
             />
           </div>
@@ -174,14 +267,14 @@ const aquascapeMessage = `
               name="email"
               className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
               placeholder="Enter your email address"
+              defaultValue={accountInfo.email || ''}
               required
             />
           </div>
         </div>
       </div>
       
-      {/* Location Information */}
-      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="hidden space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Location Information
@@ -197,12 +290,12 @@ const aquascapeMessage = `
             rows={4}
             className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 resize-none backdrop-blur-sm"
             placeholder="Please provide your full address for site visit planning"
+            defaultValue={accountInfo.address || ''}
             required
           ></textarea>
         </div>
       </div>
 
-      {/* Aquascape Preferences */}
       <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
@@ -262,7 +355,6 @@ const aquascapeMessage = `
         </div>
       </div>
       
-      {/* Additional Preferences */}
       <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
@@ -307,11 +399,10 @@ const aquascapeMessage = `
         </div>
       </div>
       
-      {/* Submit Button */}
       <div className="text-center pt-10">
         <button
           type="submit"
-          disabled={submitting || !isSignedIn}
+          disabled={submitting || !isSignedIn || !((accountInfo.name||'').trim()&& (accountInfo.email||'').trim()&& (accountInfo.phone||'').trim()&& (accountInfo.address||'').trim()&& (accountInfo.city||'').trim()&& (accountInfo.province||'').trim()&& (accountInfo.postal||'').trim())}
           className="group relative inline-flex items-center justify-center px-12 py-4 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-slate-500/25 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
         >
           <span className="relative z-10 flex items-center gap-3">

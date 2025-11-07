@@ -11,7 +11,6 @@ export default function ProductDetails({ product }) {
   const features = Array.isArray(product?.features) ? product.features : []
   const description = product?.description || ''
   
-  // Reflect inventory: derive stock availability from products.stock
   const stock = typeof product?.stock === 'number' ? product.stock : undefined
   const hasFiniteStock = typeof stock === 'number'
   const stockCount = hasFiniteStock ? stock : undefined
@@ -52,7 +51,6 @@ export default function ProductDetails({ product }) {
         )}
       </div>
 
-      {/* stock status */}
       <div className="flex items-center space-x-3 mb-6">
         {inStock ? (
           <>
@@ -67,7 +65,6 @@ export default function ProductDetails({ product }) {
         )}
       </div>
 
-      {/* quantity & add to cart */}
       <div className="space-y-4">
         <div className="flex items-center space-x-5">
           <label className="font-medium text-white text-base">Quantity:</label>
@@ -117,7 +114,6 @@ export default function ProductDetails({ product }) {
         </div>
       </div>
 
-      {/* description */}
       {description && (
         <div className="mt-12">
           <p className="text-white/80 leading-relaxed text-lg whitespace-pre-line">{description}</p>

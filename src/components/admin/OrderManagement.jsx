@@ -321,11 +321,17 @@ export default function OrderManagement() {
               <div className="mt-4 flex items-center justify-between">
                 <p className="text-white font-semibold">₱{order.total.toFixed(2)}</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => updateOrderStatus(order.id, 'processing')} className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20">Processing</button>
-                  <button onClick={() => updateOrderStatus(order.id, 'shipped')} className="px-2 py-1 text-xs rounded bg-white/10 text-white hover:bg-white/20">Shipped</button>
-                  
-                  <button onClick={() => updateOrderStatus(order.id, 'completed')} className="px-2 py-1 text-xs rounded bg-green-600/20 text-green-200 hover:bg-green-600/30">Completed</button>
-                  <button onClick={() => updateOrderStatus(order.id, 'cancelled')} className="px-2 py-1 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Cancel</button>
+                  <select
+                    value={order.status}
+                    onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                    className="px-3 py-2 text-xs rounded bg-white/10 text-white focus:ring-2 focus:ring-blue-500 border border-white/20 min-w-[140px]"
+                  >
+                    <option value="processing" className="bg-slate-800">Processing</option>
+                    <option value="shipped" className="bg-slate-800">Shipped</option>
+                    <option value="delivered" className="bg-slate-800">Delivered</option>
+                    <option value="completed" className="bg-slate-800">Completed</option>
+                    <option value="cancelled" className="bg-slate-800">Cancelled</option>
+                  </select>
                 </div>
               </div>
             </div>

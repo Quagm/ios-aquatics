@@ -17,7 +17,6 @@ import {
   XCircle
 } from 'lucide-react'
 
-// Helper to upload file via server-side API (avoids client RLS issues)
 async function uploadViaApi(file) {
   const formData = new FormData()
   formData.append('file', file)
@@ -37,14 +36,12 @@ export default function InventoryManagement() {
   const [editingProduct, setEditingProduct] = useState(null)
   const [stockEdits, setStockEdits] = useState({})
 
-  // Basic stock status helper (placeholder until DB has stock fields)
   const getStockStatus = (stock = 0, minStock = 0) => {
     if (stock <= 0) return 'out-of-stock'
     if (stock <= minStock) return 'low-stock'
     return 'in-stock'
   }
 
-  // Server API update for toggling active
   async function apiUpdateProduct(id, updates) {
     const res = await fetch('/api/products', {
       method: 'PATCH',
@@ -69,13 +66,11 @@ export default function InventoryManagement() {
 
   useEffect(() => {
   let isMounted = true
-  // Admin view: include inactive products
   fetchProducts({ includeInactive: true })
     .then((data) => {
       if (!isMounted) return
       const withStatus = data.map((p) => ({
         ...p,
-        // normalize minStock from either camelCase or snake_case
         minStock: typeof p.minStock === 'number' ? p.minStock : (typeof p.min_stock === 'number' ? p.min_stock : 0),
         stock: typeof p.stock === 'number' ? p.stock : 0,
         active: p.active || false,
@@ -92,7 +87,6 @@ export default function InventoryManagement() {
   return () => { isMounted = false }
 }, [])
 
-// Live updates via Supabase Realtime
 useEffect(() => {
   const channel = supabase
     .channel('products-realtime')
@@ -190,7 +184,6 @@ useEffect(() => {
   }
 
   const updateStockValue = (id, value) => {
-    // store raw string so typing/backspacing works smoothly; normalize on save
     setStockEdits(prev => ({ ...prev, [id]: value }))
   }
 
@@ -215,7 +208,6 @@ useEffect(() => {
   const handleAddProduct = async (productData) => {
     try {
       let imageUrl = productData.image || '/placeholder-product.jpg'
-      // If a file was provided, upload to Supabase Storage
       if (productData.imageFile) {
         imageUrl = await uploadViaApi(productData.imageFile)
       }
@@ -227,7 +219,6 @@ useEffect(() => {
       }
       delete payload.imageFile
       delete payload.sku
-      // Create via server API to bypass RLS
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -270,7 +261,6 @@ useEffect(() => {
 
   return (
     <div className="space-y-8 ml-6">
-      {/* Header */}
       <div className="text-center lg:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
           <Package className="w-4 h-4" />
@@ -293,7 +283,6 @@ useEffect(() => {
         </button>
       </div>
 
-      {/* Filters and Search */}
       <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
@@ -333,7 +322,6 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* products */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
           <div key={product.id} className="glass-effect border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden group">

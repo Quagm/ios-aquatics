@@ -13,8 +13,6 @@ export default function AdminProtection({ children }) {
       return
     }
 
-    // Enforce admin-only access from any available metadata source on the client
-    // Prefer publicMetadata; fall back to unsafeMetadata (client-exposed superset) or privateMetadata if present
     if (user) {
       const role = user.publicMetadata?.role || user.unsafeMetadata?.role || user.privateMetadata?.role
       if (role !== 'admin') {

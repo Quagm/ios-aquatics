@@ -3,7 +3,6 @@ import Image from "next/image"
 export default function HeroSection({ title, description, backgroundImage = "/bg-image.png" }) {
   return (
     <section className="relative w-full h-screen overflow-hidden">
-      {/* bg image slideshow*/}
       <Image
         src={backgroundImage}
         alt="Background"
@@ -12,7 +11,6 @@ export default function HeroSection({ title, description, backgroundImage = "/bg
         className="object-cover z-0"
       />
 
-      {/* aoverlay */}
       <div className="relative z-10 max-w-xl absolute bottom-12 left-12 p-6">
         <h2 className="text-4xl font-bold text-white mb-6 leading-tight">
           {title}

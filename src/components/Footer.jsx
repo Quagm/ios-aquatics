@@ -5,11 +5,9 @@ import { Waves, MapPin, Phone, Mail, ArrowRight, Facebook, Youtube, Heart} from 
 function Footer({ className = "" }) {
   return (
     <footer className={`relative z-0 mt-12 sm:mt-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-t border-white/10 py-10 sm:py-12 px-4 sm:px-6 lg:px-8 w-full flex justify-center ${className}`}>
-      {/* container */}
       <div className="max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 text-white">
           
-          {/* social media account*/}
           <div className="flex flex-col items-center sm:items-start space-y-4 p-2 sm:p-3">
             <div className="flex items-center gap-4">
               <div className="relative">
@@ -61,7 +59,6 @@ function Footer({ className = "" }) {
             </div>
           </div>
 
-          {/* contacts */}
           <div className="flex flex-col items-center sm:items-start space-y-4 text-center sm:text-left p-2 sm:p-3">
             <h2 className="font-semibold text-xl text-white mb-2">Contact Info</h2>
             <div className="space-y-5">
@@ -105,7 +102,6 @@ function Footer({ className = "" }) {
             </div>
           </div>
 
-          {/* shortcuts */}
           <div className="flex flex-col items-center sm:items-start space-y-4 text-center sm:text-left p-2 sm:p-3">
             <h2 className="font-semibold text-xl text-white mb-2">Account</h2>
             <ul className="space-y-4">
@@ -136,7 +132,6 @@ function Footer({ className = "" }) {
             </ul>
           </div>
 
-          {/* shortcuts/quick links */}
           <div className="flex flex-col items-center sm:items-start space-y-4 text-center sm:text-left p-2 sm:p-3">
             <h2 className="font-semibold text-xl text-white mb-2">Quick Links</h2>
             <ul className="space-y-4">
@@ -178,7 +173,6 @@ function Footer({ className = "" }) {
           </div>
         </div>
 
-        {/* copyright?? ba tawag dito */}
         <div className="text-center mt-8 sm:mt-10 border-t border-white/10 pt-6 sm:pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4">
             <p className="text-slate-400 text-sm sm:text-base">

@@ -51,15 +51,36 @@ export default function NavigationBar() {
         if (!row) return
         // Admin gets all, user gets only their own
         if (!isAdmin && (row.email || '').toLowerCase() !== (userEmail || '').toLowerCase()) return
-        if (payload.eventType === 'UPDATE' && payload.old?.status !== row.status) {
+        if (payload.eventType === 'UPDATE' && (payload.old?.status !== row.status || payload.old?.appointment_at !== row.appointment_at)) {
           addNotif({
             id: `inq_${row.id}_${Date.now()}`,
             type: 'inquiry',
-            title: 'Inquiry status updated',
-            detail: `${row.subject || 'Inquiry'} → ${row.status}`,
+            title: row.status === 'completed' && row.appointment_at ? 'Appointment scheduled' : 'Inquiry status updated',
+            detail: row.status === 'completed' && row.appointment_at
+              ? `${row.subject || 'Inquiry'} • ${new Date(row.appointment_at).toLocaleString()}`
+              : `${row.subject || 'Inquiry'} → ${row.status}`,
             at: new Date().toISOString(),
           })
         }
+      })
+      .subscribe()
+
+    // Listen for broadcast notifications as a fallback
+    const chBroadcast = supabase
+      .channel('user_notifications')
+      .on('broadcast', { event: 'inquiry_update' }, (payload) => {
+        const p = payload?.payload || {}
+        if (!p?.email) return
+        if (!isAdmin && String(p.email).toLowerCase() !== String(userEmail).toLowerCase()) return
+        addNotif({
+          id: `inqbc_${p.id || 'unknown'}_${Date.now()}`,
+          type: 'inquiry',
+          title: p.status === 'completed' && p.appointment_at ? 'Appointment scheduled' : 'Inquiry status updated',
+          detail: p.status === 'completed' && p.appointment_at
+            ? `${p.subject || 'Inquiry'} • ${new Date(p.appointment_at).toLocaleString()}`
+            : `${p.subject || 'Inquiry'} → ${p.status}`,
+          at: p.updated_at || new Date().toISOString(),
+        })
       })
       .subscribe()
 
@@ -68,7 +89,7 @@ export default function NavigationBar() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
         const row = payload?.new || payload?.record
         if (!row) return
-        const email = (row.customer?.email || '').toLowerCase()
+        const email = (row.customer_email || row.customer?.email || '').toLowerCase()
         // Admin gets all, user only their own
         if (!isAdmin && email !== (userEmail || '').toLowerCase()) return
         if (payload.eventType === 'UPDATE' && payload.old?.status !== row.status) {
@@ -86,6 +107,7 @@ export default function NavigationBar() {
     return () => {
       try { supabase.removeChannel(chInq) } catch {}
       try { supabase.removeChannel(chOrder) } catch {}
+      try { supabase.removeChannel(chBroadcast) } catch {}
     }
   }, [userEmail, isAdmin])
 
@@ -136,14 +158,13 @@ export default function NavigationBar() {
   return (
     <>
     <nav
-      className={`sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 transition-all duration-300 flex justify-center ${
+      className={`fixed top-0 left-0 right-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 transition-all duration-300 flex justify-center ${
         isScrolled
           ? "bg-white shadow-lg border-b border-slate-200"
           : "bg-slate-800"
       }`}
     >
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-3 sm:gap-4 lg:gap-6">
-        {/* logo and title */}
         <Link href="/" className="flex items-center space-x-3 sm:space-x-4 hover:opacity-80 transition-opacity flex-shrink-0">
           <Image
             src="/logo-aquatics.jpg"
@@ -161,7 +182,6 @@ export default function NavigationBar() {
           </h2>
         </Link>
 
-        {/* desktop version */}
         <div className="hidden md:flex items-center gap-3 lg:gap-5 xl:gap-6 flex-wrap justify-end">
           {navLinks.map(({ href, label }) => (
             <a
@@ -223,7 +243,6 @@ export default function NavigationBar() {
             
           </SignedIn>
 
-          {/* Login buttons */}
           <div className="ml-2 lg:ml-4 flex gap-2">
             <SignedOut>
               <SignInButton mode="modal">
@@ -273,7 +292,6 @@ export default function NavigationBar() {
                     Admin
                   </Link>
                 )}
-                {/* notifications*/}
                 <div className="relative">
                   <button
                     onClick={() => setIsNotifOpen((v) => !v)}
@@ -317,7 +335,6 @@ export default function NavigationBar() {
           </div>
         </div>
 
-        {/* mobile hamburg */}
         <button
           className="md:hidden flex flex-col gap-1.5 p-3 rounded-lg hover:bg-white/10 transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -341,7 +358,6 @@ export default function NavigationBar() {
         </button>
       </div>
 
-      {/* Mobile Menu Backdrop */}
       {isMobileMenuOpen && (
         <div 
           className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-30"
@@ -349,7 +365,6 @@ export default function NavigationBar() {
         />
       )}
       
-      {/* Mobile Menu */}
       <div
         className={`md:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t border-slate-200 transition-all duration-300 z-40 ${
           isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"

@@ -48,7 +48,7 @@ export async function PATCH(request) {
     if (authErr) return authErr
 
     const body = await request.json()
-    const { id, status } = body || {}
+    const { id, status, appointment_at } = body || {}
     if (!id) return NextResponse.json({ error: 'Inquiry ID is required' }, { status: 400 })
     const validStatuses = ['accepted', 'in_progress', 'completed', 'cancelled']
     if (!validStatuses.includes(status)) {
@@ -56,13 +56,38 @@ export async function PATCH(request) {
     }
 
     const supabase = getServiceClient()
+    const updatePayload = { status }
+    if (appointment_at) {
+      updatePayload.appointment_at = appointment_at
+    }
     const { data, error } = await supabase
       .from('inquiries')
-      .update({ status })
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single()
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+    // Broadcast a realtime notification to clients
+    try {
+      const channel = supabase.channel('user_notifications')
+      await channel.subscribe()
+      await channel.send({
+        type: 'broadcast',
+        event: 'inquiry_update',
+        payload: {
+          id: data.id,
+          email: data.email,
+          subject: data.subject,
+          status: data.status,
+          appointment_at: data.appointment_at || null,
+          updated_at: new Date().toISOString()
+        }
+      })
+      await channel.unsubscribe()
+    } catch (e) {
+      console.warn('Realtime broadcast failed (inquiry_update):', e?.message || e)
+    }
     return NextResponse.json(data, { status: 200 })
   } catch (err) {
     console.error('Update inquiry failed:', err)

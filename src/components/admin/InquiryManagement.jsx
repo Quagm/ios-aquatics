@@ -2,20 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ui/ToastProvider'
-
-// server API
 async function apiFetchInquiries() {
   const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
   const data = await res.json()
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch inquiries')
   return data
 }
-async function apiUpdateInquiryStatus(id, status) {
+async function apiUpdateInquiryStatus(id, status, appointmentAt) {
   const res = await fetch('/api/inquiries', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ id, status })
+    body: JSON.stringify({ id, status, appointment_at: appointmentAt || null })
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data?.error || 'Failed to update inquiry')
@@ -53,6 +51,8 @@ export default function InquiryManagement() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedInquiry, setSelectedInquiry] = useState(null)
   const { push } = useToast()
+  const [schedulingInquiryId, setSchedulingInquiryId] = useState(null)
+  const [appointmentInput, setAppointmentInput] = useState('')
 
   const loadInquiries = async () => {
     try {
@@ -85,7 +85,6 @@ export default function InquiryManagement() {
       })
     }
 
-    // not shown if status is completed or cancelled
     filtered = filtered.filter(inquiry => inquiry.status !== 'completed' && inquiry.status !== 'cancelled')
 
     if (statusFilter !== 'all') {
@@ -114,10 +113,8 @@ export default function InquiryManagement() {
     }
   }
 
-  // Extract image URLs from free-form message text
   const extractImageUrls = (text) => {
     if (!text || typeof text !== 'string') return []
-    // Look for any http/https URLs, keep those that look like images or Supabase public links
     const urlRegex = /(https?:\/\/[^\s)]+)(?=\s|$)/g
     const knownImageExt = /\.(png|jpe?g|gif|webp|bmp|svg|tiff|heic|heif)(\?|#|$)/i
     const urls = []
@@ -131,7 +128,6 @@ export default function InquiryManagement() {
     return Array.from(new Set(urls))
   }
 
-  // Clean message by removing image reference metadata lines
   const getCleanMessage = (text) => {
     if (!text || typeof text !== 'string') return ''
     const lines = text.split(/\r?\n/)
@@ -139,7 +135,6 @@ export default function InquiryManagement() {
       const l = line.trim()
       if (l.toLowerCase().startsWith('- image references')) return false
       if (l.toLowerCase().startsWith('- image urls')) return false
-      // Drop bare URL-only lines that are part of the image block
       if (/^https?:\/\//i.test(l)) return false
       return true
     })
@@ -148,11 +143,16 @@ export default function InquiryManagement() {
 
   const updateInquiryStatus = async (id, newStatus) => {
     try {
-      if (newStatus === 'completed' || newStatus === 'cancelled') {
+      if (newStatus === 'completed') {
+        setSchedulingInquiryId(id)
+        setAppointmentInput('')
+        return
+      } else if (newStatus === 'cancelled') {
         const ok = window.confirm('Archive this inquiry? It will be moved to Inquiry History and removed from active inquiries.')
         if (!ok) return
       }
-      const updated = await apiUpdateInquiryStatus(id, newStatus)
+
+      const updated = await apiUpdateInquiryStatus(id, newStatus, null)
       await loadInquiries()
       if (updated.status === 'completed' || updated.status === 'cancelled') {
         push({ title: 'Inquiry archived', description: `Inquiry ${id} moved to history.`, variant: 'success' })
@@ -161,6 +161,29 @@ export default function InquiryManagement() {
       }
     } catch (error) {
       push({ title: 'Update failed', description: error?.message || 'Failed to update inquiry', variant: 'error' })
+    }
+  }
+
+  const submitAppointment = async () => {
+    try {
+      const id = schedulingInquiryId
+      if (!id) return
+      if (!appointmentInput) {
+        alert('Please select a date and time.')
+        return
+      }
+      const dt = new Date(appointmentInput)
+      if (isNaN(dt.getTime())) {
+        alert('Invalid date/time. Please try again.')
+        return
+      }
+      const updated = await apiUpdateInquiryStatus(id, 'completed', dt.toISOString())
+      setSchedulingInquiryId(null)
+      setAppointmentInput('')
+      await loadInquiries()
+      push({ title: 'Appointment scheduled', description: `Inquiry ${id} scheduled on ${new Date(updated.appointment_at || dt.toISOString()).toLocaleString()}.`, variant: 'success' })
+    } catch (error) {
+      push({ title: 'Update failed', description: error?.message || 'Failed to schedule appointment', variant: 'error' })
     }
   }
 
@@ -247,7 +270,6 @@ export default function InquiryManagement() {
         )}
       </div>
 
-      {/* View Inquiry Modal */}
       {selectedInquiry && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-2 py-4 z-50">
           <div className="glass-effect rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-white/20 p-4 sm:p-6 md:p-8">
@@ -312,6 +334,31 @@ export default function InquiryManagement() {
                 <option value="cancelled" className="bg-red-700">Cancelled</option>
               </select>
               <button onClick={() => { deleteInquiry(selectedInquiry.id); setSelectedInquiry(null) }} className="ml-auto px-3 py-2 text-xs rounded bg-red-600/20 text-red-200 hover:bg-red-600/30">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {schedulingInquiryId && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-2 py-4 z-50">
+          <div className="glass-effect rounded-3xl max-w-md w-full border border-white/20 p-6">
+            <div className="border-b border-white/10 pb-4 mb-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white">Schedule Appointment</h3>
+              <button onClick={() => { setSchedulingInquiryId(null); setAppointmentInput('') }} className="px-3 py-1 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20">Close</button>
+            </div>
+            <div className="space-y-4">
+              <label className="text-slate-300 text-sm" htmlFor="appointmentAt">Choose date & time</label>
+              <input
+                id="appointmentAt"
+                type="datetime-local"
+                value={appointmentInput}
+                onChange={(e) => setAppointmentInput(e.target.value)}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+              />
+              <div className="flex justify-end gap-3 pt-2">
+                <button onClick={() => { setSchedulingInquiryId(null); setAppointmentInput('') }} className="px-4 py-2 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20">Cancel</button>
+                <button onClick={submitAppointment} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Save</button>
+              </div>
             </div>
           </div>
         </div>

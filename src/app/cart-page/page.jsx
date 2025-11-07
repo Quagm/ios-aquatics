@@ -32,17 +32,14 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#051C29] to-[#0a2a3a] flex flex-col">
-      {/* Navigation */}
       <NavigationBar />
       
-      {/* Main Content (redirect fallback) */}
       <div className="flex-1 page-section">
         <div className="page-container text-center text-white/80">
           Redirecting to checkout...
         </div>
       </div>
       
-      {/* Footer */}
       <Footer />
     </div>
   )

@@ -112,13 +112,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Navigation */}
       <NavigationBar />
       
-      {/* Main Content */}
       <div className="flex-1 w-full pt-28 sm:pt-32 pb-20 sm:pb-24">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header Section */}
           <div className="flex flex-col items-center justify-center text-center mb-20 sm:mb-24 bg-white/5 rounded-3xl border border-white/10 px-8 sm:px-12 py-12 sm:py-16">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
               <span className="gradient-text">Checkout</span>
@@ -129,9 +126,7 @@ export default function CheckoutPage() {
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            {/* Left: Cart Review */}
             <div className="flex flex-col gap-8">
-              {/* Cart Review */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-white/20">
                 <h2 className="text-2xl font-semibold text-white mb-8">Your Cart</h2>
                 {items.length === 0 ? (
@@ -151,7 +146,6 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Right: Order Summary + Place Order */}
             <div className="lg:col-span-1">
               <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 sticky top-4 border border-white/20">
                 <h2 className="text-2xl font-semibold text-white mb-8">
@@ -159,7 +153,6 @@ export default function CheckoutPage() {
                 </h2>
                 {error && <p className="text-red-300 mb-4">{error}</p>}
                 
-                {/* Order Items */}
                 <div className="space-y-6 mb-8">
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4">
@@ -180,9 +173,7 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
-                {/* Delivery Address + Payment inside Order Summary */}
                 <div className="space-y-6 mb-8">
-                  {/* Delivery Address (read-only from Account) */}
                   <div className="bg-white/5 rounded-xl p-6 border border-white/20">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-xl font-semibold text-white">Delivery Address</h3>
@@ -205,14 +196,12 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                  {/* Payment Note */}
                   <div className="bg-white/5 rounded-xl p-6 border border-white/20">
                     <h3 className="text-xl font-semibold text-white mb-3">Payment</h3>
                     <p className="text-sm text-white/70">You will choose GCash or Card on the PayMongo page after you click Checkout.</p>
                   </div>
                 </div>
                 
-                {/* Price Breakdown */}
                 <div className="space-y-4 mb-8 border-t border-white/30 pt-6">
                   <div className="flex justify-between">
                     <span className="text-white/70 text-lg">Subtotal</span>
@@ -229,7 +218,6 @@ export default function CheckoutPage() {
                   </div>
                 </div>
                 
-                {/* Checkout Button */}
                 <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 py-5 px-6" onClick={handlePlaceOrder} disabled={placing || items.length === 0}>
                   {placing ? "Processing..." : "Checkout"}
                 </button>
@@ -239,7 +227,6 @@ export default function CheckoutPage() {
         </div>
       </div>
       
-      {/* Footer */}
       <Footer />
     </div>
   )
