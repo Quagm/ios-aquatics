@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/ui/ToastProvider'
 
-// reuse same API 
 async function apiFetchInquiries() {
   const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
   const data = await res.json()
@@ -152,7 +151,7 @@ export default function InquiryHistory() {
                 <span className="text-xs px-3 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{selectedInquiry.status}</span>
               </div>
             </div>
-            {/* Account Information Section */}
+            {}
             <div className="mb-6">
               <h4 className="text-lg font-semibold text-white mb-4">Account Information</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

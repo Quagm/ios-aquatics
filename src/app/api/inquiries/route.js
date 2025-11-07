@@ -47,13 +47,33 @@ export async function PATCH(request) {
     const authErr = await ensureAuth(request)
     if (authErr) return authErr
 
-    const body = await request.json()
+    let body
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError)
+      return NextResponse.json({ error: 'Invalid request body. Expected JSON.' }, { status: 400 })
+    }
+
     const { id, status, appointment_at } = body || {}
-    if (!id) return NextResponse.json({ error: 'Inquiry ID is required' }, { status: 400 })
+    
+    if (!id) {
+      console.error('Missing inquiry ID in request body:', body)
+      return NextResponse.json({ error: 'Inquiry ID is required' }, { status: 400 })
+    }
+    
+    if (!status) {
+      console.error('Missing status in request body:', body)
+      return NextResponse.json({ error: 'Status is required' }, { status: 400 })
+    }
+    
     const validStatuses = ['accepted', 'in_progress', 'completed', 'cancelled']
     if (!validStatuses.includes(status)) {
+      console.error('Invalid status:', status, 'Valid statuses:', validStatuses)
       return NextResponse.json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` }, { status: 400 })
     }
+    
+    console.log('Updating inquiry:', { id, status, appointment_at })
 
     const supabase = getServiceClient()
 
@@ -73,6 +93,7 @@ export async function PATCH(request) {
       .single()
 
     if (currentErr && isColumnMissing(currentErr, 'appointment_at')) {
+      console.warn('appointment_at column does not exist. Please run: ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS appointment_at TIMESTAMP WITH TIME ZONE;')
       allowAppointmentUpdates = false
       const fallback = await supabase
         .from('inquiries')
@@ -83,7 +104,23 @@ export async function PATCH(request) {
       currentErr = fallback.error
     }
 
-    if (currentErr) return NextResponse.json({ error: currentErr.message }, { status: 400 })
+    if (currentErr) {
+      console.error('Error fetching current inquiry:', currentErr)
+      let errorMessage = currentErr.message || 'Failed to fetch inquiry'
+
+      if (isColumnMissing(currentErr, 'appointment_at')) {
+        errorMessage = 'The appointment_at column is missing from the database. Please run this SQL in Supabase: ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS appointment_at TIMESTAMP WITH TIME ZONE;'
+      }
+      
+      return NextResponse.json({ 
+        error: errorMessage,
+        details: currentErr.details || null,
+        hint: currentErr.hint || 'Run the migration SQL to add the missing column.',
+        migration_sql: isColumnMissing(currentErr, 'appointment_at') 
+          ? 'ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS appointment_at TIMESTAMP WITH TIME ZONE;'
+          : null
+      }, { status: 400 })
+    }
     current = currentData
 
     const prevStatus = current?.status || null
@@ -104,9 +141,20 @@ export async function PATCH(request) {
       .eq('id', id)
       .select()
       .single()
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    if (error) {
+      console.error('Supabase update error:', error)
+      return NextResponse.json({ 
+        error: error.message || 'Failed to update inquiry',
+        details: error.details || null,
+        hint: error.hint || null
+      }, { status: 400 })
+    }
+    
+    if (!data) {
+      console.error('No data returned from update')
+      return NextResponse.json({ error: 'Inquiry not found or update failed' }, { status: 404 })
+    }
 
-    // Broadcast a realtime notification to clients
     try {
       const channel = supabase.channel('user_notifications')
       await channel.subscribe()
@@ -128,10 +176,21 @@ export async function PATCH(request) {
     } catch (e) {
       console.warn('Realtime broadcast failed (inquiry_update):', e?.message || e)
     }
+    console.log('Inquiry updated successfully:', data)
     return NextResponse.json(data, { status: 200 })
   } catch (err) {
     console.error('Update inquiry failed:', err)
-    return NextResponse.json({ error: err?.message || 'Update inquiry failed' }, { status: 500 })
+    console.error('Error stack:', err?.stack)
+    console.error('Error details:', {
+      message: err?.message,
+      name: err?.name,
+      cause: err?.cause
+    })
+    return NextResponse.json({ 
+      error: err?.message || 'Update inquiry failed',
+      details: err?.details || null,
+      hint: err?.hint || null
+    }, { status: 500 })
   }
 }
 

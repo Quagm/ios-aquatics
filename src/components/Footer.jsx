@@ -150,7 +150,7 @@ function Footer({ className = "" }) {
                 <a 
                   href="/inquiry-form" 
                   onClick={(e) => {
-                    // If on account page, open modal instead
+
                     if (typeof window !== 'undefined' && window.location.pathname === '/account-page') {
                       e.preventDefault()
                       window.dispatchEvent(new Event('openAquascapeModal'))
@@ -176,8 +176,8 @@ function Footer({ className = "" }) {
               </li>
             </ul>
           </div>
-            </div>
           </div>
+        </div>
 
         <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
         <div className="text-center mt-8 sm:mt-10 border-t border-white/10 pt-6 sm:pt-8">
@@ -190,8 +190,8 @@ function Footer({ className = "" }) {
             </div>
           </div>
         </div>
-        </div>
-      </footer>
+      </div>
+    </footer>
     </>
   )
 }

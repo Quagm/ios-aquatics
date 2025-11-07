@@ -1,4 +1,4 @@
-// src/app/layout.jsx
+
 import "./globals.css"
 
 

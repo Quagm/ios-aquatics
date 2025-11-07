@@ -41,20 +41,7 @@ ChartJS.register(
   Filler
 )
 
-/**
- * Sales Analytics Component
- * 
- * HOW IT WORKS (Simplified):
- * 1. Fetches all orders from your database
- * 2. Filters orders by selected time range (7d, 30d, or 90d)
- * 3. Calculates metrics:
- *    - Total Revenue: Sum of all order totals (excluding cancelled)
- *    - Total Orders: Count of orders in the period
- *    - Average Order Value: Revenue ÷ Orders
- *    - Growth %: Compares current period vs previous period
- * 4. Shows top 5 products by revenue
- * 5. Displays a chart showing last 12 months of data
- */
+
 export default function SalesAnalytics() {
   const [timeRange, setTimeRange] = useState('30d')
   const [analytics, setAnalytics] = useState({
@@ -79,11 +66,9 @@ export default function SalesAnalytics() {
       try {
         setLoading(true)
         setError('')
-        
-        // Fetch real analytics data from database
+
         const analyticsData = await getSalesAnalytics(timeRange)
-        
-        // Get total customers count from Clerk
+
         let totalCustomers = 0
         let customersGrowth = 0
         try {
@@ -91,14 +76,13 @@ export default function SalesAnalytics() {
           const usersData = await usersRes.json()
           if (usersData && typeof usersData.count === 'number') {
             totalCustomers = usersData.count
-            // For now, set growth to 0 (can be calculated later with historical data)
+
             customersGrowth = 0
           }
         } catch (err) {
           console.warn('Failed to fetch customer count:', err)
         }
-        
-        // Combine all analytics data
+
         setAnalytics({
           ...analyticsData,
           totalCustomers,
@@ -122,8 +106,7 @@ export default function SalesAnalytics() {
     }).format(amount)
   }
 
-  // Chart data - Shows revenue and orders over the last 12 months
-  // If no data yet, show empty arrays (chart will display as flat line)
+
   const chartData = {
     labels: analytics.chartLabels && analytics.chartLabels.length > 0 
       ? analytics.chartLabels 
@@ -263,7 +246,7 @@ export default function SalesAnalytics() {
 
   return (
     <div className="py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12 admin-container-spacing">
-      {/* Header */}
+      {}
       <div className="text-center lg:text-left">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Sales and Analytics</span>
@@ -271,7 +254,7 @@ export default function SalesAnalytics() {
         <p className="text-base sm:text-lg text-slate-300 max-w-2xl mb-2">Track your aquatics store performance with detailed analytics and insights.</p>
       </div>
 
-      {/* filters/control? */}
+      {}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 py-4">
         <div className="flex items-center gap-3">
           <select
@@ -316,7 +299,7 @@ export default function SalesAnalytics() {
         </div>
       </div>
 
-      {/* revenue */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center justify-between mb-3">
@@ -382,7 +365,7 @@ export default function SalesAnalytics() {
         </div>
       </div>
 
-      {/* line chart */}
+      {}
       <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -409,7 +392,7 @@ export default function SalesAnalytics() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* order filter status */}
+        {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
           <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-green-400" />
@@ -431,7 +414,7 @@ export default function SalesAnalytics() {
           </div>
         </div>
 
-        {/* top products */}
+        {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
           <div className="p-6 border-b border-white/10">
             <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-1">

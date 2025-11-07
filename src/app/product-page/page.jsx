@@ -40,7 +40,6 @@ function ProductPageContent() {
     return () => { isMounted = false }
   }, [id])
 
-  // Realtime updates for product changes (e.g., stockCount, inStock)
   useEffect(() => {
     if (!id) return
     const channel = supabase

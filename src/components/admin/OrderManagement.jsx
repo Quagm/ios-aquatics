@@ -132,7 +132,6 @@ const normalize = (data) => (data || []).map((o) => {
       )
     }
 
-    // completed and cancelled orders will not be shown (they go to order history)
     filtered = filtered.filter(order => {
       const status = String(order.status || '').toLowerCase()
       return status !== 'completed' && status !== 'cancelled'
@@ -167,7 +166,7 @@ const normalize = (data) => (data || []).map((o) => {
   const updateOrderStatus = async (id, newStatus) => {
     try {
       const normalizedNext = normalizeOrderStatus(newStatus)
-      // Confirm when archiving-like statuses
+
       if (normalizedNext === 'completed') {
         const ok = window.confirm('Mark this order as finished? It will be moved to Order History and removed from active orders.')
         if (!ok) return
@@ -177,11 +176,11 @@ const normalize = (data) => (data || []).map((o) => {
         if (!ok) return
       }
       const updated = await updateOrderStatusDb(id, newStatus)
-      // Refetch to ensure both active and history views reflect the change
+
       await loadOrders()
       const us = normalizeOrderStatus(updated?.status)
       const label = getOrderStatusLabel(us)
-      // Debug/visibility toast
+
       push({ title: 'Status updated', description: `Order ${id} new status: ${label}`, variant: 'default' })
       if (us === 'completed') {
         push({ title: 'Order archived', description: `Order ${id} moved to history.`, variant: 'success' })
@@ -210,7 +209,7 @@ const normalize = (data) => (data || []).map((o) => {
 
   return (
     <div className="space-y-8 py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12">
-      {/* Header */}
+      {}
       <div className="text-center lg:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
           <Package className="w-4 h-4" />
@@ -222,7 +221,7 @@ const normalize = (data) => (data || []).map((o) => {
         <p className="text-lg text-slate-300 max-w-2xl">Manage customer orders and track fulfillment for your aquatics store.</p>
       </div>
 
-      {/* Order Stats */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center">
@@ -270,7 +269,7 @@ const normalize = (data) => (data || []).map((o) => {
         </div>
       </div>
 
-      {/* Filters and Search */}
+      {}
       <div className="glass-effect rounded-2xl p-6 border border-white/10">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
@@ -312,7 +311,7 @@ const normalize = (data) => (data || []).map((o) => {
         </div>
       </div>
 
-      {/* Orders Grid */}
+      {}
       <div>
         <div className="px-1 py-2">
           <h3 className="text-lg font-semibold text-white">Orders ({filteredOrders.length})</h3>
@@ -367,7 +366,7 @@ const normalize = (data) => (data || []).map((o) => {
         </div>
       </div>
 
-      {/* Order Detail Modal */}
+      {}
       {selectedOrder && (
         <OrderDetailModal
           order={selectedOrder}
@@ -378,7 +377,6 @@ const normalize = (data) => (data || []).map((o) => {
   )
 }
 
-// Order Detail Modal Component
 function OrderDetailModal({ order, onClose }) {
 
   return (
@@ -405,7 +403,7 @@ function OrderDetailModal({ order, onClose }) {
           </div>
         </div>
         <div className="p-6 space-y-6">
-          {/* Order Information */}
+          {}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Order Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -426,7 +424,7 @@ function OrderDetailModal({ order, onClose }) {
             </div>
           </div>
 
-          {/* Customer Information */}
+          {}
           {order.customer && (
             <div>
               <h4 className="text-lg font-semibold text-white mb-4">Customer Information</h4>
@@ -463,7 +461,7 @@ function OrderDetailModal({ order, onClose }) {
             </div>
           )}
 
-          {/* Order Items */}
+          {}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Order Items</h4>
             <div className="space-y-3">

@@ -6,9 +6,7 @@ import {
   getSalesAnalytics 
 } from './queries';
 
-/**
- * Comprehensive database connection and functionality test
- */
+
 export async function runDatabaseTests() {
   console.log('🧪 Starting database tests...\n');
   
@@ -21,7 +19,6 @@ export async function runDatabaseTests() {
     errors: []
   };
 
-  // Test 1: Basic connection
   try {
     console.log('1️⃣ Testing database connection...');
     results.connection = await testConnection();
@@ -35,7 +32,6 @@ export async function runDatabaseTests() {
     results.errors.push(`Connection: ${error.message}`);
   }
 
-  // Test 2: Products functionality
   try {
     console.log('2️⃣ Testing products functionality...');
     const products = await fetchProducts();
@@ -53,11 +49,9 @@ export async function runDatabaseTests() {
     results.errors.push(`Products: ${error.message}`);
   }
 
-  // Test 3: Inquiries functionality
   try {
     console.log('3️⃣ Testing inquiries functionality...');
-    
-    // Test creating an inquiry
+
     const testInquiry = {
       first_name: 'Test',
       last_name: 'User',
@@ -72,8 +66,7 @@ export async function runDatabaseTests() {
       console.log('✅ Inquiry creation successful');
       console.log(`   Created inquiry ID: ${createdInquiry.id}`);
       results.inquiries = true;
-      
-      // Clean up test inquiry
+
       await supabase.from('inquiries').delete().eq('id', createdInquiry.id);
       console.log('   Test inquiry cleaned up');
     } else {
@@ -86,7 +79,6 @@ export async function runDatabaseTests() {
     results.errors.push(`Inquiries: ${error.message}`);
   }
 
-  // Test 4: Orders functionality
   try {
     console.log('4️⃣ Testing orders functionality...');
     const orders = await fetchOrders();
@@ -98,7 +90,6 @@ export async function runDatabaseTests() {
     results.errors.push(`Orders: ${error.message}`);
   }
 
-  // Test 5: Analytics functionality
   try {
     console.log('5️⃣ Testing analytics functionality...');
     const analytics = await getSalesAnalytics();
@@ -118,7 +109,6 @@ export async function runDatabaseTests() {
     results.errors.push(`Analytics: ${error.message}`);
   }
 
-  // Summary
   console.log('📊 Test Results Summary:');
   console.log('========================');
   console.log(`Connection: ${results.connection ? '✅' : '❌'}`);
@@ -146,9 +136,7 @@ export async function runDatabaseTests() {
   return results;
 }
 
-/**
- * Quick connection test - can be called from components
- */
+
 export async function quickConnectionTest() {
   try {
     const isConnected = await testConnection();

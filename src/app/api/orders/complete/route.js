@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 
 export async function POST(request) {
   try {
-    // Clerk auth (optional admin check could be added)
+
     const { userId } = getAuth(request)
     if (!userId && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -23,7 +23,6 @@ export async function POST(request) {
     }
     const supabase = createClient(supabaseUrl, serviceRoleKey)
 
-    // Fetch order
     const { data: order, error: orderErr } = await supabase
       .from('orders')
       .select('*')
@@ -33,16 +32,13 @@ export async function POST(request) {
 
     if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 })
 
-    // If already completed, do nothing
     if (String(order.status || '').toLowerCase() === 'completed') {
       return NextResponse.json(order, { status: 200 })
     }
 
-    // Note: Stock is already decremented when order is created (in createOrder function)
-    // This endpoint just marks the order as completed
-    // No need to decrement stock again here
 
-    // Mark order as completed
+
+
     const { data: updated, error: updErr } = await supabase
       .from('orders')
       .update({ status: 'completed' })

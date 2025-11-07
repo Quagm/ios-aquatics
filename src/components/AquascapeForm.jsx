@@ -59,7 +59,6 @@ export default function AquascapeForm() {
 
     const data = new FormData(e.currentTarget)
     const payload = Object.fromEntries(data.entries())
-    // Prefer saved account information for consistency with orders
     const fullName = (accountInfo.name || '').trim()
     const [fname, ...lnameParts] = fullName.split(/\s+/)
     const derivedFirst = fname || payload.firstName || ''
@@ -81,8 +80,9 @@ export default function AquascapeForm() {
       setSubmitting(false)
       return
     }
-    const imageFile = data.get("imageReference")
-    const imageName = imageFile instanceof File ? imageFile.name : ""
+    const imageFiles = data.getAll("imageReference")
+    const validImageFiles = imageFiles.filter(file => file instanceof File && file.size > 0).slice(0, 5)
+    
     if (payload.imageReference) {
       delete payload.imageReference
     }
@@ -90,22 +90,28 @@ export default function AquascapeForm() {
     setError("")
     
     try {
-      let imageUrl = ""
-      if (imageFile instanceof File && imageFile.size > 0) {
-        const uploadData = new FormData()
-        uploadData.append("file", imageFile)
+      const imageUrls = []
+      
+      for (const imageFile of validImageFiles) {
+        if (imageFile instanceof File && imageFile.size > 0) {
+          const uploadData = new FormData()
+          uploadData.append("file", imageFile)
 
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: uploadData,
-          credentials: "include"
-        })
+          const uploadRes = await fetch("/api/upload", {
+            method: "POST",
+            body: uploadData,
+            credentials: "include"
+          })
 
-        const uploadJson = await uploadRes.json()
-        if (!uploadRes.ok) {
-          throw new Error(uploadJson?.error || "Failed to upload reference image.")
+          const uploadJson = await uploadRes.json()
+          if (!uploadRes.ok) {
+            console.error(`Failed to upload image ${imageFile.name}:`, uploadJson?.error)
+            continue
+          }
+          if (uploadJson?.url) {
+            imageUrls.push(uploadJson.url)
+          }
         }
-        imageUrl = uploadJson?.url || ""
       }
 
       const preferences = typeof payload.preferences === "string" && payload.preferences.trim()
@@ -119,15 +125,14 @@ export default function AquascapeForm() {
         `- Preferences/Suggestions: ${preferences}`
       ]
 
-      if (imageUrl) {
-        messageLines.push(`- Image Reference: ${imageUrl}`)
-      } else if (imageName) {
-        messageLines.push(`- Image Reference: ${imageName}`)
+      if (imageUrls.length > 0) {
+        imageUrls.forEach((url, index) => {
+          messageLines.push(`- Image Reference: ${url}`)
+        })
       }
 
       const aquascapeMessage = messageLines.filter(Boolean).join("\n")
 
-      // Create customer snapshot with account information
       const customerSnapshot = {
         name: fullName,
         first_name: derivedFirst,
@@ -219,183 +224,25 @@ export default function AquascapeForm() {
           <p className="text-red-300 text-sm sm:text-base">{error}</p>
         </div>
       )}
-      {/* Delivery Address summary pulled from Account Information */}
-      <div className="w-full space-y-4">
-        <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-3">
-          <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-          Delivery Address
-        </h3>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8 max-w-2xl">
-          {((accountInfo.name||'').trim()&& (accountInfo.email||'').trim()&& (accountInfo.phone||'').trim()&& (accountInfo.address||'').trim()&& (accountInfo.city||'').trim()&& (accountInfo.province||'').trim()&& (accountInfo.postal||'').trim()) ? (
-            <div className="space-y-3 text-slate-200">
-              <div className="font-medium">{accountInfo.name}</div>
-              <div className="text-slate-300 text-sm">{accountInfo.email} • {accountInfo.phone}</div>
-              <div className="text-sm">
-                {accountInfo.address}{accountInfo.city ? `, ${accountInfo.city}` : ''}{accountInfo.province ? ` , ${accountInfo.province}` : ''} {accountInfo.postal ? accountInfo.postal : ''}
-              </div>
-              <div className="pt-2">
-                <a href="/account-page" className="text-[#6c47ff] hover:underline">Edit</a>
-              </div>
-            </div>
-          ) : (
-            <div className="text-slate-300 text-sm">
-              Please complete your Account Information first. This inquiry will use your saved delivery details.
-              <div className="mt-3">
-                <a href="/account-page" className="inline-block px-4 py-2 rounded-lg bg-[#6c47ff] text-white hover:bg-[#5a3ae6]">Edit Account Info</a>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
       
-      <div className={`${showInlineFields ? 'w-full space-y-8' : 'hidden'}`}>
-        <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
-          <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-          Personal Information
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
-          <div className="group space-y-3">
-            <label htmlFor="firstName" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-              First Name *
-            </label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
-              placeholder="Enter your first name"
-              defaultValue={(accountInfo.name || '').split(/\s+/)[0] || ''}
-              required
-            />
-          </div>
-          
-          <div className="group space-y-3">
-            <label htmlFor="lastName" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-              Last Name *
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
-              placeholder="Enter your last name"
-              defaultValue={(() => {
-                const parts = (accountInfo.name || '').trim().split(/\s+/)
-                parts.shift()
-                return parts.join(' ')
-              })()}
-              required
-            />
+      {showInlineFields && (
+        <div className="w-full space-y-6 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 sm:p-8">
+          <h3 className="text-lg font-semibold text-yellow-200 mb-3">
+            Account Information Required
+          </h3>
+          <p className="text-slate-300 text-sm mb-4">
+            Please complete your account information first before submitting an inquiry. This ensures we have your correct delivery address and contact details.
+          </p>
+          <div className="flex justify-center">
+            <a
+              href="/account-page"
+              className="inline-block px-6 py-3 bg-[#6c47ff] text-white rounded-lg hover:bg-[#5a3ae6] transition-colors font-medium"
+            >
+              Go to Account Page
+            </a>
           </div>
         </div>
-      </div>
-
-      <div className={`${showInlineFields ? 'w-full space-y-8' : 'hidden'}`}>
-        <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
-          <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-          Contact Information
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
-          <div className="group space-y-3">
-            <label htmlFor="contactNo" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-              Contact Number *
-            </label>
-            <input
-              type="tel"
-              id="contactNo"
-              name="contactNo"
-              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
-              placeholder="e.g., +63 912 345 6789"
-              defaultValue={accountInfo.phone || ''}
-              required
-            />
-          </div>
-          
-          <div className="group space-y-3">
-            <label htmlFor="email" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
-              placeholder="Enter your email address"
-              defaultValue={accountInfo.email || ''}
-              required
-            />
-          </div>
-        </div>
-      </div>
-      
-      <div className={`${showInlineFields ? 'w-full space-y-8' : 'hidden'}`}>
-        <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
-          <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-          Location Information
-        </h3>
-        
-        <div className="group space-y-4">
-          <label htmlFor="address" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-            Full Address *
-          </label>
-          <textarea
-            id="address"
-            name="address"
-            rows={4}
-            className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 resize-none backdrop-blur-sm"
-            placeholder="Please provide your full address for site visit planning"
-            defaultValue={accountInfo.address || ''}
-            required
-          ></textarea>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="group space-y-3">
-            <label htmlFor="city" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-              City *
-            </label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
-              placeholder="City"
-              defaultValue={accountInfo.city || ''}
-              required
-            />
-          </div>
-          <div className="group space-y-3">
-            <label htmlFor="province" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-              Province *
-            </label>
-            <input
-              type="text"
-              id="province"
-              name="province"
-              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
-              placeholder="Province"
-              defaultValue={accountInfo.province || ''}
-              required
-            />
-          </div>
-          <div className="group space-y-3">
-            <label htmlFor="postal" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-              Postal Code *
-            </label>
-            <input
-              type="text"
-              id="postal"
-              name="postal"
-              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
-              placeholder="e.g., 1751"
-              defaultValue={accountInfo.postal || ''}
-              required
-            />
-          </div>
-        </div>
-      </div>
+      )}
 
       <div className="w-full space-y-8">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
@@ -483,7 +330,7 @@ export default function AquascapeForm() {
         
         <div className="group space-y-4">
           <label htmlFor="imageReference" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
-            Image Reference Attachment
+            Image Reference
           </label>
           <div className="relative">
             <input
@@ -491,10 +338,18 @@ export default function AquascapeForm() {
               id="imageReference"
               name="imageReference"
               accept="image/*"
+              multiple
+              onChange={(e) => {
+                const files = Array.from(e.target.files || [])
+                if (files.length > 5) {
+                  alert("Please select a maximum of 5 images.")
+                  e.target.value = ""
+                }
+              }}
               className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white transition-all duration-300 hover:border-slate-500 backdrop-blur-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-600 file:text-white hover:file:bg-slate-500 file:cursor-pointer"
             />
             <p className="text-slate-400 text-sm mt-3">
-              Upload reference images of aquascapes you like (optional)
+              Upload up to 5 reference images of aquascapes you like (optional)
             </p>
           </div>
         </div>
@@ -524,11 +379,6 @@ export default function AquascapeForm() {
         {!isSignedIn && (
           <p className="text-yellow-300 text-sm mt-4">
             Please sign in to submit your inquiry
-          </p>
-        )}
-        {!submitting && isSignedIn && !hasCompleteAccountInfo && (
-          <p className="text-yellow-200 text-sm mt-3">
-            Tip: Save your contact details in Account Information to auto-fill this form.
           </p>
         )}
       </div>

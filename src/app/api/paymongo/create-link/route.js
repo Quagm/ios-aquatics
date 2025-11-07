@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-// POST /api/paymongo/create-link
-// Body: { amount, description, email, name, orderId }
+
 export async function POST(req) {
   try {
     const secret = process.env.PAYMONGO_SECRET_KEY
@@ -16,15 +15,12 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: 'amount (in centavos) is required' }), { status: 400 })
     }
 
-    // Ensure integer centavos
     amount = Math.max(1, Math.floor(Number(amount)))
 
-    // Default URLs
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
     if (!successUrl && baseUrl) successUrl = `${baseUrl}/store-page?payment=success`
     if (!cancelUrl && baseUrl) cancelUrl = `${baseUrl}/cart-page?payment=cancelled`
 
-    // Determine payment methods allowed based on selection
     let payment_method_types = ['card', 'gcash']
     const method = (paymentMethod || '').toLowerCase()
     if (method === 'gcash') {
@@ -42,9 +38,9 @@ export async function POST(req) {
           remarks: 'IOS Aquatics Checkout',
           checkout_url: null,
           payment_method_types,
-          // Optional redirection URLs if enabled in PayMongo
-          // Note: PayMongo Payment Links may not support per-link redirect; if unsupported, manage in dashboard
-          // We'll still include metadata to reconcile later (via webhook or admin view)
+
+
+
           metadata: {
             orderId: orderId || null,
             customerEmail: email || null,

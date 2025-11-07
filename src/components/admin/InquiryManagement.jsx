@@ -9,15 +9,73 @@ async function apiFetchInquiries() {
   return data
 }
 async function apiUpdateInquiryStatus(id, status, appointmentAt) {
-  const res = await fetch('/api/inquiries', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ id, status, appointment_at: appointmentAt || null })
-  })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data?.error || 'Failed to update inquiry')
-  return data
+  if (!id || !status) {
+    throw new Error('Inquiry ID and status are required')
+  }
+  try {
+    const res = await fetch('/api/inquiries', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id, status, appointment_at: appointmentAt || null })
+    })
+    
+    const contentType = res.headers.get('content-type')
+    let data
+    
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        data = await res.json()
+      } catch (parseError) {
+        console.error('Failed to parse JSON response:', parseError)
+        throw new Error(`Server error (${res.status}): Invalid JSON response`)
+      }
+    } else {
+      const text = await res.text()
+      console.error('Non-JSON response:', text)
+      throw new Error(`Server error (${res.status}): ${text || 'Invalid response'}`)
+    }
+    
+    if (!res.ok) {
+
+      console.error('API error response:', {
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url,
+        headers: Object.fromEntries(res.headers.entries()),
+        data: data,
+        dataType: typeof data,
+        dataKeys: data ? Object.keys(data) : [],
+        error: data?.error,
+        message: data?.message,
+        details: data?.details,
+        hint: data?.hint
+      })
+
+      if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
+        const errorMessage = `Server error: ${res.status} ${res.statusText || 'Unknown error'}`
+        console.error('Empty error response detected. Full response info:', {
+          status: res.status,
+          statusText: res.statusText,
+          ok: res.ok,
+          redirected: res.redirected,
+          type: res.type
+        })
+        throw new Error(errorMessage)
+      }
+      
+      const errorMessage = data?.error || data?.message || `Server error: ${res.status} ${res.statusText}`
+      throw new Error(errorMessage)
+    }
+    return data
+  } catch (error) {
+    console.error('apiUpdateInquiryStatus error:', error)
+
+    if (error instanceof Error) {
+      throw error
+    }
+    throw new Error(String(error))
+  }
 }
 async function apiDeleteInquiry(id) {
   const res = await fetch('/api/inquiries', {
@@ -144,6 +202,11 @@ export default function InquiryManagement() {
 
   const updateInquiryStatus = async (id, newStatus) => {
     try {
+      if (!id || !newStatus) {
+        push({ title: 'Error', description: 'Missing inquiry ID or status', variant: 'error' })
+        return
+      }
+
       if (newStatus === 'completed') {
         setSchedulingInquiryId(id)
         setAppointmentInput('')
@@ -153,14 +216,26 @@ export default function InquiryManagement() {
         if (!ok) return
       }
 
+      console.log('Updating inquiry status:', { id, newStatus })
       const updated = await apiUpdateInquiryStatus(id, newStatus, null)
+      if (!updated) {
+        push({ title: 'Update failed', description: 'No response from server', variant: 'error' })
+        return
+      }
+      
+      console.log('Status updated successfully:', updated)
+
+      setInquiries(prev => prev.map(inq => inq.id === id ? { ...inq, status: updated.status } : inq))
+      
       await loadInquiries()
       if (updated.status === 'completed' || updated.status === 'cancelled') {
         push({ title: 'Inquiry archived', description: `Inquiry ${id} moved to history.`, variant: 'success' })
       } else {
-        push({ title: 'Inquiry updated', description: `Inquiry ${id} set to ${updated.status}.`, variant: 'success' })
+        const statusLabel = updated.status === 'in_progress' ? 'In Progress' : (updated.status || newStatus)
+        push({ title: 'Inquiry updated', description: `Inquiry ${id} set to ${statusLabel}.`, variant: 'success' })
       }
     } catch (error) {
+      console.error('Update inquiry status error:', error)
       push({ title: 'Update failed', description: error?.message || 'Failed to update inquiry', variant: 'error' })
     }
   }
@@ -294,7 +369,7 @@ export default function InquiryManagement() {
               </div>
             </div>
 
-            {/* Account Information Section */}
+            {}
             <div>
               <h4 className="text-lg font-semibold text-white mb-4">Account Information</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

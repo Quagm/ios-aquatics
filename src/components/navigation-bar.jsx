@@ -21,9 +21,12 @@ const buildStatusChangeDetail = (label, previousStatus, nextStatus) => {
     previousStatus != null &&
     String(previousStatus).toLowerCase() === String(nextStatus).toLowerCase()
   ) {
-    return `${label}: ${nextLabel}`
+    return `${label} status is ${nextLabel}`
   }
-  return `${label}: ${prevLabel} → ${nextLabel}`
+  if (previousStatus == null) {
+    return `${label} status has been set to ${nextLabel}`
+  }
+  return `${label} status has been changed from ${prevLabel} to ${nextLabel}`
 }
 
 const buildAppointmentDetail = (nextValue, previousValue) => {
@@ -66,6 +69,32 @@ export default function NavigationBar() {
   const [isNotifOpen, setIsNotifOpen] = useState(false)
   const [notifs, setNotifs] = useState([])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('notifications')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (Array.isArray(parsed)) {
+            setNotifs(parsed)
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load notifications from localStorage:', e)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && notifs.length > 0) {
+      try {
+        localStorage.setItem('notifications', JSON.stringify(notifs))
+      } catch (e) {
+        console.warn('Failed to save notifications to localStorage:', e)
+      }
+    }
+  }, [notifs])
+
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   useEffect(() => {
@@ -77,26 +106,40 @@ export default function NavigationBar() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-
-  // Subscribe to user's inquiry and order status changes
   useEffect(() => {
     if (!userEmail) return
-    const maxItems = 20
+    const maxItems = 50
     const addNotif = (n) => {
       setNotifs((prev) => {
+
+        const exists = prev.some(existing => 
+          existing.id === n.id || 
+          (existing.type === n.type && existing.title === n.title && existing.detail === n.detail)
+        )
+        if (exists) return prev
+        
         const next = [n, ...prev]
-        return next.slice(0, maxItems)
+        const limited = next.slice(0, maxItems)
+
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('notifications', JSON.stringify(limited))
+          } catch (e) {
+            console.warn('Failed to save notifications:', e)
+          }
+        }
+        
+        return limited
       })
     }
 
-    // For admins: subscribe to all updates
-    // For non-admin: subscribe to own events only
+
     const chInq = supabase
       .channel(`inq_status_${isAdmin ? 'admin_all' : userEmail}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'inquiries' }, (payload) => {
         const row = payload?.new || payload?.record
         if (!row) return
-        // Admin gets all, user gets only their own
+
         if (!isAdmin && (row.email || '').toLowerCase() !== (userEmail || '').toLowerCase()) return
         if (payload.eventType === 'UPDATE' && (payload.old?.status !== row.status || payload.old?.appointment_at !== row.appointment_at)) {
           const subject = row.subject || 'Inquiry'
@@ -109,7 +152,9 @@ export default function NavigationBar() {
           addNotif({
             id: `inq_${row.id}_${Date.now()}`,
             type: 'inquiry',
-            title: isAppointmentScheduled ? 'Appointment Scheduled' : `Inquiry ${formatStatus(row.status)}`,
+            title: isAppointmentScheduled 
+              ? 'Appointment Scheduled' 
+              : `Your inquiry status has been changed to ${formatStatus(row.status)}`,
             detail: isAppointmentScheduled && appointmentDetail 
               ? appointmentDetail 
               : detailParts.join(' • '),
@@ -119,7 +164,6 @@ export default function NavigationBar() {
       })
       .subscribe()
 
-    // Listen for broadcast notifications as a fallback
     const chBroadcast = supabase
       .channel('user_notifications')
       .on('broadcast', { event: 'inquiry_update' }, (payload) => {
@@ -135,7 +179,9 @@ export default function NavigationBar() {
         addNotif({
           id: `inqbc_${p.id || 'unknown'}_${Date.now()}`,
           type: 'inquiry',
-          title: isAppointmentScheduled ? 'Appointment Scheduled' : `Inquiry ${formatStatus(p.status)}`,
+          title: isAppointmentScheduled 
+            ? 'Appointment Scheduled' 
+            : `Your inquiry status has been changed to ${formatStatus(p.status)}`,
           detail: isAppointmentScheduled && apptDetail 
             ? apptDetail 
             : detailParts.join(' • '),
@@ -149,7 +195,7 @@ export default function NavigationBar() {
         addNotif({
           id: `ordbc_${p.id || 'unknown'}_${Date.now()}`,
           type: 'order',
-          title: `Order ${formatStatus(p.status)}`,
+          title: `Your order status has been changed to ${formatStatus(p.status)}`,
           detail: buildStatusChangeDetail(`Order #${p.id}`, p.previous_status, p.status),
           at: p.updated_at || new Date().toISOString(),
         })
@@ -162,13 +208,13 @@ export default function NavigationBar() {
         const row = payload?.new || payload?.record
         if (!row) return
         const email = (row.customer_email || row.customer?.email || '').toLowerCase()
-        // Admin gets all, user only their own
+
         if (!isAdmin && email !== (userEmail || '').toLowerCase()) return
         if (payload.eventType === 'UPDATE' && payload.old?.status !== row.status) {
           addNotif({
             id: `ord_${row.id}_${Date.now()}`,
             type: 'order',
-            title: `Order ${formatStatus(row.status)}`,
+            title: `Your order status has been changed to ${formatStatus(row.status)}`,
             detail: buildStatusChangeDetail(`Order #${row.id}`, payload.old?.status, row.status),
             at: new Date().toISOString(),
           })
@@ -210,14 +256,12 @@ export default function NavigationBar() {
 
   const handleSmoothScroll = (e, href) => {
     e.preventDefault()
-    
-    // if not in home page go to home page
+
     if (window.location.pathname !== '/') {
       window.location.href = `/${href}`
       return
     }
-    
-    // if yes go to the section
+
     const element = document.querySelector(href)
     if (element) {
       element.scrollIntoView({
@@ -381,9 +425,8 @@ export default function NavigationBar() {
                   </button>
                   {isNotifOpen && (
                     <div className={`absolute right-0 mt-2 w-72 glass-effect rounded-xl border border-white/20 shadow-xl z-50`}>
-                      <div className="p-3 border-b border-white/10 flex items-center justify-between">
+                      <div className="p-3 border-b border-white/10">
                         <span className="text-sm font-semibold text-white">Updates</span>
-                        <button className="text-xs text-slate-300 hover:text-white" onClick={() => setNotifs([])}>Clear</button>
                       </div>
                       <div className="max-h-80 overflow-y-auto divide-y divide-white/10">
                         {notifs.length === 0 ? (

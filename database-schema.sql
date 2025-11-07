@@ -36,8 +36,12 @@ CREATE TABLE IF NOT EXISTS inquiries (
     subject VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
     status VARCHAR(50) DEFAULT 'pending',
+    appointment_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Add appointment_at column if it doesn't exist (for existing databases)
+ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS appointment_at TIMESTAMP WITH TIME ZONE;
 
 -- Orders table
 CREATE TABLE IF NOT EXISTS orders (

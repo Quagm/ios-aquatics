@@ -24,7 +24,6 @@ export async function PATCH(request) {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
 
-    // Fetch current order to compare status
     const { data: current, error: curErr } = await supabase
       .from('orders')
       .select('*')
@@ -36,7 +35,6 @@ export async function PATCH(request) {
     const prevStatus = String(current.status || '').toLowerCase()
     const nextStatus = String(status || '').toLowerCase()
 
-    // Update status
     const { data: updated, error: updErr } = await supabase
       .from('orders')
       .update({ status: nextStatus })
@@ -45,7 +43,6 @@ export async function PATCH(request) {
       .single()
     if (updErr) return NextResponse.json({ error: updErr.message }, { status: 400 })
 
-    // Broadcast a realtime notification to clients (fallback to broadcast channel)
     try {
       const channel = supabase.channel('user_notifications')
       await channel.subscribe()
@@ -65,7 +62,6 @@ export async function PATCH(request) {
       console.warn('Realtime broadcast failed (order_update):', e?.message || e)
     }
 
-    // If transitioning into 'cancelled', restore stock (stock was already decremented at order creation)
     if (prevStatus !== 'cancelled' && nextStatus === 'cancelled') {
       const { data: items, error: itemsErr } = await supabase
         .from('order_items')
@@ -122,7 +118,6 @@ export async function DELETE(request) {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
 
-    // Before deleting, restore stock if order was not cancelled (stock was decremented at order creation)
     const { data: orderToDelete, error: fetchErr } = await supabase
       .from('orders')
       .select('status')
@@ -131,7 +126,7 @@ export async function DELETE(request) {
     
     if (!fetchErr && orderToDelete) {
       const orderStatus = String(orderToDelete.status || '').toLowerCase()
-      // Only restore stock if order wasn't already cancelled (cancelled orders already had stock restored)
+
       if (orderStatus !== 'cancelled') {
         const { data: items, error: itemsErr } = await supabase
           .from('order_items')
@@ -164,7 +159,6 @@ export async function DELETE(request) {
       }
     }
 
-    // Delete order (order_items will be deleted automatically due to CASCADE)
     const { error } = await supabase.from('orders').delete().eq('id', id)
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
 

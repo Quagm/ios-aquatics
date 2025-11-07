@@ -72,7 +72,6 @@ export default function OrderHistory() {
     return () => { mounted = false }
   }, [])
 
-  // shows cancelled or completed orders (archived orders)
   useEffect(() => {
     const channel = supabase
       .channel('orders_history_updates')
@@ -113,7 +112,7 @@ export default function OrderHistory() {
 
     try {
       await deleteOrderById(orderId)
-      // Remove the order from local state
+
       setOrders(orders.filter(o => o.id !== orderId))
       push({ title: 'Order deleted', description: `Order ${orderId} has been permanently deleted.`, variant: 'success' })
     } catch (e) {
@@ -123,7 +122,7 @@ export default function OrderHistory() {
 
   return (
     <div className="space-y-8 py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12">
-      {/* header */}
+      {}
       <div className="text-center lg:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
           <Package className="w-4 h-4" />
@@ -135,7 +134,7 @@ export default function OrderHistory() {
         <p className="text-lg text-slate-300 max-w-2xl">Archived orders that have been completed or cancelled.</p>
       </div>
 
-      {/* summary */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-effect rounded-2xl p-6 border border-white/10">
           <div className="flex items-center">
@@ -161,7 +160,7 @@ export default function OrderHistory() {
         </div>
       </div>
 
-      {/* inquiry card */}
+      {}
       <div>
         <div className="px-1 py-2">
           <h3 className="text-lg font-semibold text-white">Archived Orders ({orders.length})</h3>

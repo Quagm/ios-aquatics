@@ -17,7 +17,6 @@ export default function CartPage() {
     router.replace('/checkout-page')
   }, [router])
 
-  // Shipping and tax removed from cart calculations
   const shipping = 0
   const tax = 0
   const total = subtotal

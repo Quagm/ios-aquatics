@@ -1,6 +1,5 @@
 import { supabase } from "@/supabaseClient"
 
-// Products
 export async function fetchProducts({ category } = {}) {
   let query = supabase.from("products").select("*").order("created_at", { ascending: false })
   if (category && category !== "all") query = query.eq("category", category)
@@ -36,7 +35,6 @@ export async function deleteProductById(productId) {
   if (error) throw error
 }
 
-// Inquiries
 export async function fetchInquiries() {
   const { data, error } = await supabase.from("inquiries").select("*").order("created_at", { ascending: false })
   if (error) throw error
@@ -54,7 +52,6 @@ export async function deleteInquiryById(inquiryId) {
   if (error) throw error
 }
 
-// Update inquiry status
 export async function updateInquiryStatus(inquiryId, status) {
   const { data, error } = await supabase
     .from("inquiries")
@@ -66,7 +63,6 @@ export async function updateInquiryStatus(inquiryId, status) {
   return data
 }
 
-// Orders
 export async function fetchOrders() {
   const { data: orders, error: ordersError } = await supabase
     .from("orders")
@@ -140,7 +136,6 @@ export async function createOrder({ customer, items, totals }) {
     postal_code: customer.postal_code || customer.postal || null,
   } : null
 
-  // Validate stock availability before creating order
   for (const item of items) {
     if (!item.id || !item.quantity) continue
     
@@ -202,11 +197,9 @@ export async function createOrder({ customer, items, totals }) {
   
   const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
   if (itemsError) {
-    // If order items fail, we should ideally rollback the order, but for now just throw
     throw new Error(`Failed to create order items: ${itemsError.message}`)
   }
 
-  // Decrement stock immediately when order is created (proper e-commerce behavior)
   for (const item of items) {
     if (!item.id || !item.quantity) continue
     
@@ -232,7 +225,6 @@ export async function createOrder({ customer, items, totals }) {
     
     if (stockError) {
       console.error(`[createOrder] Failed to update stock for product ${item.id}:`, stockError)
-      // Continue with other products even if one fails
     }
   }
 
@@ -267,9 +259,7 @@ export async function deleteOrderById(orderId) {
   return data
 }
 
-// Analytics - Simplified function that calculates sales metrics from your database
 export async function getSalesAnalytics(timeRange = '30d') {
-  // Step 1: Calculate date ranges (current period and previous period for growth comparison)
   const now = new Date()
   let startDate = new Date()
   let previousStartDate = new Date()
@@ -285,7 +275,6 @@ export async function getSalesAnalytics(timeRange = '30d') {
     previousStartDate.setDate(now.getDate() - 180)
   }
 
-  // Step 2: Fetch all orders (we'll filter by date in JavaScript for simplicity)
   const { data: allOrders, error: ordersError } = await supabase
     .from("orders")
     .select("id, total, status, created_at")
@@ -293,7 +282,6 @@ export async function getSalesAnalytics(timeRange = '30d') {
   
   if (ordersError) throw ordersError
 
-  // Step 3: Filter orders by time range
   const currentPeriodOrders = (allOrders || []).filter(order => {
     const orderDate = new Date(order.created_at)
     return orderDate >= startDate && orderDate <= now
@@ -304,21 +292,18 @@ export async function getSalesAnalytics(timeRange = '30d') {
     return orderDate >= previousStartDate && orderDate < startDate
   })
 
-  // Step 4: Calculate current period metrics
   const totalRevenue = currentPeriodOrders
     .filter(o => String(o.status || '').toLowerCase() !== 'cancelled')
     .reduce((sum, order) => sum + parseFloat(order.total || 0), 0)
 
   const totalOrders = currentPeriodOrders.length
 
-  // Step 5: Calculate previous period metrics (for growth comparison)
   const previousRevenue = previousPeriodOrders
     .filter(o => String(o.status || '').toLowerCase() !== 'cancelled')
     .reduce((sum, order) => sum + parseFloat(order.total || 0), 0)
 
   const previousOrders = previousPeriodOrders.length
 
-  // Step 6: Calculate growth percentages
   const revenueGrowth = previousRevenue > 0 
     ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 
     : (totalRevenue > 0 ? 100 : 0)
@@ -327,10 +312,8 @@ export async function getSalesAnalytics(timeRange = '30d') {
     ? ((totalOrders - previousOrders) / previousOrders) * 100 
     : (totalOrders > 0 ? 100 : 0)
 
-  // Step 7: Count orders by status
   const statusCounts = currentPeriodOrders.reduce((acc, order) => {
     const status = order.status || 'processing'
-    // Normalize status names for display
     const normalizedStatus = status === 'completed' ? 'Delivered' :
                              status === 'shipped' ? 'Shipped' :
                              status === 'processing' ? 'Processing' :
@@ -339,12 +322,9 @@ export async function getSalesAnalytics(timeRange = '30d') {
     return acc
   }, {})
 
-  // Step 8: Get top products from order items
-  // Fetch order items and products separately to avoid relationship ambiguity
   const currentOrderIds = currentPeriodOrders.map(o => o.id)
   
   if (currentOrderIds.length === 0) {
-    // No orders in current period, return empty top products
     return {
       totalRevenue,
       totalOrders,
@@ -366,7 +346,6 @@ export async function getSalesAnalytics(timeRange = '30d') {
   
   if (itemsError) throw itemsError
 
-  // Get unique product IDs and fetch products separately
   const productIds = [...new Set((orderItems || []).map(item => item.product_id).filter(Boolean))]
   let productsById = new Map()
   
@@ -376,11 +355,10 @@ export async function getSalesAnalytics(timeRange = '30d') {
       .select("id, name")
       .in("id", productIds)
     
-    if (productsError) throw productsError
+  if (productsError) throw productsError
     productsById = new Map((products || []).map((product) => [product.id, product]))
   }
 
-  // Calculate product sales by joining order items with products
   const productSales = (orderItems || []).reduce((acc, item) => {
     const product = item.product_id ? productsById.get(item.product_id) : null
     const productName = product?.name || 'Unknown'
@@ -395,7 +373,6 @@ export async function getSalesAnalytics(timeRange = '30d') {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5)
 
-  // Step 9: Generate monthly chart data (last 12 months)
   const monthlyData = {}
   const nowForChart = new Date()
   
@@ -405,7 +382,6 @@ export async function getSalesAnalytics(timeRange = '30d') {
     monthlyData[monthKey] = { orders: 0, revenue: 0 }
   }
 
-  // Group orders by month
   allOrders.forEach(order => {
     const orderDate = new Date(order.created_at)
     const monthKey = orderDate.toLocaleDateString('en-US', { month: 'short' })
@@ -427,7 +403,7 @@ export async function getSalesAnalytics(timeRange = '30d') {
     averageOrderValue: totalOrders > 0 ? totalRevenue / totalOrders : 0,
     ordersByStatus: statusCounts,
     topProducts: topProductsList,
-    revenueGrowth: Math.round(revenueGrowth * 10) / 10, // Round to 1 decimal
+    revenueGrowth: Math.round(revenueGrowth * 10) / 10,
     ordersGrowth: Math.round(ordersGrowth * 10) / 10,
     revenueData,
     salesData,

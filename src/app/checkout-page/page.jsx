@@ -15,10 +15,9 @@ export default function CheckoutPage() {
   const router = useRouter()
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState("")
-  // Saved account info (name, email, phone, address, city, province, postal)
+
   const [account, setAccount] = useState(null)
 
-  // Load saved account info from localStorage
   useEffect(() => {
     try {
       const raw = typeof window !== 'undefined' ? window.localStorage.getItem('account-info') : null
@@ -39,13 +38,12 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async (e) => {
     e?.preventDefault?.()
-    // Guard: prevent placing orders with empty cart
+
     if (!items || items.length === 0) {
       setError("Your cart is empty. Please add items before placing an order.")
       return
     }
 
-    // Guard: require saved account address
     const name = String(account?.name || '').trim()
     const email = String(account?.email || '').trim()
     const phone = String(account?.phone || '').trim()
@@ -62,7 +60,7 @@ export default function CheckoutPage() {
     setPlacing(true)
     setError("")
     try {
-      // Collect customer data from saved account info
+
       const [firstName = '', lastName = ''] = name.split(' ')
       const customer = {
         first_name: firstName,
@@ -81,7 +79,6 @@ export default function CheckoutPage() {
         totals: { subtotal, shipping, tax, total }
       })
 
-      // Create PayMongo payment link (amount in centavos)
       const cents = Math.max(1, Math.round(total * 100))
       const resp = await fetch('/api/paymongo/create-link', {
         method: 'POST',
@@ -92,7 +89,7 @@ export default function CheckoutPage() {
           email,
           name,
           orderId: order?.id,
-          // Do not pass a specific paymentMethod so PayMongo shows selection (card, gcash)
+
         })
       })
       const data = await resp.json()
@@ -100,7 +97,6 @@ export default function CheckoutPage() {
       const url = data?.checkout_url
       if (!url) throw new Error('Payment link missing checkout URL')
 
-      // Redirect to PayMongo to complete payment
       try { clearCart?.() } catch {}
       window.location.href = url
     } catch (err) {

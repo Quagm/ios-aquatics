@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 
 export async function POST(request) {
   try {
-    // 1) Verify Clerk user (allow unauth in dev like upload route)
+
     const { userId, sessionClaims } = getAuth(request)
     if (!userId) {
       if (process.env.NODE_ENV === 'production') {
@@ -15,15 +15,13 @@ export async function POST(request) {
       console.warn('[products] Proceeding without Clerk auth in development')
     }
 
-    // Optional: admin-only guard via Clerk public/unsafe/private metadata
-    // if (userId) {
-    //   const role = sessionClaims?.publicMetadata?.role || sessionClaims?.role
-    //   if (role !== 'admin') {
-    //     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    //   }
-    // }
 
-    // 2) Read JSON body
+
+
+
+
+
+
     const body = await request.json()
     const { name, category, price, image, active, description } = body || {}
 
@@ -37,7 +35,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Supabase environment variables missing' }, { status: 500 })
     }
 
-    // 3) Create Supabase client with service role to bypass RLS
     const supabase = createClient(supabaseUrl, serviceRoleKey)
 
     const insertPayload = {
@@ -55,7 +52,6 @@ export async function POST(request) {
       .select()
       .single()
 
-    // If the schema doesn't have 'description' yet, retry without it
     if (error && (error.message || '').toLowerCase().includes("'description' column")) {
       const fallbackPayload = { ...insertPayload }
       delete fallbackPayload.description
@@ -68,7 +64,6 @@ export async function POST(request) {
       error = retry.error
     }
 
-    // If the schema doesn't have 'active' yet, retry without it
     if (error && (error.message || '').toLowerCase().includes("'active' column")) {
       const fallbackPayload2 = { ...insertPayload }
       delete fallbackPayload2.active
@@ -113,7 +108,6 @@ export async function PATCH(request) {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
 
-    // Normalize field names and types before whitelisting
     const normalized = { ...updates }
     if ('minStock' in normalized && !('min_stock' in normalized)) {
       normalized.min_stock = normalized.minStock
@@ -123,7 +117,6 @@ export async function PATCH(request) {
     if ('stock' in normalized) normalized.stock = Number(normalized.stock)
     if ('min_stock' in normalized) normalized.min_stock = Number(normalized.min_stock)
 
-    // Whitelist updatable fields (extend for admin operations)
     const allowed = ['name', 'category', 'price', 'image', 'active', 'description', 'stock', 'min_stock', 'status', 'sku']
     const safeUpdates = {}
     for (const k of allowed) if (k in normalized) safeUpdates[k] = normalized[k]

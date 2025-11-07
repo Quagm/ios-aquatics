@@ -14,7 +14,7 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     if (!isLoaded) return
-    // if there is no items set items as none
+
     if (!user) {
       setItems([])
       return

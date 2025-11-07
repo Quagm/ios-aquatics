@@ -5,7 +5,7 @@ export const runtime = 'nodejs'
 
 export async function GET(request) {
   try {
-    // Verify authentication
+
     const { userId } = getAuth(request)
     if (!userId && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -14,15 +14,13 @@ export async function GET(request) {
       console.warn('[users/count] Proceeding without Clerk auth in development')
     }
 
-    // Get Clerk secret key from environment
     const clerkSecretKey = process.env.CLERK_SECRET_KEY
     if (!clerkSecretKey) {
       console.warn('[users/count] CLERK_SECRET_KEY not found, returning 0')
       return NextResponse.json({ count: 0 }, { status: 200 })
     }
 
-    // Call Clerk Backend API to get user count
-    // Using the REST API endpoint
+
     const response = await fetch('https://api.clerk.com/v1/users/count', {
       method: 'GET',
       headers: {
@@ -34,7 +32,7 @@ export async function GET(request) {
     if (!response.ok) {
       const errorText = await response.text()
       console.error('Clerk API error:', response.status, errorText)
-      // If API call fails, return 0 as fallback
+
       return NextResponse.json({ count: 0 }, { status: 200 })
     }
 
@@ -44,7 +42,7 @@ export async function GET(request) {
     return NextResponse.json({ count: totalCount }, { status: 200 })
   } catch (err) {
     console.error('[users/count] Failed:', err)
-    // Return 0 as fallback instead of error
+
     return NextResponse.json({ count: 0 }, { status: 200 })
   }
 }

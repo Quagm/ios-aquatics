@@ -26,7 +26,6 @@ export default function AccountForm() {
     } catch {}
   }, [])
 
-  // Keep email in sync with Clerk when available
   useEffect(() => {
     if (!isClerkLoaded) return
     if (clerkEmail) {
@@ -94,13 +93,13 @@ export default function AccountForm() {
       <div className="flex">
         <div className="w-4 sm:w-6 lg:w-8 flex-shrink-0"></div>
         <div className="flex-1 space-y-10">
-      {/* title */}
+      {}
       <div className="text-center md:text-left mb-4">
         <h2 className="text-2xl font-bold text-white mb-3">Account Information</h2>
         <div className="h-5"></div>
       </div>
 
-      {/* form container */}
+      {}
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-white mb-3">
@@ -235,7 +234,7 @@ export default function AccountForm() {
         <div className="h-2 sm:h-3 lg:h-4"></div>
       </div>
 
-      {/* actions */}
+      {}
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <button 
           className="flex-1 group bg-gradient-to-r from-blue-600 to-blue-700 text-white py-5 rounded-2xl font-semibold 

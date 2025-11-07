@@ -14,14 +14,14 @@ export default function PrivacyPolicy() {
       
       <div className="relative z-10 w-full flex-1 pt-6 sm:pt-8 lg:pt-10 pb-16 sm:pb-20 lg:pb-24 flex items-center justify-center">
         <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-          {/* Header */}
+          {}
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
               <span className="gradient-text">Privacy Policy</span>
             </h1>
           </div>
 
-          {/* Content */}
+          {}
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
             <div className="p-8 sm:p-12 lg:p-16 space-y-8">
               

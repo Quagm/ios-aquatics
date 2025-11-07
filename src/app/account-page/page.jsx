@@ -18,14 +18,13 @@ export default function AccountPage() {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Check if URL has hash to open modal
+
     if (typeof window !== 'undefined' && window.location.hash === '#aquascape-inquiry') {
       setShowAquascapeModal(true)
-      // Remove hash from URL
+
       window.history.replaceState(null, '', pathname)
     }
 
-    // Listen for custom event to open modal
     const handleOpenModal = () => setShowAquascapeModal(true)
     window.addEventListener('openAquascapeModal', handleOpenModal)
     
@@ -40,7 +39,7 @@ export default function AccountPage() {
       
       <main className="flex-1 pt-16 sm:pt-20 pb-16 px-6 sm:px-8 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          {/* header */}
+          {}
           <div className="text-center mb-16">
             <h1 className="text-4xl font-extrabold text-white mb-4">
               My Account
@@ -48,15 +47,15 @@ export default function AccountPage() {
             <div className="h-4 sm:h-6 lg:h-8"></div>
           </div>
 
-          {/* account container */}
+          {}
         <div className="w-full px-4 sm:px-8 lg:px-16 space-y-8 lg:space-y-12 flex flex-col items-center">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start w-full max-w-6xl mx-auto">
-            {/* account editing/current data */}
+            {}
             <section className="w-full bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-8 sm:p-10 lg:p-12 border border-white/10 hover:shadow-xl transition">
               <AccountForm />
             </section>
 
-            {/* tabbed history: orders | inquiries */}
+            {}
             <section className="w-full bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-10 border border-white/10 hover:shadow-xl transition overflow-hidden">
               <div className="h-4 sm:h-6 lg:h-8"></div>
               <div className="flex min-w-0">
@@ -97,9 +96,9 @@ export default function AccountPage() {
       </main>
     <Footer />
     
-    {/* Aquascape Inquiry Modal */}
+    {}
     {showAquascapeModal && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 pointer-events-none">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAquascapeModal(false)}></div>
         <div className="relative w-full max-w-4xl xl:max-w-5xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl border border-white/10 pointer-events-auto">
           <div className="sticky top-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 z-10 border-b border-white/10 p-6 flex items-center justify-between">

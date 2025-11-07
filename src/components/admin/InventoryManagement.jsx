@@ -405,7 +405,7 @@ useEffect(() => {
         ))}
       </div>
 
-      {/* add product */}
+      {}
       {showAddModal && (
         <AddProductModal
           onClose={() => setShowAddModal(false)}
@@ -414,7 +414,7 @@ useEffect(() => {
         />
       )}
 
-      {/* edit product */}
+      {}
       {editingProduct && (
         <EditProductModal
           product={editingProduct}
@@ -427,7 +427,6 @@ useEffect(() => {
   )
 }
 
-// add product function
 function AddProductModal({ onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -443,12 +442,12 @@ function AddProductModal({ onClose, onSave, categories }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // require either image file upload or image URL
+
     if (!formData.imageFile && !String(formData.image || '').trim()) {
       alert('Please provide a product image (upload a file or paste an image URL).')
       return
     }
-    // basic required validations for numeric fields
+
     if (String(formData.price).trim() === '' || isNaN(Number(formData.price))) {
       alert('Please enter a valid price.')
       return
@@ -606,7 +605,6 @@ function AddProductModal({ onClose, onSave, categories }) {
   )
 }
 
-// edit product function
 function EditProductModal({ product, onClose, onSave, categories }) {
   const [formData, setFormData] = useState({
     name: product.name,
