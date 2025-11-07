@@ -116,7 +116,7 @@ export default function CheckoutPage() {
       
       <div className="flex-1 w-full pt-28 sm:pt-32 pb-20 sm:pb-24">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-center text-center mb-20 sm:mb-24 bg-white/5 rounded-3xl border border-white/10 px-8 sm:px-12 py-12 sm:py-16">
+          <div className="flex flex-col items-center justify-center text-center mb-12 sm:mb-16 lg:mb-20 bg-white/5 rounded-3xl border border-white/10 px-10 sm:px-14 lg:px-16 py-14 sm:py-18 lg:py-20">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
               <span className="gradient-text">Checkout</span>
             </h1>
@@ -126,13 +126,13 @@ export default function CheckoutPage() {
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            <div className="flex flex-col gap-8">
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-8">Your Cart</h2>
+            <div className="flex flex-col gap-10">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-10 sm:p-12 lg:p-14 border border-white/20">
+                <h2 className="text-2xl font-semibold text-white mb-10">Your Cart</h2>
                 {items.length === 0 ? (
                   <EmptyCart />
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     {items.map((item) => (
                       <CartItem
                         key={item.id}
@@ -147,16 +147,16 @@ export default function CheckoutPage() {
             </div>
 
             <div className="lg:col-span-1">
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 sticky top-4 border border-white/20">
-                <h2 className="text-2xl font-semibold text-white mb-8">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-10 sm:p-12 lg:p-14 sticky top-4 border border-white/20 checkout-container-spacing">
+                <h2 className="text-2xl font-semibold text-white mb-10">
                   Order Summary
                 </h2>
-                {error && <p className="text-red-300 mb-4">{error}</p>}
+                {error && <p className="text-red-300 mb-8">{error}</p>}
                 
-                <div className="space-y-6 mb-8">
+                <div className="space-y-6 mb-12">
                   {items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4">
-                      <div className="w-16 h-16 relative">
+                    <div key={item.id} className="flex items-center space-x-5 p-4 bg-white/5 rounded-xl">
+                      <div className="w-20 h-20 relative">
                         <Image
                           src={item.image}
                           alt={item.name}
@@ -165,7 +165,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-white">{item.name}</p>
+                        <p className="font-medium text-white mb-1">{item.name}</p>
                         <p className="text-sm text-white/70">Qty: {item.quantity}</p>
                       </div>
                       <p className="font-medium text-white">₱{(item.price * item.quantity).toFixed(2)}</p>
@@ -173,13 +173,13 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
-                <div className="space-y-6 mb-8">
-                  <div className="bg-white/5 rounded-xl p-6 border border-white/20">
-                    <div className="flex items-center justify-between mb-3">
+                <div className="space-y-6 mb-12">
+                  <div className="bg-white/5 rounded-xl p-8 sm:p-10 border border-white/20">
+                    <div className="flex items-center justify-between mb-6">
                       <h3 className="text-xl font-semibold text-white">Delivery Address</h3>
                       <a
                         href="/account-page"
-                        className="px-3 py-2 rounded-md text-sm font-medium bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors"
+                        className="px-4 py-2 rounded-md text-sm font-medium bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors"
                       >
                         Edit
                       </a>
@@ -196,21 +196,21 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                  <div className="bg-white/5 rounded-xl p-6 border border-white/20">
-                    <h3 className="text-xl font-semibold text-white mb-3">Payment</h3>
+                  <div className="bg-white/5 rounded-xl p-8 sm:p-10 border border-white/20">
+                    <h3 className="text-xl font-semibold text-white mb-6">Payment</h3>
                     <p className="text-sm text-white/70">You will choose GCash or Card on the PayMongo page after you click Checkout.</p>
                   </div>
                 </div>
                 
-                <div className="space-y-4 mb-8 border-t border-white/30 pt-6">
-                  <div className="flex justify-between">
+                <div className="space-y-5 mb-12 border-t border-white/30 pt-10">
+                  <div className="flex justify-between py-2">
                     <span className="text-white/70 text-lg">Subtotal</span>
                     <span className="font-medium text-white text-lg">₱{subtotal.toFixed(2)}</span>
                   </div>
                   
                   
                   
-                  <div className="border-t border-white/30 pt-4">
+                  <div className="border-t border-white/30 pt-6">
                     <div className="flex justify-between text-xl font-bold">
                       <span className="text-white">Total</span>
                       <span className="text-[#6c47ff]">₱{total.toFixed(2)}</span>
@@ -218,7 +218,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
                 
-                <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 py-5 px-6" onClick={handlePlaceOrder} disabled={placing || items.length === 0}>
+                <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-lg border border-blue-500/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 py-6 px-8 mt-6" onClick={handlePlaceOrder} disabled={placing || items.length === 0}>
                   {placing ? "Processing..." : "Checkout"}
                 </button>
               </div>

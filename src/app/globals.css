@@ -124,6 +124,37 @@
 .stack-lg > * + * { margin-top: 1.5rem; }
 .stack-xl > * + * { margin-top: 2rem; }
 .stack-2xl > * + * { margin-top: 3rem; }
+.stack-3xl > * + * { margin-top: 5rem; }
+
+/* Container spacing utilities for admin pages */
+.admin-container-spacing > * + * {
+  margin-top: 2rem;
+}
+@media (min-width: 768px) {
+  .admin-container-spacing > * + * {
+    margin-top: 2.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .admin-container-spacing > * + * {
+    margin-top: 3rem;
+  }
+}
+
+/* Container spacing utilities for checkout page */
+.checkout-container-spacing > * + * {
+  margin-top: 1.5rem;
+}
+@media (min-width: 768px) {
+  .checkout-container-spacing > * + * {
+    margin-top: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .checkout-container-spacing > * + * {
+    margin-top: 2.5rem;
+  }
+}
 
 /* Responsive grid gaps */
 .grid-gap-sm { gap: 0.75rem; }

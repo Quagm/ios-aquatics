@@ -262,18 +262,18 @@ export default function SalesAnalytics() {
   }
 
   return (
-    <div className="space-y-8 ml-6">
+    <div className="py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12 admin-container-spacing">
       {/* Header */}
       <div className="text-center lg:text-left">
-        <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Sales and Analytics</span>
         </h1>
-        <p className="text-lg text-slate-300 max-w-2xl">Track your aquatics store performance with detailed analytics and insights.</p>
+        <p className="text-base sm:text-lg text-slate-300 max-w-2xl mb-2">Track your aquatics store performance with detailed analytics and insights.</p>
       </div>
 
       {/* filters/control? */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 py-4">
+        <div className="flex items-center gap-3">
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
@@ -287,39 +287,39 @@ export default function SalesAnalytics() {
             <Filter className="w-4 h-4" />
             Filters
           </button>
+          <button 
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"
+            onClick={() => {
+              const rows = [
+                ['Metric','Value'],
+                ['Total Revenue', String(analytics.totalRevenue)],
+                ['Total Orders', String(analytics.totalOrders)],
+                ['Total Customers', String(analytics.totalCustomers)],
+                ['Average Order Value', String(analytics.averageOrderValue)],
+                ['Revenue Growth %', String(analytics.revenueGrowth)],
+                ['Orders Growth %', String(analytics.ordersGrowth)],
+                ['Customers Growth %', String(analytics.customersGrowth)],
+              ]
+              const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `analytics-report.csv`
+              a.click()
+              URL.revokeObjectURL(url)
+            }}
+          >
+            <Download className="w-5 h-5" />
+            Export Report
+          </button>
         </div>
-        <button 
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"
-          onClick={() => {
-            const rows = [
-              ['Metric','Value'],
-              ['Total Revenue', String(analytics.totalRevenue)],
-              ['Total Orders', String(analytics.totalOrders)],
-              ['Total Customers', String(analytics.totalCustomers)],
-              ['Average Order Value', String(analytics.averageOrderValue)],
-              ['Revenue Growth %', String(analytics.revenueGrowth)],
-              ['Orders Growth %', String(analytics.ordersGrowth)],
-              ['Customers Growth %', String(analytics.customersGrowth)],
-            ]
-            const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `analytics-report.csv`
-            a.click()
-            URL.revokeObjectURL(url)
-          }}
-        >
-          <Download className="w-5 h-5" />
-          Export Report
-        </button>
       </div>
 
       {/* revenue */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
               <PhilippinePeso className="w-6 h-6 text-white" />
             </div>
@@ -335,14 +335,14 @@ export default function SalesAnalytics() {
           <div>
             <p className="text-sm font-medium text-slate-400 mb-1">Total Revenue</p>
             <p className="text-3xl font-bold text-white mb-2">{formatCurrency(analytics.totalRevenue)}</p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 mt-1">
               {timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 90 days'}
             </p>
           </div>
         </div>
 
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
               <ShoppingCart className="w-6 h-6 text-white" />
             </div>
@@ -358,14 +358,14 @@ export default function SalesAnalytics() {
           <div>
             <p className="text-sm font-medium text-slate-400 mb-1">Total Orders</p>
             <p className="text-3xl font-bold text-white mb-2">{analytics.totalOrders}</p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 mt-1">
               {timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 90 days'}
             </p>
           </div>
         </div>
 
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="p-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600">
               <Package className="w-6 h-6 text-white" />
             </div>
@@ -377,16 +377,16 @@ export default function SalesAnalytics() {
           <div>
             <p className="text-sm font-medium text-slate-400 mb-1">Avg Order Value</p>
             <p className="text-3xl font-bold text-white mb-2">{formatCurrency(analytics.averageOrderValue)}</p>
-            <p className="text-xs text-slate-500">Per transaction</p>
+            <p className="text-xs text-slate-500 mt-1">Per transaction</p>
           </div>
         </div>
       </div>
 
       {/* line chart */}
-      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-8">
-        <div className="flex items-center justify-between mb-6">
+      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+            <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 mb-1">
               <Activity className="w-6 h-6 text-blue-400" />
               Revenue & Orders Trend
             </h3>
@@ -403,15 +403,15 @@ export default function SalesAnalytics() {
             </div>
           </div>
         </div>
-        <div className="h-96">
+        <div className="h-96 mt-2">
           <Line data={chartData} options={chartOptions} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* order filter status */}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
+          <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-green-400" />
             Orders by Status
           </h3>
@@ -419,7 +419,7 @@ export default function SalesAnalytics() {
             {Object.entries(analytics.ordersByStatus).map(([status, count]) => (
               <div key={status} className="text-center p-4 glass-effect rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300 group">
                 <p className="text-3xl font-bold text-white mb-2 group-hover:scale-110 transition-transform">{count}</p>
-                <p className="text-sm text-slate-400 capitalize font-medium">{status}</p>
+                <p className="text-sm text-slate-400 capitalize font-medium mb-1">{status}</p>
                 <div className={`w-full h-1 rounded-full mt-2 ${
                   status === 'Delivered' ? 'bg-green-500' :
                   status === 'Shipped' ? 'bg-blue-500' :
@@ -434,7 +434,7 @@ export default function SalesAnalytics() {
         {/* top products */}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
           <div className="p-6 border-b border-white/10">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-1">
               <Package className="w-5 h-5 text-purple-400" />
               Top Performing Products
             </h3>
@@ -454,7 +454,7 @@ export default function SalesAnalytics() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-white text-lg">{formatCurrency(product.revenue)}</p>
+                      <p className="font-bold text-white text-lg mb-1">{formatCurrency(product.revenue)}</p>
                       <div className="w-20 h-2 bg-slate-700 rounded-full mt-1">
                         <div 
                           className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500"
@@ -467,7 +467,7 @@ export default function SalesAnalytics() {
               ) : (
                 <div className="text-center py-8">
                   <Package className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-                  <p className="text-slate-500">No product sales data available</p>
+                  <p className="text-slate-500 text-base">No product sales data available</p>
                 </div>
               )}
             </div>

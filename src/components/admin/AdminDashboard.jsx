@@ -139,9 +139,9 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="space-y-8 px-4 sm:px-6 lg:px-8">
+    <div className="py-12 sm:py-16 lg:py-20 px-6 sm:px-8 lg:px-12">
       {/* header */}
-      <div className="text-center lg:text-left">
+      <div className="text-center lg:text-left my-8">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
           <Activity className="w-4 h-4" />
           Dashboard Overview
@@ -153,7 +153,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-6 my-8">
         {statCards.map((stat, index) => {
           const Icon = stat.icon
           return (
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ml-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ml-6 my-8">
         {/* recent orders */}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
           <div className="p-6 border-b border-white/10">
@@ -275,7 +275,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* shortcuts */}
-      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-8">
+      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-8 my-8">
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-white flex items-center justify-center gap-2 mb-2">
             <Zap className="w-6 h-6 text-yellow-400" />

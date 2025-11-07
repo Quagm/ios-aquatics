@@ -27,7 +27,7 @@ export default function AccountPage() {
         <div className="w-full px-4 sm:px-8 lg:px-16 space-y-8 lg:space-y-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             {/* account editing/current data */}
-            <section className="w-full bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-10 border border-white/10 hover:shadow-xl transition">
+            <section className="w-full bg-white/5 backdrop-blur-md rounded-2xl shadow-lg p-8 sm:p-10 lg:p-12 border border-white/10 hover:shadow-xl transition">
               <AccountForm />
             </section>
 

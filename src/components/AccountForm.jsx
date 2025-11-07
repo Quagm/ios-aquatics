@@ -89,22 +89,22 @@ export default function AccountForm() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* title */}
-      <div className="text-center md:text-left">
-        <h2 className="text-2xl font-bold text-white mb-2">Account Information</h2>
+      <div className="text-center md:text-left mb-4">
+        <h2 className="text-2xl font-bold text-white mb-3">Account Information</h2>
         <p className="text-sm text-white/60">Update your personal details below</p>
       </div>
 
       {/* form container */}
-      <div className="space-y-5">
+      <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-white mb-3">
             Full Name
           </label>
           <input
             type="text"
-            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+            className="w-full px-5 py-5 glass-effect border border-white/20 rounded-xl 
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
                        text-white placeholder-slate-400 transition-all duration-300"
             placeholder="Full Name"
@@ -113,16 +113,16 @@ export default function AccountForm() {
             pattern="^(?=.{2,100}$)[A-Za-zÀ-ÿ]+(?:[ '\\-][A-Za-zÀ-ÿ]+)*$"
             title="Letters, spaces, apostrophes, hyphens; 2-100 chars"
           />
-          {errors.name && <p className="text-red-300 text-xs mt-1">{errors.name}</p>}
+          {errors.name && <p className="text-red-300 text-xs mt-2">{errors.name}</p>}
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-white mb-3">
             Email Address
           </label>
           <input
             type="email"
-            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+            className="w-full px-5 py-5 glass-effect border border-white/20 rounded-xl 
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
                        text-white placeholder-slate-400 transition-all duration-300"
             placeholder="john@example.com"
@@ -133,17 +133,17 @@ export default function AccountForm() {
             disabled={!!clerkEmail}
           />
           {!clerkEmail && errors.email && (
-            <p className="text-red-300 text-xs mt-1">{errors.email}</p>
+            <p className="text-red-300 text-xs mt-2">{errors.email}</p>
           )}
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-white mb-3">
             Phone Number
           </label>
           <input
             type="tel"
-            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+            className="w-full px-5 py-5 glass-effect border border-white/20 rounded-xl 
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
                        text-white placeholder-slate-400 transition-all duration-300"
             placeholder="+63 912 345 6789"
@@ -152,33 +152,33 @@ export default function AccountForm() {
             pattern="^(?:\+63\s?9\d{2}\s?\d{3}\s?\d{4}|09\d{9})$"
             title="Use +63 9xx xxx xxxx or 09xxxxxxxxx"
           />
-          {errors.phone && <p className="text-red-300 text-xs mt-1">{errors.phone}</p>}
+          {errors.phone && <p className="text-red-300 text-xs mt-2">{errors.phone}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-white mb-3">
             Address
           </label>
           <input
             type="text"
-            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+            className="w-full px-5 py-5 glass-effect border border-white/20 rounded-xl 
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
                        text-white placeholder-slate-400 transition-all duration-300"
             placeholder="123 Main Street"
             value={form.address}
             onChange={(e) => update('address', e.target.value)}
           />
-          {errors.address && <p className="text-red-300 text-xs mt-1">{errors.address}</p>}
+          {errors.address && <p className="text-red-300 text-xs mt-2">{errors.address}</p>}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-white mb-3">
               City
             </label>
             <input
               type="text"
-              className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+              className="w-full px-5 py-5 glass-effect border border-white/20 rounded-xl 
                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
                          text-white placeholder-slate-400 transition-all duration-300"
               placeholder="Quezon City"
@@ -187,15 +187,15 @@ export default function AccountForm() {
               pattern="^(?=.{2,50}$)[A-Za-zÀ-ÿ]+(?:[ .,'-][A-Za-zÀ-ÿ]+)*$"
               title="Letters, spaces, punctuation; 2-50 chars"
             />
-            {errors.city && <p className="text-red-300 text-xs mt-1">{errors.city}</p>}
+            {errors.city && <p className="text-red-300 text-xs mt-2">{errors.city}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-white mb-3">
               Province
             </label>
             <input
               type="text"
-              className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+              className="w-full px-5 py-5 glass-effect border border-white/20 rounded-xl 
                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
                          text-white placeholder-slate-400 transition-all duration-300"
               placeholder="Metro Manila"
@@ -204,15 +204,15 @@ export default function AccountForm() {
               pattern="^(?=.{2,50}$)[A-Za-zÀ-ÿ]+(?:[ .,'-][A-Za-zÀ-ÿ]+)*$"
               title="Letters, spaces, punctuation; 2-50 chars"
             />
-            {errors.province && <p className="text-red-300 text-xs mt-1">{errors.province}</p>}
+            {errors.province && <p className="text-red-300 text-xs mt-2">{errors.province}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-white mb-3">
               Postal Code
             </label>
             <input
               type="text"
-              className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl 
+              className="w-full px-5 py-5 glass-effect border border-white/20 rounded-xl 
                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50
                          text-white placeholder-slate-400 transition-all duration-300"
               placeholder="1747"
@@ -221,22 +221,22 @@ export default function AccountForm() {
               pattern="^\d{4}$"
               title="Enter a 4-digit postal code (e.g., 1747)"
             />
-            {errors.postal && <p className="text-red-300 text-xs mt-1">{errors.postal}</p>}
+            {errors.postal && <p className="text-red-300 text-xs mt-2">{errors.postal}</p>}
           </div>
         </div>
       </div>
 
       {/* actions */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <button 
-          className="flex-1 group bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-2xl font-semibold 
+          className="flex-1 group bg-gradient-to-r from-blue-600 to-blue-700 text-white py-5 rounded-2xl font-semibold 
                      hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"
           onClick={handleSave}
         >
           Update Information
         </button>
         <button 
-          className="sm:w-40 bg-white/10 text-white py-4 rounded-2xl font-semibold border border-white/20 hover:bg-white/20 transition-colors"
+          className="sm:w-40 bg-white/10 text-white py-5 rounded-2xl font-semibold border border-white/20 hover:bg-white/20 transition-colors"
           onClick={handleReset}
           type="button"
         >
