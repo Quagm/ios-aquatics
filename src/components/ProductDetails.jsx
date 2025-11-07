@@ -77,7 +77,37 @@ export default function ProductDetails({ product }) {
             >
               -
             </button>
-            <span className="w-14 text-center text-white text-base font-medium" aria-live="polite">{qty}</span>
+            <input
+              type="number"
+              min="1"
+              max={hasFiniteStock ? stockCount : undefined}
+              value={qty}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === '') {
+                  setQty(1)
+                  return
+                }
+                const numValue = parseInt(value, 10)
+                if (!isNaN(numValue) && numValue >= 1) {
+                  if (hasFiniteStock && stockCount != null) {
+                    setQty(Math.min(stockCount, Math.max(1, numValue)))
+                  } else {
+                    setQty(Math.max(1, numValue))
+                  }
+                }
+              }}
+              onBlur={(e) => {
+                const numValue = parseInt(e.target.value, 10)
+                if (isNaN(numValue) || numValue < 1) {
+                  setQty(1)
+                } else if (hasFiniteStock && stockCount != null && numValue > stockCount) {
+                  setQty(stockCount)
+                }
+              }}
+              className="w-14 text-center text-white text-base font-medium bg-white/10 border border-white/20 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              aria-live="polite"
+            />
             <button
               type="button"
               className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white text-lg"

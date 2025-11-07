@@ -73,6 +73,7 @@ function ProductPageContent() {
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Store</span>
         </Link>
+        <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
       </div>
 
       {loading ? (

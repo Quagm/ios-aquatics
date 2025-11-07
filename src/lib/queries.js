@@ -140,6 +140,28 @@ export async function createOrder({ customer, items, totals }) {
     postal_code: customer.postal_code || customer.postal || null,
   } : null
 
+  // Validate stock availability before creating order
+  for (const item of items) {
+    if (!item.id || !item.quantity) continue
+    
+    const { data: product, error: prodError } = await supabase
+      .from('products')
+      .select('id, name, stock')
+      .eq('id', item.id)
+      .single()
+    
+    if (prodError) {
+      throw new Error(`Product not found: ${item.name || item.id}`)
+    }
+    
+    const currentStock = Number(product?.stock || 0)
+    const requestedQty = Number(item.quantity || 0)
+    
+    if (currentStock < requestedQty) {
+      throw new Error(`Insufficient stock for ${product.name || 'product'}. Available: ${currentStock}, Requested: ${requestedQty}`)
+    }
+  }
+
   const attemptedInserts = [
     { total, status: "processing", customer_email: customerEmail, customer_snapshot: customerSnapshot },
     { total, status: "processing", customer_email: customerEmail },
@@ -179,7 +201,40 @@ export async function createOrder({ customer, items, totals }) {
   }))
   
   const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
-  if (itemsError) throw itemsError
+  if (itemsError) {
+    // If order items fail, we should ideally rollback the order, but for now just throw
+    throw new Error(`Failed to create order items: ${itemsError.message}`)
+  }
+
+  // Decrement stock immediately when order is created (proper e-commerce behavior)
+  for (const item of items) {
+    if (!item.id || !item.quantity) continue
+    
+    const { data: product, error: prodError } = await supabase
+      .from('products')
+      .select('id, stock')
+      .eq('id', item.id)
+      .single()
+    
+    if (prodError) {
+      console.error(`[createOrder] Failed to fetch product ${item.id} for stock update:`, prodError)
+      continue
+    }
+    
+    const currentStock = Number(product?.stock || 0)
+    const requestedQty = Number(item.quantity || 0)
+    const newStock = Math.max(0, currentStock - requestedQty)
+    
+    const { error: stockError } = await supabase
+      .from('products')
+      .update({ stock: newStock })
+      .eq('id', item.id)
+    
+    if (stockError) {
+      console.error(`[createOrder] Failed to update stock for product ${item.id}:`, stockError)
+      // Continue with other products even if one fails
+    }
+  }
 
   if (order && !order.customer_snapshot && customerSnapshot) {
     order.customer_snapshot = customerSnapshot

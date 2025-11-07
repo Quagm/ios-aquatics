@@ -38,33 +38,9 @@ export async function POST(request) {
       return NextResponse.json(order, { status: 200 })
     }
 
-    // Fetch order items
-    const { data: items, error: itemsErr } = await supabase
-      .from('order_items')
-      .select('product_id, quantity')
-      .eq('order_id', orderId)
-    if (itemsErr) return NextResponse.json({ error: itemsErr.message }, { status: 400 })
-
-    // Decrement stock for each product
-    for (const it of items || []) {
-      if (!it.product_id || !it.quantity) continue
-      // Fetch current stock
-      const { data: prod, error: prodErr } = await supabase
-        .from('products')
-        .select('id, stock')
-        .eq('id', it.product_id)
-        .single()
-      if (prodErr) return NextResponse.json({ error: prodErr.message }, { status: 400 })
-
-      const current = Number(prod?.stock || 0)
-      const next = Math.max(0, current - Number(it.quantity))
-
-      const { error: upErr } = await supabase
-        .from('products')
-        .update({ stock: next })
-        .eq('id', it.product_id)
-      if (upErr) return NextResponse.json({ error: upErr.message }, { status: 400 })
-    }
+    // Note: Stock is already decremented when order is created (in createOrder function)
+    // This endpoint just marks the order as completed
+    // No need to decrement stock again here
 
     // Mark order as completed
     const { data: updated, error: updErr } = await supabase

@@ -65,8 +65,8 @@ export async function PATCH(request) {
       console.warn('Realtime broadcast failed (order_update):', e?.message || e)
     }
 
-    // If transitioning into 'accepted', decrement stock based on items
-    if (prevStatus !== 'accepted' && nextStatus === 'accepted') {
+    // If transitioning into 'cancelled', restore stock (stock was already decremented at order creation)
+    if (prevStatus !== 'cancelled' && nextStatus === 'cancelled') {
       const { data: items, error: itemsErr } = await supabase
         .from('order_items')
         .select('product_id, quantity')
@@ -80,14 +80,19 @@ export async function PATCH(request) {
           .select('id, stock')
           .eq('id', it.product_id)
           .single()
-        if (prodErr) return NextResponse.json({ error: prodErr.message }, { status: 400 })
+        if (prodErr) {
+          console.error(`[orders] Failed to fetch product ${it.product_id} for stock restoration:`, prodErr)
+          continue
+        }
         const currentStock = Number(prod?.stock || 0)
-        const nextStock = Math.max(0, currentStock - Number(it.quantity))
+        const restoredStock = currentStock + Number(it.quantity)
         const { error: upErr } = await supabase
           .from('products')
-          .update({ stock: nextStock })
+          .update({ stock: restoredStock })
           .eq('id', it.product_id)
-        if (upErr) return NextResponse.json({ error: upErr.message }, { status: 400 })
+        if (upErr) {
+          console.error(`[orders] Failed to restore stock for product ${it.product_id}:`, upErr)
+        }
       }
     }
 
@@ -116,6 +121,48 @@ export async function DELETE(request) {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
+
+    // Before deleting, restore stock if order was not cancelled (stock was decremented at order creation)
+    const { data: orderToDelete, error: fetchErr } = await supabase
+      .from('orders')
+      .select('status')
+      .eq('id', id)
+      .single()
+    
+    if (!fetchErr && orderToDelete) {
+      const orderStatus = String(orderToDelete.status || '').toLowerCase()
+      // Only restore stock if order wasn't already cancelled (cancelled orders already had stock restored)
+      if (orderStatus !== 'cancelled') {
+        const { data: items, error: itemsErr } = await supabase
+          .from('order_items')
+          .select('product_id, quantity')
+          .eq('order_id', id)
+        
+        if (!itemsErr && items) {
+          for (const it of items || []) {
+            if (!it.product_id || !it.quantity) continue
+            const { data: prod, error: prodErr } = await supabase
+              .from('products')
+              .select('id, stock')
+              .eq('id', it.product_id)
+              .single()
+            if (prodErr) {
+              console.error(`[orders] Failed to fetch product ${it.product_id} for stock restoration:`, prodErr)
+              continue
+            }
+            const currentStock = Number(prod?.stock || 0)
+            const restoredStock = currentStock + Number(it.quantity)
+            const { error: upErr } = await supabase
+              .from('products')
+              .update({ stock: restoredStock })
+              .eq('id', it.product_id)
+            if (upErr) {
+              console.error(`[orders] Failed to restore stock for product ${it.product_id}:`, upErr)
+            }
+          }
+        }
+      }
+    }
 
     // Delete order (order_items will be deleted automatically due to CASCADE)
     const { error } = await supabase.from('orders').delete().eq('id', id)

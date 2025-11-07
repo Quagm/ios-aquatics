@@ -6,9 +6,12 @@ function Footer({ className = "" }) {
   return (
     <>
       <div className="h-12 sm:h-16 lg:h-20 w-full"></div>
-      <footer className={`relative z-0 mt-12 sm:mt-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-t border-white/10 py-10 sm:py-12 px-4 sm:px-6 lg:px-8 w-full flex justify-center ${className}`}>
-        <div className="max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 text-white">
+      <footer className={`relative z-0 mt-12 sm:mt-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-t border-white/10 py-10 sm:py-12 w-full flex justify-center ${className}`}>
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+          <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
+          <div className="flex">
+            <div className="w-4 sm:w-6 lg:w-8 flex-shrink-0"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 text-white flex-1">
           
           <div className="flex flex-col items-center sm:items-start space-y-4 p-2 sm:p-3">
             <div className="flex items-center gap-4">
@@ -163,8 +166,10 @@ function Footer({ className = "" }) {
               </li>
             </ul>
           </div>
-        </div>
+            </div>
+          </div>
 
+        <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
         <div className="text-center mt-8 sm:mt-10 border-t border-white/10 pt-6 sm:pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4">
             <p className="text-slate-400 text-sm sm:text-base">
@@ -175,8 +180,8 @@ function Footer({ className = "" }) {
             </div>
           </div>
         </div>
-      </div>
-    </footer>
+        </div>
+      </footer>
     </>
   )
 }

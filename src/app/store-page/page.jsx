@@ -117,6 +117,7 @@ export default function StorePage() {
       
       <div className="flex-1 w-full flex flex-col items-center pb-16 sm:pb-20 lg:pb-24 pt-6 sm:pt-8">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
           <div className="flex flex-col items-center justify-center text-center mb-10 sm:mb-14 bg-white/5 rounded-3xl border border-white/10 px-6 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-6 sm:mb-8">
               <span className="gradient-text">IOS Aquatics</span> Store
