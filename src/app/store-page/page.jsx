@@ -288,12 +288,15 @@ export default function StorePage() {
             ) : (
               <>
                 <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
-                <div className="glass-effect rounded-2xl p-10 sm:p-12 lg:p-16 border border-white/10 max-w-sm mx-auto">
-                  <div className="flex flex-col items-center space-y-6">
-                    <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
-                    <p className="text-slate-300 font-medium text-center text-base sm:text-lg leading-relaxed px-4 py-2">
-                      You've seen all our products!
-                    </p>
+                <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
+                <div className="flex justify-center items-center w-full">
+                  <div className="glass-effect rounded-2xl p-10 sm:p-12 lg:p-16 border border-white/10 max-w-sm mx-auto">
+                    <div className="flex flex-col items-center space-y-6">
+                      <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
+                      <p className="text-slate-300 font-medium text-center text-base sm:text-lg leading-relaxed px-4 py-2">
+                        You've seen all our products!
+                      </p>
+                    </div>
                   </div>
                 </div>
               </>

@@ -29,7 +29,19 @@ const buildStatusChangeDetail = (label, previousStatus, nextStatus) => {
 const buildAppointmentDetail = (nextValue, previousValue) => {
   if (nextValue && nextValue !== previousValue) {
     try {
-      return `Appointment: ${new Date(nextValue).toLocaleString()}`
+      const appointmentDate = new Date(nextValue)
+      const formattedDate = appointmentDate.toLocaleDateString('en-US', { 
+        weekday: 'long',
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })
+      const formattedTime = appointmentDate.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      })
+      return `Appointment scheduled for ${formattedDate} at ${formattedTime}`
     } catch {
       return `Appointment: ${nextValue}`
     }
@@ -93,11 +105,14 @@ export default function NavigationBar() {
           ]
           const appointmentDetail = buildAppointmentDetail(row.appointment_at, payload.old?.appointment_at)
           if (appointmentDetail) detailParts.push(appointmentDetail)
+          const isAppointmentScheduled = row.status === 'completed' && row.appointment_at
           addNotif({
             id: `inq_${row.id}_${Date.now()}`,
             type: 'inquiry',
-            title: row.status === 'completed' && row.appointment_at ? 'Appointment scheduled' : `Inquiry ${formatStatus(row.status)}`,
-            detail: detailParts.join(' • '),
+            title: isAppointmentScheduled ? 'Appointment Scheduled' : `Inquiry ${formatStatus(row.status)}`,
+            detail: isAppointmentScheduled && appointmentDetail 
+              ? appointmentDetail 
+              : detailParts.join(' • '),
             at: new Date().toISOString(),
           })
         }
@@ -116,11 +131,14 @@ export default function NavigationBar() {
         ]
         const apptDetail = buildAppointmentDetail(p.appointment_at, p.previous_appointment_at)
         if (apptDetail) detailParts.push(apptDetail)
+        const isAppointmentScheduled = p.status === 'completed' && p.appointment_at
         addNotif({
           id: `inqbc_${p.id || 'unknown'}_${Date.now()}`,
           type: 'inquiry',
-          title: p.status === 'completed' && p.appointment_at ? 'Appointment scheduled' : `Inquiry ${formatStatus(p.status)}`,
-          detail: detailParts.join(' • '),
+          title: isAppointmentScheduled ? 'Appointment Scheduled' : `Inquiry ${formatStatus(p.status)}`,
+          detail: isAppointmentScheduled && apptDetail 
+            ? apptDetail 
+            : detailParts.join(' • '),
           at: p.updated_at || new Date().toISOString(),
         })
       })

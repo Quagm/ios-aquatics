@@ -165,17 +165,22 @@ export default function InquiryManagement() {
     }
   }
 
-  const submitAppointment = async () => {
+  const submitAppointment = async (e) => {
+    e?.preventDefault?.()
+    e?.stopPropagation?.()
     try {
       const id = schedulingInquiryId
-      if (!id) return
-      if (!appointmentInput) {
-        alert('Please select a date and time.')
+      if (!id) {
+        push({ title: 'Error', description: 'No inquiry selected', variant: 'error' })
+        return
+      }
+      if (!appointmentInput || !appointmentInput.trim()) {
+        push({ title: 'Validation Error', description: 'Please select a date and time.', variant: 'error' })
         return
       }
       const dt = new Date(appointmentInput)
       if (isNaN(dt.getTime())) {
-        alert('Invalid date/time. Please try again.')
+        push({ title: 'Validation Error', description: 'Invalid date/time. Please try again.', variant: 'error' })
         return
       }
       const updated = await apiUpdateInquiryStatus(id, 'completed', dt.toISOString())
@@ -184,6 +189,7 @@ export default function InquiryManagement() {
       await loadInquiries()
       push({ title: 'Appointment scheduled', description: `Inquiry ${id} scheduled on ${new Date(updated.appointment_at || dt.toISOString()).toLocaleString()}.`, variant: 'success' })
     } catch (error) {
+      console.error('Schedule appointment error:', error)
       push({ title: 'Update failed', description: error?.message || 'Failed to schedule appointment', variant: 'error' })
     }
   }
@@ -390,8 +396,20 @@ export default function InquiryManagement() {
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
               />
               <div className="flex justify-end gap-3 pt-2">
-                <button onClick={() => { setSchedulingInquiryId(null); setAppointmentInput('') }} className="px-4 py-2 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20">Cancel</button>
-                <button onClick={submitAppointment} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Save</button>
+                <button 
+                  type="button"
+                  onClick={() => { setSchedulingInquiryId(null); setAppointmentInput('') }} 
+                  className="px-4 py-2 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button"
+                  onClick={submitAppointment} 
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                >
+                  Save
+                </button>
               </div>
             </div>
           </div>
