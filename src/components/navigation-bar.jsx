@@ -6,6 +6,39 @@ import { SignedOut, SignInButton, SignUpButton, SignedIn, UserButton, useUser } 
 import { ShoppingCart, Bell } from "lucide-react"
 import { supabase } from "@/supabaseClient"
 import { useCart } from "@/components/CartContext"
+import { usePathname } from "next/navigation"
+
+const formatStatus = (status) => {
+  if (!status) return 'Unknown'
+  const text = String(status).replace(/_/g, ' ').toLowerCase()
+  return text.replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+const buildStatusChangeDetail = (label, previousStatus, nextStatus) => {
+  const prevLabel = previousStatus != null ? formatStatus(previousStatus) : 'Unknown'
+  const nextLabel = formatStatus(nextStatus)
+  if (
+    previousStatus != null &&
+    String(previousStatus).toLowerCase() === String(nextStatus).toLowerCase()
+  ) {
+    return `${label}: ${nextLabel}`
+  }
+  return `${label}: ${prevLabel} → ${nextLabel}`
+}
+
+const buildAppointmentDetail = (nextValue, previousValue) => {
+  if (nextValue && nextValue !== previousValue) {
+    try {
+      return `Appointment: ${new Date(nextValue).toLocaleString()}`
+    } catch {
+      return `Appointment: ${nextValue}`
+    }
+  }
+  if (!nextValue && previousValue) {
+    return 'Appointment removed'
+  }
+  return ''
+}
 
 export default function NavigationBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -16,6 +49,7 @@ export default function NavigationBar() {
   const role = user?.publicMetadata?.role || user?.unsafeMetadata?.role || user?.privateMetadata?.role
   const isAdmin = role === 'admin'
   const userEmail = user?.emailAddresses?.[0]?.emailAddress || user?.primaryEmailAddress?.emailAddress
+  const pathname = usePathname()
 
   const [isNotifOpen, setIsNotifOpen] = useState(false)
   const [notifs, setNotifs] = useState([])
@@ -30,6 +64,7 @@ export default function NavigationBar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
 
   // Subscribe to user's inquiry and order status changes
   useEffect(() => {
@@ -52,13 +87,17 @@ export default function NavigationBar() {
         // Admin gets all, user gets only their own
         if (!isAdmin && (row.email || '').toLowerCase() !== (userEmail || '').toLowerCase()) return
         if (payload.eventType === 'UPDATE' && (payload.old?.status !== row.status || payload.old?.appointment_at !== row.appointment_at)) {
+          const subject = row.subject || 'Inquiry'
+          const detailParts = [
+            buildStatusChangeDetail(subject, payload.old?.status, row.status)
+          ]
+          const appointmentDetail = buildAppointmentDetail(row.appointment_at, payload.old?.appointment_at)
+          if (appointmentDetail) detailParts.push(appointmentDetail)
           addNotif({
             id: `inq_${row.id}_${Date.now()}`,
             type: 'inquiry',
-            title: row.status === 'completed' && row.appointment_at ? 'Appointment scheduled' : 'Inquiry status updated',
-            detail: row.status === 'completed' && row.appointment_at
-              ? `${row.subject || 'Inquiry'} • ${new Date(row.appointment_at).toLocaleString()}`
-              : `${row.subject || 'Inquiry'} → ${row.status}`,
+            title: row.status === 'completed' && row.appointment_at ? 'Appointment scheduled' : `Inquiry ${formatStatus(row.status)}`,
+            detail: detailParts.join(' • '),
             at: new Date().toISOString(),
           })
         }
@@ -72,13 +111,28 @@ export default function NavigationBar() {
         const p = payload?.payload || {}
         if (!p?.email) return
         if (!isAdmin && String(p.email).toLowerCase() !== String(userEmail).toLowerCase()) return
+        const detailParts = [
+          buildStatusChangeDetail(p.subject || 'Inquiry', p.previous_status, p.status)
+        ]
+        const apptDetail = buildAppointmentDetail(p.appointment_at, p.previous_appointment_at)
+        if (apptDetail) detailParts.push(apptDetail)
         addNotif({
           id: `inqbc_${p.id || 'unknown'}_${Date.now()}`,
           type: 'inquiry',
-          title: p.status === 'completed' && p.appointment_at ? 'Appointment scheduled' : 'Inquiry status updated',
-          detail: p.status === 'completed' && p.appointment_at
-            ? `${p.subject || 'Inquiry'} • ${new Date(p.appointment_at).toLocaleString()}`
-            : `${p.subject || 'Inquiry'} → ${p.status}`,
+          title: p.status === 'completed' && p.appointment_at ? 'Appointment scheduled' : `Inquiry ${formatStatus(p.status)}`,
+          detail: detailParts.join(' • '),
+          at: p.updated_at || new Date().toISOString(),
+        })
+      })
+      .on('broadcast', { event: 'order_update' }, (payload) => {
+        const p = payload?.payload || {}
+        if (!p?.email) return
+        if (!isAdmin && String(p.email).toLowerCase() !== String(userEmail).toLowerCase()) return
+        addNotif({
+          id: `ordbc_${p.id || 'unknown'}_${Date.now()}`,
+          type: 'order',
+          title: `Order ${formatStatus(p.status)}`,
+          detail: buildStatusChangeDetail(`Order #${p.id}`, p.previous_status, p.status),
           at: p.updated_at || new Date().toISOString(),
         })
       })
@@ -96,8 +150,8 @@ export default function NavigationBar() {
           addNotif({
             id: `ord_${row.id}_${Date.now()}`,
             type: 'order',
-            title: 'Order status updated',
-            detail: `#${row.id} → ${row.status}`,
+            title: `Order ${formatStatus(row.status)}`,
+            detail: buildStatusChangeDetail(`Order #${row.id}`, payload.old?.status, row.status),
             at: new Date().toISOString(),
           })
         }
@@ -459,7 +513,11 @@ export default function NavigationBar() {
         </div>
       </div>
     </nav>
-    
+
+    {pathname !== '/' && (
+      <div className="h-20 sm:h-24 lg:h-28" aria-hidden="true"></div>
+    )}
+
     </>
   )
 }

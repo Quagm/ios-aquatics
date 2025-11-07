@@ -3,6 +3,29 @@ import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { fetchOrders } from '@/lib/queries'
 
+const normalizeOrderStatus = (status) => {
+  const normalized = String(status || '').toLowerCase()
+  if (normalized === 'delivered') return 'completed'
+  if (normalized === 'cancel') return 'cancelled'
+  return normalized
+}
+
+const getOrderStatusLabel = (status) => {
+  const normalized = normalizeOrderStatus(status)
+  switch (normalized) {
+    case 'processing':
+      return 'Processing'
+    case 'shipped':
+      return 'In Progress'
+    case 'completed':
+      return 'Completed'
+    case 'cancelled':
+      return 'Cancelled'
+    default:
+      return normalized ? normalized.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Unknown'
+  }
+}
+
 export default function OrderHistory() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -32,7 +55,7 @@ export default function OrderHistory() {
             date: (o.created_at || '').split('T')[0],
             items: (o.order_items || []).map(i => (i.products?.name || 'Item') + (i.quantity ? ` x${i.quantity}` : '') ).join(', '),
             total: o.total || 0,
-            status: o.status || 'processing'
+            status: normalizeOrderStatus(o.status || 'processing')
           }))
         if (!mounted) return
         setOrders(mine)
@@ -72,8 +95,8 @@ export default function OrderHistory() {
             <p className="text-sm text-white/70 mb-3">{order.items}</p>
             <div className="flex justify-between items-center">
               <span className="font-semibold text-[#6c47ff]">₱{order.total.toFixed(2)}</span>
-              <span className={`text-sm px-3 py-1 rounded-full ${String(order.status).toLowerCase() === 'completed' || String(order.status).toLowerCase() === 'delivered' ? 'bg-green-500/20 text-green-300' : 'bg-blue-500/20 text-blue-300'}`}>
-                {order.status}
+              <span className={`text-sm px-3 py-1 rounded-full ${normalizeOrderStatus(order.status) === 'completed' ? 'bg-green-500/20 text-green-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                {getOrderStatusLabel(order.status)}
               </span>
             </div>
           </div>

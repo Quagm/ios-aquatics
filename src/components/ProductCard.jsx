@@ -75,13 +75,26 @@ export default function ProductCard({ product, showAddToCart = true }) {
                   }
 
                   setIsAdding(true);
-                  addItem({ id: product.id, name: product.name, price: product.price, image: product.image }, 1);
+                  const added = addItem({ 
+                    id: product.id, 
+                    name: product.name, 
+                    price: product.price, 
+                    image: product.image,
+                    stockCount: typeof product.stock === 'number' ? product.stock : undefined
+                  }, 1);
+                  if (!added) {
+                    alert('Not enough stock available for this product.');
+                  }
                   
                   setTimeout(() => {
                     setIsAdding(false);
                   }, 1000);
                 }}
-                disabled={isAdding || !isLoaded || typeof product.stock === 'number' && product.stock === 0}
+                disabled={
+                  isAdding ||
+                  !isLoaded ||
+                  (typeof product.stock === 'number' && product.stock === 0)
+                }
               >
                 <span className="flex items-center justify-center gap-2">
                   {isAdding ? (

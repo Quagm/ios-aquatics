@@ -9,7 +9,8 @@ import {
   ShoppingCart, 
   BarChart3,
   Settings,
-  Waves
+  Waves,
+  ArrowLeft
 } from 'lucide-react'
 
 const menuItems = [
@@ -26,16 +27,13 @@ export default function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="w-44 glass-effect border-r border-white/10 h-screen sticky top-0 backdrop-blur-sm">
+    <div className="w-44 glass-effect border-r border-white/10 h-screen sticky top-0 backdrop-blur-sm flex flex-col">
       <div className="p-4 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-            <Waves className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">Admin</h2>
-            <p className="text-xs text-slate-400">IOS Aquatics</p>
-          </div>
+        <div className="flex justify-center">
+          <Link href="/#home" className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-colors text-base w-full justify-center">
+            <ArrowLeft className="w-5 h-5" />
+            <span>Home</span>
+          </Link>
         </div>
       </div>
       
@@ -67,6 +65,7 @@ export default function AdminSidebar() {
           )
         })}
       </nav>
+      
     </div>
   )
 }

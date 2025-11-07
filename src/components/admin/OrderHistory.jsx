@@ -6,6 +6,29 @@ import { Package, CheckCircle, Calendar, DollarSign } from 'lucide-react'
 import { useToast } from '@/components/ui/ToastProvider'
 import { supabase } from '@/supabaseClient'
 
+const normalizeOrderStatus = (status) => {
+  const normalized = String(status || '').toLowerCase()
+  if (normalized === 'delivered') return 'completed'
+  if (normalized === 'cancel') return 'cancelled'
+  return normalized
+}
+
+const getOrderStatusLabel = (status) => {
+  const normalized = normalizeOrderStatus(status)
+  switch (normalized) {
+    case 'processing':
+      return 'Processing'
+    case 'shipped':
+      return 'In Progress'
+    case 'completed':
+      return 'Completed'
+    case 'cancelled':
+      return 'Cancelled'
+    default:
+      return normalized ? normalized.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Unknown'
+  }
+}
+
 export default function OrderHistory() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -17,10 +40,7 @@ export default function OrderHistory() {
       .then((data) => {
         if (!mounted) return
         const completed = (data || [])
-          .filter(o => {
-            const s = String(o.status || '').toLowerCase()
-            return s === 'completed' || s === 'delivered'
-          })
+          .filter(o => normalizeOrderStatus(o.status) === 'completed')
           .map((o) => ({
             id: o.id,
             items: (o.order_items || []).map(i => ({
@@ -29,13 +49,13 @@ export default function OrderHistory() {
               price: i.price,
             })),
             total: o.total,
-            status: o.status,
+            status: normalizeOrderStatus(o.status),
             orderDate: o.created_at?.split('T')[0],
             customer: o.customer || {}
           }))
         setOrders(completed)
         if (completed.length === 0) {
-          push({ title: 'No archived orders', description: 'No completed or delivered orders found.', variant: 'default' })
+          push({ title: 'No archived orders', description: 'No completed orders found.', variant: 'default' })
         }
       })
       .catch((e) => {
@@ -53,12 +73,12 @@ export default function OrderHistory() {
         try {
           const data = await fetchOrders()
           const archived = (data || [])
-            .filter(o => ['completed', 'delivered'].includes(String(o.status || '').toLowerCase()))
+            .filter(o => normalizeOrderStatus(o.status) === 'completed')
             .map((o) => ({
               id: o.id,
               items: (o.order_items || []).map(i => ({ name: i.products?.name || 'Unknown Product', quantity: i.quantity, price: i.price })),
               total: o.total,
-              status: o.status,
+              status: normalizeOrderStatus(o.status),
               orderDate: o.created_at?.split('T')[0],
               customer: o.customer || {}
             }))
@@ -127,7 +147,7 @@ export default function OrderHistory() {
                     <span className="text-xs text-slate-300">#{order.id}</span>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       <CheckCircle className="w-4 h-4" />
-                      <span className="ml-1 capitalize">{order.status}</span>
+                      <span className="ml-1">{getOrderStatusLabel(order.status)}</span>
                     </span>
                   </div>
                   <p className="text-slate-300 text-sm mt-1">{order.orderDate}</p>

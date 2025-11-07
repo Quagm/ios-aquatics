@@ -56,6 +56,17 @@ export async function PATCH(request) {
     }
 
     const supabase = getServiceClient()
+
+    const { data: current, error: currentErr } = await supabase
+      .from('inquiries')
+      .select('status, appointment_at, subject, email')
+      .eq('id', id)
+      .single()
+    if (currentErr) return NextResponse.json({ error: currentErr.message }, { status: 400 })
+
+    const prevStatus = current?.status || null
+    const prevAppointment = current?.appointment_at || null
+
     const updatePayload = { status }
     if (appointment_at) {
       updatePayload.appointment_at = appointment_at
@@ -80,7 +91,9 @@ export async function PATCH(request) {
           email: data.email,
           subject: data.subject,
           status: data.status,
+          previous_status: prevStatus,
           appointment_at: data.appointment_at || null,
+          previous_appointment_at: prevAppointment,
           updated_at: new Date().toISOString()
         }
       })

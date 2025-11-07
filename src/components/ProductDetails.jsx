@@ -104,7 +104,10 @@ export default function ProductDetails({ product }) {
               }
               if (!canAdd) return
               setIsAdding(true)
-              addItem({ id: product.id, name: product.name, price: product.price, image: product.image, stockCount: hasFiniteStock ? stockCount : undefined }, qty)
+              const added = addItem({ id: product.id, name: product.name, price: product.price, image: product.image, stockCount: hasFiniteStock ? stockCount : undefined }, qty)
+              if (!added) {
+                alert('You have reached the available stock for this product.')
+              }
               setTimeout(() => setIsAdding(false), 1000)
             }}
             disabled={isAdding || !isLoaded || !canAdd}

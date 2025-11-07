@@ -1,8 +1,9 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useUser } from '@clerk/nextjs'
 import { SignInButton } from '@clerk/nextjs'
 import { createInquiry } from "@/lib/queries"
+import { useToast } from "@/components/ui/ToastProvider"
 
 export default function AquascapeForm() {
   const { isSignedIn, isLoaded } = useUser()
@@ -10,6 +11,7 @@ export default function AquascapeForm() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [accountInfo, setAccountInfo] = useState({ name: "", email: "", phone: "", address: "", city: "", province: "", postal: "" })
+  const { push } = useToast()
 
   useEffect(() => {
     try {
@@ -29,6 +31,23 @@ export default function AquascapeForm() {
     } catch {}
   }, [])
 
+  const hasCompleteAccountInfo = useMemo(() => {
+    const trimmed = Object.fromEntries(
+      Object.entries(accountInfo).map(([k, v]) => [k, (v || '').trim()])
+    )
+    return Boolean(
+      trimmed.name &&
+      trimmed.email &&
+      trimmed.phone &&
+      trimmed.address &&
+      trimmed.city &&
+      trimmed.province &&
+      trimmed.postal
+    )
+  }, [accountInfo])
+
+  const showInlineFields = !hasCompleteAccountInfo
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -37,7 +56,7 @@ export default function AquascapeForm() {
       setError("Please sign in to submit an inquiry.")
       return
     }
-    
+
     const data = new FormData(e.currentTarget)
     const payload = Object.fromEntries(data.entries())
     // Prefer saved account information for consistency with orders
@@ -48,6 +67,16 @@ export default function AquascapeForm() {
     const derivedEmail = (accountInfo.email || payload.email || '').trim()
     const derivedPhone = (accountInfo.phone || payload.contactNo || '').trim()
     const derivedAddress = (accountInfo.address || payload.address || '').trim()
+    if (!derivedFirst || !derivedLast || !derivedEmail || !derivedPhone || !derivedAddress) {
+      push({
+        title: 'Missing details',
+        description: 'Please provide your name, email, phone, and address before submitting the inquiry.',
+        variant: 'warning'
+      })
+      setError('Please complete the highlighted personal details.')
+      setSubmitting(false)
+      return
+    }
     const imageFile = data.get("imageReference")
     const imageName = imageFile instanceof File ? imageFile.name : ""
     if (payload.imageReference) {
@@ -150,7 +179,18 @@ export default function AquascapeForm() {
     return (
       <div className="text-center space-y-4">
         <h3 className="text-2xl font-semibold text-white mt-6">Thanks! We received your aquascape inquiry.</h3>
-        <p className="text-white/80">Our aquascape specialists will get back to you soon with a customized proposal.</p>
+        <p className="text-white/80">
+          Message us on our{' '}
+          <a
+            href="https://web.facebook.com/iosaquatics"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#6c47ff] hover:underline"
+          >
+            Facebook page
+          </a>{' '}
+          for more information.
+        </p>
       </div>
     )
   }
@@ -192,7 +232,7 @@ export default function AquascapeForm() {
         </div>
       </div>
       
-      <div className="hidden space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className={`${showInlineFields ? 'space-y-6 px-4 sm:px-6 md:px-8 lg:px-10' : 'hidden'}`}>
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Personal Information
@@ -224,18 +264,18 @@ export default function AquascapeForm() {
               name="lastName"
               className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
               placeholder="Enter your last name"
-              defaultValue={() => {
+              defaultValue={(() => {
                 const parts = (accountInfo.name || '').trim().split(/\s+/)
                 parts.shift()
                 return parts.join(' ')
-              }}
+              })()}
               required
             />
           </div>
         </div>
       </div>
 
-      <div className="hidden space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className={`${showInlineFields ? 'space-y-6 px-4 sm:px-6 md:px-8 lg:px-10' : 'hidden'}`}>
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Contact Information
@@ -274,7 +314,7 @@ export default function AquascapeForm() {
         </div>
       </div>
       
-      <div className="hidden space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className={`${showInlineFields ? 'space-y-6 px-4 sm:px-6 md:px-8 lg:px-10' : 'hidden'}`}>
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Location Information
@@ -402,7 +442,7 @@ export default function AquascapeForm() {
       <div className="text-center pt-10">
         <button
           type="submit"
-          disabled={submitting || !isSignedIn || !((accountInfo.name||'').trim()&& (accountInfo.email||'').trim()&& (accountInfo.phone||'').trim()&& (accountInfo.address||'').trim()&& (accountInfo.city||'').trim()&& (accountInfo.province||'').trim()&& (accountInfo.postal||'').trim())}
+          disabled={submitting || !isSignedIn}
           className="group relative inline-flex items-center justify-center px-12 py-4 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-slate-500/25 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
         >
           <span className="relative z-10 flex items-center gap-3">
@@ -423,6 +463,11 @@ export default function AquascapeForm() {
         {!isSignedIn && (
           <p className="text-yellow-300 text-sm mt-4">
             Please sign in to submit your inquiry
+          </p>
+        )}
+        {!submitting && isSignedIn && !hasCompleteAccountInfo && (
+          <p className="text-yellow-200 text-sm mt-3">
+            Tip: Save your contact details in Account Information to auto-fill this form.
           </p>
         )}
       </div>

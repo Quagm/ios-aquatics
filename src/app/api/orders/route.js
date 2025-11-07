@@ -45,6 +45,26 @@ export async function PATCH(request) {
       .single()
     if (updErr) return NextResponse.json({ error: updErr.message }, { status: 400 })
 
+    // Broadcast a realtime notification to clients (fallback to broadcast channel)
+    try {
+      const channel = supabase.channel('user_notifications')
+      await channel.subscribe()
+      await channel.send({
+        type: 'broadcast',
+        event: 'order_update',
+        payload: {
+          id: updated.id,
+          status: updated.status,
+          previous_status: prevStatus,
+          email: updated.customer_email || null,
+          updated_at: new Date().toISOString()
+        }
+      })
+      await channel.unsubscribe()
+    } catch (e) {
+      console.warn('Realtime broadcast failed (order_update):', e?.message || e)
+    }
+
     // If transitioning into 'accepted', decrement stock based on items
     if (prevStatus !== 'accepted' && nextStatus === 'accepted') {
       const { data: items, error: itemsErr } = await supabase

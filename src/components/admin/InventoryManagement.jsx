@@ -69,16 +69,17 @@ export default function InventoryManagement() {
   fetchProducts({ includeInactive: true })
     .then((data) => {
       if (!isMounted) return
-      const withStatus = data.map((p) => ({
-        ...p,
-        minStock: typeof p.minStock === 'number' ? p.minStock : (typeof p.min_stock === 'number' ? p.min_stock : 0),
-        stock: typeof p.stock === 'number' ? p.stock : 0,
-        active: p.active || false,
-        status: p.status || getStockStatus(
-          typeof p.stock === 'number' ? p.stock : 0,
-          typeof p.minStock === 'number' ? p.minStock : (typeof p.min_stock === 'number' ? p.min_stock : 0)
-        ),
-      }))
+      const withStatus = data.map((p) => {
+        const minStockNorm = typeof p.minStock === 'number' ? p.minStock : (typeof p.min_stock === 'number' ? p.min_stock : 0)
+        const stockNorm = typeof p.stock === 'number' ? p.stock : 0
+        return {
+          ...p,
+          minStock: minStockNorm,
+          stock: stockNorm,
+          active: p.active || false,
+          status: getStockStatus(stockNorm, minStockNorm),
+        }
+      })
       setProducts(withStatus)
       setFilteredProducts(withStatus)
       setStockEdits(Object.fromEntries(withStatus.map(p => [p.id, String(p.stock || 0)])))
@@ -100,7 +101,7 @@ useEffect(() => {
           ...row,
           stock,
           minStock: minStockNorm,
-          status: row.status || getStockStatus(stock, minStockNorm),
+          status: getStockStatus(stock, minStockNorm),
           active: row.active ?? false,
         }
         setProducts((prev) => {
@@ -192,13 +193,15 @@ useEffect(() => {
       const raw = stockEdits[product.id]
       const parsed = parseInt(String(raw ?? product.stock ?? '0'), 10)
       const newStock = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
-      const updated = await apiUpdateProduct(product.id, { stock: newStock })
+      const minForStatus = typeof product.minStock === 'number' ? product.minStock : (typeof product.min_stock === 'number' ? product.min_stock : 0)
+      const nextStatus = getStockStatus(newStock, minForStatus)
+      const updated = await apiUpdateProduct(product.id, { stock: newStock, status: nextStatus })
       const next = {
         ...product,
         ...updated,
       }
-      const minForStatus = typeof next.minStock === 'number' ? next.minStock : (typeof next.min_stock === 'number' ? next.min_stock : 0)
-      next.status = getStockStatus(next.stock || 0, minForStatus || 0)
+      const minForStatusNext = typeof next.minStock === 'number' ? next.minStock : (typeof next.min_stock === 'number' ? next.min_stock : 0)
+      next.status = getStockStatus(next.stock || 0, minForStatusNext || 0)
       setProducts(prev => prev.map(p => (p.id === product.id ? next : p)))
     } catch (e) {
       alert(e?.message || 'Failed to update stock')
@@ -248,11 +251,18 @@ useEffect(() => {
         price: Number(productData.price)
       }
       delete updates.sku
-      const updated = await updateProductDb(editingProduct.id, updates)
+      const stockValue = typeof updates.stock === 'number' ? updates.stock : (typeof editingProduct.stock === 'number' ? editingProduct.stock : 0)
+      const minStockValue = typeof updates.minStock === 'number' ? updates.minStock : (
+        typeof editingProduct.minStock === 'number'
+          ? editingProduct.minStock
+          : (typeof editingProduct.min_stock === 'number' ? editingProduct.min_stock : 0)
+      )
+      updates.status = getStockStatus(stockValue, minStockValue)
+      const updated = await apiUpdateProduct(editingProduct.id, updates)
       setProducts(prev => prev.map(p => (p.id === updated.id ? updated : p)))
     } catch (error) {
-      console.error('Error updating product:', error)
-      alert(`Update product failed: ${error?.message || 'Unknown error'}`)
+      console.error('Error updating product:', error?.message || error)
+      alert(`Update product failed: ${error?.message || JSON.stringify(error) || 'Unknown error'}`)
     }
     setEditingProduct(null)
   }

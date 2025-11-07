@@ -2,11 +2,13 @@
 import NavigationBar from "@/components/navigation-bar"
 import Footer from "@/components/Footer"
 import AquascapeForm from "@/components/AquascapeForm"
+import { ToastProvider } from "@/components/ui/ToastProvider"
 import { Fish, Leaf, Sparkles, Waves } from "lucide-react"
 
 export default function InquiryForm() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden w-full">
+    <ToastProvider>
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden w-full">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl"></div>
@@ -48,5 +50,6 @@ export default function InquiryForm() {
       
       <Footer />
     </div>
+    </ToastProvider>
   )
 }

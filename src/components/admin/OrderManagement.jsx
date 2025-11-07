@@ -19,6 +19,27 @@ import {
   Mail
 } from 'lucide-react'
 
+const ORDER_STATUS_OPTIONS = [
+  { value: 'processing', label: 'Processing' },
+  { value: 'shipped', label: 'In Progress' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+]
+
+const normalizeOrderStatus = (status) => {
+  const normalized = String(status || '').toLowerCase()
+  if (normalized === 'delivered') return 'completed'
+  if (normalized === 'cancel') return 'cancelled'
+  return normalized
+}
+
+const getOrderStatusLabel = (status) => {
+  const normalized = normalizeOrderStatus(status)
+  const option = ORDER_STATUS_OPTIONS.find((opt) => opt.value === normalized)
+  if (option) return option.label
+  return normalized ? normalized.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Unknown'
+}
+
 export default function OrderManagement() {
   const [orders, setOrders] = useState([])
   const [filteredOrders, setFilteredOrders] = useState([])
@@ -36,7 +57,7 @@ export default function OrderManagement() {
       price: i.price 
     })),
     total: o.total,
-    status: o.status,
+    status: normalizeOrderStatus(o.status),
     orderDate: o.created_at?.split('T')[0],
     customer: o.customer || {}
   }))
@@ -72,7 +93,7 @@ export default function OrderManagement() {
     filtered = filtered.filter(order => String(order.status || '').toLowerCase() !== 'completed')
 
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter)
+      filtered = filtered.filter(order => normalizeOrderStatus(order.status) === statusFilter)
     }
 
     if (dateFilter !== 'all') {
@@ -98,7 +119,7 @@ export default function OrderManagement() {
   }, [searchTerm, statusFilter, dateFilter, orders])
 
   const getStatusColor = (status) => {
-    switch (status) {
+    switch (normalizeOrderStatus(status)) {
       case 'processing':
         return 'bg-yellow-100 text-yellow-800'
       case 'shipped':
@@ -113,7 +134,7 @@ export default function OrderManagement() {
   }
 
   const getStatusIcon = (status) => {
-    switch (status) {
+    switch (normalizeOrderStatus(status)) {
       case 'processing':
         return <Clock className="w-4 h-4" />
       case 'shipped':
@@ -129,21 +150,23 @@ export default function OrderManagement() {
 
   const updateOrderStatus = async (id, newStatus) => {
     try {
+      const normalizedNext = normalizeOrderStatus(newStatus)
       // Confirm when archiving-like statuses
-      if ((newStatus || '').toLowerCase() === 'completed' || (newStatus || '').toLowerCase() === 'delivered') {
+      if (normalizedNext === 'completed') {
         const ok = window.confirm('Mark this order as finished? It will be moved to Order History and removed from active orders.')
         if (!ok) return
       }
       const updated = await updateOrderStatusDb(id, newStatus)
       // Refetch to ensure both active and history views reflect the change
       await loadOrders()
-      const us = String(updated?.status || '').toLowerCase()
+      const us = normalizeOrderStatus(updated?.status)
+      const label = getOrderStatusLabel(us)
       // Debug/visibility toast
-      push({ title: 'Status updated', description: `Order ${id} new status: ${updated?.status}`, variant: 'default' })
-      if (us === 'completed' || us === 'delivered') {
+      push({ title: 'Status updated', description: `Order ${id} new status: ${label}`, variant: 'default' })
+      if (us === 'completed') {
         push({ title: 'Order archived', description: `Order ${id} moved to history.`, variant: 'success' })
       } else {
-        push({ title: 'Order updated', description: `Order ${id} set to ${updated?.status}.`, variant: 'success' })
+        push({ title: 'Order updated', description: `Order ${id} set to ${label}.`, variant: 'success' })
       }
     } catch (e) {
       push({ title: 'Update failed', description: e?.message || 'Could not update order status', variant: 'error' })
@@ -159,10 +182,10 @@ export default function OrderManagement() {
   const getOrderStats = () => {
     const stats = {
       total: filteredOrders.length,
-      processing: filteredOrders.filter(o => o.status === 'processing').length,
-      shipped: filteredOrders.filter(o => o.status === 'shipped').length,
-      completed: filteredOrders.filter(o => o.status === 'completed').length,
-      cancelled: filteredOrders.filter(o => o.status === 'cancelled').length
+      processing: filteredOrders.filter(o => normalizeOrderStatus(o.status) === 'processing').length,
+      shipped: filteredOrders.filter(o => normalizeOrderStatus(o.status) === 'shipped').length,
+      completed: filteredOrders.filter(o => normalizeOrderStatus(o.status) === 'completed').length,
+      cancelled: filteredOrders.filter(o => normalizeOrderStatus(o.status) === 'cancelled').length
     }
     return stats
   }
@@ -213,7 +236,7 @@ export default function OrderManagement() {
               <Truck className="w-6 h-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-slate-400">Shipped</p>
+              <p className="text-sm font-medium text-slate-400">In Progress</p>
               <p className="text-2xl font-bold text-white">{stats.shipped}</p>
             </div>
           </div>
@@ -257,18 +280,19 @@ export default function OrderManagement() {
               />
             </div>
           </div>
-          <div className="flex gap-4">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option className="bg-slate-800 text-white" value="all">All Status</option>
-              <option className="bg-slate-800 text-white" value="processing">Processing</option>
-              <option className="bg-slate-800 text-white" value="shipped">Shipped</option>
-              
-              <option className="bg-slate-800 text-white" value="cancelled">Cancelled</option>
-            </select>
+        <div className="flex gap-4">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option className="bg-slate-800 text-white" value="all">All Status</option>
+            {ORDER_STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} className="bg-slate-800 text-white" value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
@@ -301,7 +325,7 @@ export default function OrderManagement() {
                     <span className="text-xs text-slate-300">#{order.id}</span>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                       {getStatusIcon(order.status)}
-                      <span className="ml-1 capitalize">{order.status}</span>
+                      <span className="ml-1">{getOrderStatusLabel(order.status)}</span>
                     </span>
                   </div>
                   <p className="text-slate-300 text-sm mt-1">{order.orderDate}</p>
@@ -322,15 +346,15 @@ export default function OrderManagement() {
                 <p className="text-white font-semibold">₱{order.total.toFixed(2)}</p>
                 <div className="flex items-center gap-2">
                   <select
-                    value={order.status}
+                    value={normalizeOrderStatus(order.status)}
                     onChange={(e) => updateOrderStatus(order.id, e.target.value)}
                     className="px-3 py-2 text-xs rounded bg-white/10 text-white focus:ring-2 focus:ring-blue-500 border border-white/20 min-w-[140px]"
                   >
-                    <option value="processing" className="bg-slate-800">Processing</option>
-                    <option value="shipped" className="bg-slate-800">Shipped</option>
-                    <option value="delivered" className="bg-slate-800">Delivered</option>
-                    <option value="completed" className="bg-slate-800">Completed</option>
-                    <option value="cancelled" className="bg-slate-800">Cancelled</option>
+                    {ORDER_STATUS_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value} className="bg-slate-800">
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -347,7 +371,6 @@ export default function OrderManagement() {
         <OrderDetailModal
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
-          onUpdateStatus={updateOrderStatus}
         />
       )}
     </div>
@@ -355,20 +378,23 @@ export default function OrderManagement() {
 }
 
 // Order Detail Modal Component
-function OrderDetailModal({ order, onClose, onUpdateStatus }) {
-  const [newStatus, setNewStatus] = useState(order.status)
-
-  const handleStatusUpdate = () => {
-    onUpdateStatus(order.id, newStatus)
-    onClose()
-  }
+function OrderDetailModal({ order, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
       <div className="glass-effect rounded-2xl border border-white/10 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold text-white">Order Details - {order.id}</h3>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-semibold text-white">Order Details - {order.id}</h3>
+              <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/10 border border-white/10">
+                <span className="text-white/70">Status:</span>
+                <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full ${getStatusColor(order.status)}`}>
+                  {getStatusIcon(order.status)}
+                  <span className="ml-1">{getOrderStatusLabel(order.status)}</span>
+                </span>
+              </div>
+            </div>
             <button
               onClick={onClose}
               className="text-slate-300 hover:text-white"
@@ -456,30 +482,6 @@ function OrderDetailModal({ order, onClose, onUpdateStatus }) {
             </div>
           </div>
 
-
-          {/* Status Update */}
-          <div>
-            <h4 className="text-lg font-semibold text-white mb-4">Update Status</h4>
-            <div className="flex items-center space-x-4">
-              <select
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-                className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option className="bg-slate-800 text-white" value="processing">Processing</option>
-                <option className="bg-slate-800 text-white" value="shipped">Shipped</option>
-                <option className="bg-slate-800 text-white" value="delivered">Delivered</option>
-                <option className="bg-slate-800 text-white" value="completed">Completed</option>
-                <option className="bg-slate-800 text-white" value="cancelled">Cancelled</option>
-              </select>
-              <button
-                onClick={handleStatusUpdate}
-                className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-              >
-                Update Status
-              </button>
-            </div>
-          </div>
 
           <div className="flex justify-end space-x-3 pt-4">
             <button

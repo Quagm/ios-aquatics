@@ -41,31 +41,69 @@ export function CartProvider({ children }) {
     } catch {}
   }, [items, user, isLoaded])
 
+  const resolveStockCount = (item) => {
+    if (!item) return undefined
+    if (typeof item.stockCount === 'number') return item.stockCount
+    if (typeof item.stock === 'number') return item.stock
+    return undefined
+  }
+
   const addItem = (product, quantity = 1) => {
-    if (!user) return
-    setItems(prev => {
-      const index = prev.findIndex(p => p.id === product.id)
+    if (!user) return false
+    let didAdd = false
+    setItems((prev) => {
+      const index = prev.findIndex((p) => p.id === product.id)
+      const requestedQty = Math.max(1, quantity)
+      const incomingStock = resolveStockCount(product)
+
       if (index !== -1) {
         const copy = [...prev]
-        const effectiveStock = typeof copy[index].stockCount === 'number' ? copy[index].stockCount : (typeof product.stockCount === 'number' ? product.stockCount : undefined)
-        const nextQty = copy[index].quantity + quantity
-        copy[index] = { 
-          ...copy[index], 
-          // keep existing stockCount; otherwise use product.stockCount
-          stockCount: typeof copy[index].stockCount === 'number' ? copy[index].stockCount : product.stockCount,
-          quantity: typeof effectiveStock === 'number' ? Math.min(effectiveStock, nextQty) : nextQty 
+        const currentItem = copy[index]
+        const effectiveStock = resolveStockCount(currentItem) ?? incomingStock
+
+        if (typeof effectiveStock === 'number' && currentItem.quantity >= effectiveStock) {
+          return prev
         }
+
+        const nextQty = currentItem.quantity + requestedQty
+        const cappedQty = typeof effectiveStock === 'number' ? Math.min(effectiveStock, nextQty) : nextQty
+
+        if (cappedQty === currentItem.quantity) {
+          return prev
+        }
+
+        copy[index] = {
+          ...currentItem,
+          stockCount: typeof currentItem.stockCount === 'number' ? currentItem.stockCount : incomingStock,
+          quantity: cappedQty,
+        }
+        didAdd = true
         return copy
       }
-      // capping quantity of item by stockcount
-      const cappedQty = typeof product.stockCount === 'number' ? Math.min(product.stockCount, quantity) : quantity
-      return [...prev, { ...product, quantity: cappedQty }]
+
+      const cappedQty = typeof incomingStock === 'number' ? Math.min(incomingStock, requestedQty) : requestedQty
+      if (cappedQty <= 0) {
+        return prev
+      }
+      didAdd = true
+      return [
+        ...prev,
+        {
+          ...product,
+          stockCount: incomingStock,
+          quantity: cappedQty,
+        },
+      ]
     })
 
-    setAnimationState({
-      isVisible: true,
-      product: product
-    })
+    if (didAdd) {
+      setAnimationState({
+        isVisible: true,
+        product: product,
+      })
+    }
+
+    return didAdd
   }
 
   const clearAnimation = () => {
