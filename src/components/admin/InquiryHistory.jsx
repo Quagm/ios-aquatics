@@ -92,25 +92,45 @@ export default function InquiryHistory() {
         </div>
         <div className="space-y-3">
           {inquiries.map(inq => (
-            <button
+            <div
               key={inq.id}
-              type="button"
-              onClick={() => setSelectedInquiry(inq)}
-              className="w-full text-left glass-effect rounded-xl border border-white/10 p-4 hover:border-white/20 hover:bg-white/5 transition-colors"
+              className="w-full glass-effect rounded-xl border border-white/10 p-4 hover:border-white/20 hover:bg-white/5 transition-colors"
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
+              <div className="flex items-start justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedInquiry(inq)}
+                  className="flex-1 text-left min-w-0"
+                >
                   <h4 className="text-sm sm:text-base font-semibold text-white truncate">{inq.subject || 'No subject'}</h4>
                   <p className="text-slate-300 text-xs mt-0.5 truncate">
                     {(inq.first_name || '') + ' ' + (inq.last_name || '')} • {inq.email}
                   </p>
-                </div>
+                </button>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="text-[10px] sm:text-xs px-2.5 py-1 rounded-full border border-white/20 text-white/80 capitalize whitespace-nowrap">{inq.status}</span>
                   <span className="text-xs text-slate-400 whitespace-nowrap">{new Date(inq.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  <button
+                    type="button"
+                    className="px-3 py-1.5 text-xs rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-500/30"
+                    onClick={async () => {
+                      const ok = window.confirm('Delete this inquiry? This action cannot be undone.')
+                      if (!ok) return
+                      try {
+                        await apiDeleteInquiry(inq.id)
+                        setInquiries(prev => prev.filter(i => i.id !== inq.id))
+                        if (selectedInquiry?.id === inq.id) setSelectedInquiry(null)
+                        push({ title: 'Inquiry deleted', description: 'The inquiry was deleted successfully.', variant: 'success' })
+                      } catch (e) {
+                        push({ title: 'Delete failed', description: e?.message || 'Failed to delete inquiry', variant: 'error' })
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-            </button>
+            </div>
           ))}
           {(!loading && inquiries.length === 0) && (
             <div className="text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No archived inquiries.</div>

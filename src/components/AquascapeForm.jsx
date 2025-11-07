@@ -67,10 +67,14 @@ export default function AquascapeForm() {
     const derivedEmail = (accountInfo.email || payload.email || '').trim()
     const derivedPhone = (accountInfo.phone || payload.contactNo || '').trim()
     const derivedAddress = (accountInfo.address || payload.address || '').trim()
-    if (!derivedFirst || !derivedLast || !derivedEmail || !derivedPhone || !derivedAddress) {
+    const derivedCity = (accountInfo.city || payload.city || '').trim()
+    const derivedProvince = (accountInfo.province || payload.province || '').trim()
+    const derivedPostal = (accountInfo.postal || payload.postal || '').trim()
+
+    if (!derivedFirst || !derivedLast || !derivedEmail || !derivedPhone || !derivedAddress || !derivedCity || !derivedProvince || !derivedPostal) {
       push({
         title: 'Missing details',
-        description: 'Please provide your name, email, phone, and address before submitting the inquiry.',
+        description: 'Please complete your name, email, phone, and full address before submitting the inquiry.',
         variant: 'warning'
       })
       setError('Please complete the highlighted personal details.')
@@ -110,11 +114,6 @@ export default function AquascapeForm() {
 
       const messageLines = [
         "Aquascape Inquiry Details:",
-        `- Contact: ${derivedPhone}`,
-        `- Address: ${derivedAddress}`,
-        (accountInfo.city ? `- City: ${accountInfo.city}` : ''),
-        (accountInfo.province ? `- Province: ${accountInfo.province}` : ''),
-        (accountInfo.postal ? `- Postal Code: ${accountInfo.postal}` : ''),
         `- Aquarium Size: ${payload.aquariumSize}`,
         `- Price Range: ₱${payload.priceMin} - ₱${payload.priceMax}`,
         `- Preferences/Suggestions: ${preferences}`
@@ -333,6 +332,51 @@ export default function AquascapeForm() {
             defaultValue={accountInfo.address || ''}
             required
           ></textarea>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="group space-y-3">
+            <label htmlFor="city" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
+              City *
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
+              placeholder="City"
+              defaultValue={accountInfo.city || ''}
+              required
+            />
+          </div>
+          <div className="group space-y-3">
+            <label htmlFor="province" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
+              Province *
+            </label>
+            <input
+              type="text"
+              id="province"
+              name="province"
+              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
+              placeholder="Province"
+              defaultValue={accountInfo.province || ''}
+              required
+            />
+          </div>
+          <div className="group space-y-3">
+            <label htmlFor="postal" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
+              Postal Code *
+            </label>
+            <input
+              type="text"
+              id="postal"
+              name="postal"
+              className="w-full px-5 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
+              placeholder="e.g., 1751"
+              defaultValue={accountInfo.postal || ''}
+              required
+            />
+          </div>
         </div>
       </div>
 

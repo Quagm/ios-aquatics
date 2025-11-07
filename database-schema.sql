@@ -47,6 +47,10 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS customer_email VARCHAR(255),
+  ADD COLUMN IF NOT EXISTS customer_snapshot JSONB;
+
 -- Order items table
 CREATE TABLE IF NOT EXISTS order_items (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

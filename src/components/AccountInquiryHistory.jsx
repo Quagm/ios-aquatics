@@ -18,6 +18,33 @@ const truncate = (value, max = 180) => {
   return clean.length > max ? `${clean.slice(0, max - 1).trim()}…` : clean
 }
 
+const extractImageUrls = (text) => {
+  if (!text || typeof text !== "string") return []
+  const urlRegex = /(https?:\/\/[^\s)]+)(?=\s|$)/g
+  const knownImageExt = /\.(png|jpe?g|gif|webp|bmp|svg|tiff|heic|heif)(\?|#|$)/i
+  const urls = []
+  let match
+  while ((match = urlRegex.exec(text)) !== null) {
+    const url = match[1]
+    if (knownImageExt.test(url) || url.includes('/storage/v1/object/public/')) {
+      urls.push(url)
+    }
+  }
+  return Array.from(new Set(urls))
+}
+
+const getCleanMessage = (text) => {
+  if (!text || typeof text !== "string") return ""
+  const lines = text.split(/\r?\n/)
+  const cleaned = lines.filter((line) => {
+    const trimmed = line.trim().toLowerCase()
+    if (trimmed.startsWith('- image reference')) return false
+    if (/^https?:\/\//i.test(trimmed)) return false
+    return true
+  })
+  return cleaned.join('\n').trim()
+}
+
 export default function AccountInquiryHistory() {
   const [inquiries, setInquiries] = useState([])
   const [loading, setLoading] = useState(true)
@@ -102,6 +129,7 @@ export default function AccountInquiryHistory() {
         {inquiries.map((inquiry) => {
           const labelClass = STATUS_STYLES[inquiry.status?.toLowerCase?.()] || STATUS_STYLES.pending
           const createdAt = inquiry.created_at ? new Date(inquiry.created_at) : null
+          const preview = truncate(getCleanMessage(inquiry.message), 120)
           return (
             <button
               key={inquiry.id}
@@ -113,7 +141,7 @@ export default function AccountInquiryHistory() {
                 <div className="min-w-0">
                   <h3 className="text-sm sm:text-base font-semibold text-white truncate">{inquiry.subject}</h3>
                   <p className="text-xs text-white/60 truncate">
-                    {truncate(inquiry.message, 120)}
+                    {preview}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
@@ -156,7 +184,16 @@ export default function AccountInquiryHistory() {
             </div>
             {selectedInquiry.message && (
               <div className="text-sm text-white/80 whitespace-pre-line leading-relaxed">
-                {selectedInquiry.message}
+                {getCleanMessage(selectedInquiry.message)}
+              </div>
+            )}
+            {extractImageUrls(selectedInquiry.message).length > 0 && (
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {extractImageUrls(selectedInquiry.message).map((url, idx) => (
+                  <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-white/20 bg-white/5">
+                    <img src={url} alt={`reference-${idx + 1}`} className="w-full h-28 object-cover" />
+                  </a>
+                ))}
               </div>
             )}
             <div className="mt-6 flex justify-end">

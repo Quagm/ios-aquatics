@@ -47,7 +47,8 @@ export default function OrderHistory() {
         const data = await fetchOrders()
         const mine = (data || [])
           .filter(o => {
-            const orderEmail = (o.customer_email || o.customer?.email || '').toLowerCase()
+            const snapshotEmail = (o.customer_snapshot?.email || '').toLowerCase()
+            const orderEmail = (o.customer_email || o.customer?.email || snapshotEmail || '').toLowerCase()
             return orderEmail === email.toLowerCase()
           })
           .map(o => ({

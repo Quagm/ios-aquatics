@@ -40,6 +40,36 @@ const getOrderStatusLabel = (status) => {
   return normalized ? normalized.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Unknown'
 }
 
+const getStatusColor = (status) => {
+  switch (normalizeOrderStatus(status)) {
+    case 'processing':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'shipped':
+      return 'bg-blue-100 text-blue-800'
+    case 'completed':
+      return 'bg-green-100 text-green-800'
+    case 'cancelled':
+      return 'bg-red-100 text-red-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const getStatusIcon = (status) => {
+  switch (normalizeOrderStatus(status)) {
+    case 'processing':
+      return <Clock className="w-4 h-4" />
+    case 'shipped':
+      return <Truck className="w-4 h-4" />
+    case 'completed':
+      return <CheckCircle className="w-4 h-4" />
+    case 'cancelled':
+      return <AlertCircle className="w-4 h-4" />
+    default:
+      return <Package className="w-4 h-4" />
+  }
+}
+
 export default function OrderManagement() {
   const [orders, setOrders] = useState([])
   const [filteredOrders, setFilteredOrders] = useState([])
@@ -49,7 +79,21 @@ export default function OrderManagement() {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const { push } = useToast()
 
-  const normalize = (data) => (data || []).map((o) => ({
+const normalize = (data) => (data || []).map((o) => {
+  const customerRaw = o.customer || {}
+  const snapshot = o.customer_snapshot || {}
+  const merged = { ...snapshot, ...customerRaw }
+  const normalizedCustomer = {
+    name: merged.name || `${merged.first_name || ''} ${merged.last_name || ''}`.trim() || '—',
+    email: merged.email || merged.email_address || '—',
+    phone: merged.phone || merged.contact_number || '—',
+    address: merged.address || merged.street || '—',
+    city: merged.city || '—',
+    province: merged.province || merged.state || '—',
+    postal_code: merged.postal_code || merged.postal || '—',
+  }
+
+  return {
     id: o.id,
     items: (o.order_items || []).map((i) => ({ 
       name: i.products?.name || 'Unknown Product', 
@@ -59,8 +103,9 @@ export default function OrderManagement() {
     total: o.total,
     status: normalizeOrderStatus(o.status),
     orderDate: o.created_at?.split('T')[0],
-    customer: o.customer || {}
-  }))
+    customer: normalizedCustomer
+  }
+})
 
   const loadOrders = async () => {
     try {
@@ -117,36 +162,6 @@ export default function OrderManagement() {
 
     setFilteredOrders(filtered)
   }, [searchTerm, statusFilter, dateFilter, orders])
-
-  const getStatusColor = (status) => {
-    switch (normalizeOrderStatus(status)) {
-      case 'processing':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'shipped':
-        return 'bg-blue-100 text-blue-800'
-      case 'completed':
-        return 'bg-green-100 text-green-800'
-      case 'cancelled':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const getStatusIcon = (status) => {
-    switch (normalizeOrderStatus(status)) {
-      case 'processing':
-        return <Clock className="w-4 h-4" />
-      case 'shipped':
-        return <Truck className="w-4 h-4" />
-      case 'completed':
-        return <CheckCircle className="w-4 h-4" />
-      case 'cancelled':
-        return <AlertCircle className="w-4 h-4" />
-      default:
-        return <Package className="w-4 h-4" />
-    }
-  }
 
   const updateOrderStatus = async (id, newStatus) => {
     try {

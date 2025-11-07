@@ -41,18 +41,22 @@ export default function OrderHistory() {
         if (!mounted) return
         const completed = (data || [])
           .filter(o => normalizeOrderStatus(o.status) === 'completed')
-          .map((o) => ({
-            id: o.id,
-            items: (o.order_items || []).map(i => ({
-              name: i.products?.name || 'Unknown Product',
-              quantity: i.quantity,
-              price: i.price,
-            })),
-            total: o.total,
-            status: normalizeOrderStatus(o.status),
-            orderDate: o.created_at?.split('T')[0],
-            customer: o.customer || {}
-          }))
+          .map((o) => {
+            const snapshot = o.customer_snapshot || {}
+            const customer = o.customer || {}
+            return {
+              id: o.id,
+              items: (o.order_items || []).map(i => ({
+                name: i.products?.name || 'Unknown Product',
+                quantity: i.quantity,
+                price: i.price,
+              })),
+              total: o.total,
+              status: normalizeOrderStatus(o.status),
+              orderDate: o.created_at?.split('T')[0],
+              customer: { ...snapshot, ...customer }
+            }
+          })
         setOrders(completed)
         if (completed.length === 0) {
           push({ title: 'No archived orders', description: 'No completed orders found.', variant: 'default' })
@@ -74,14 +78,18 @@ export default function OrderHistory() {
           const data = await fetchOrders()
           const archived = (data || [])
             .filter(o => normalizeOrderStatus(o.status) === 'completed')
-            .map((o) => ({
-              id: o.id,
-              items: (o.order_items || []).map(i => ({ name: i.products?.name || 'Unknown Product', quantity: i.quantity, price: i.price })),
-              total: o.total,
-              status: normalizeOrderStatus(o.status),
-              orderDate: o.created_at?.split('T')[0],
-              customer: o.customer || {}
-            }))
+            .map((o) => {
+              const snapshot = o.customer_snapshot || {}
+              const customer = o.customer || {}
+              return {
+                id: o.id,
+                items: (o.order_items || []).map(i => ({ name: i.products?.name || 'Unknown Product', quantity: i.quantity, price: i.price })),
+                total: o.total,
+                status: normalizeOrderStatus(o.status),
+                orderDate: o.created_at?.split('T')[0],
+                customer: { ...snapshot, ...customer }
+              }
+            })
           setOrders(archived)
         } catch {}
       })

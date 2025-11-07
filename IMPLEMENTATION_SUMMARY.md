@@ -28,6 +28,8 @@ Created simplified database schema with the following tables:
 - `id` (UUID, Primary Key)
 - `total` (DECIMAL)
 - `status` (VARCHAR)
+- `customer_email` (VARCHAR)
+- `customer_snapshot` (JSONB)
 - `created_at` (TIMESTAMP)
 
 ### Order Items Table
@@ -63,7 +65,7 @@ Created simplified database schema with the following tables:
 - Fetches orders from database with order items
 - Displays order information in simplified format
 - Order status management
-- Removed customer information (simplified schema)
+- Stores customer snapshots from checkout so admin can see address/contact details
 - Order details modal with items and totals
 
 ### 5. Admin Dashboard - Sales Analytics ✅

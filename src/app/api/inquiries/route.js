@@ -57,20 +57,47 @@ export async function PATCH(request) {
 
     const supabase = getServiceClient()
 
-    const { data: current, error: currentErr } = await supabase
+    const isColumnMissing = (err, column) => {
+      if (!err) return false
+      const msg = String(err.message || '').toLowerCase()
+      return msg.includes(`column ${column.toLowerCase()}`) || msg.includes(`${column.toLowerCase()} column`)
+    }
+
+    let allowAppointmentUpdates = true
+    let current
+
+    let { data: currentData, error: currentErr } = await supabase
       .from('inquiries')
       .select('status, appointment_at, subject, email')
       .eq('id', id)
       .single()
+
+    if (currentErr && isColumnMissing(currentErr, 'appointment_at')) {
+      allowAppointmentUpdates = false
+      const fallback = await supabase
+        .from('inquiries')
+        .select('status, subject, email')
+        .eq('id', id)
+        .single()
+      currentData = fallback.data
+      currentErr = fallback.error
+    }
+
     if (currentErr) return NextResponse.json({ error: currentErr.message }, { status: 400 })
+    current = currentData
 
     const prevStatus = current?.status || null
-    const prevAppointment = current?.appointment_at || null
+    const prevAppointment = allowAppointmentUpdates ? current?.appointment_at || null : null
 
     const updatePayload = { status }
-    if (appointment_at) {
+    if (allowAppointmentUpdates && appointment_at) {
       updatePayload.appointment_at = appointment_at
     }
+
+    if (!allowAppointmentUpdates && appointment_at) {
+      console.warn('Skipping appointment_at update because column does not exist')
+    }
+
     const { data, error } = await supabase
       .from('inquiries')
       .update(updatePayload)
@@ -92,8 +119,8 @@ export async function PATCH(request) {
           subject: data.subject,
           status: data.status,
           previous_status: prevStatus,
-          appointment_at: data.appointment_at || null,
-          previous_appointment_at: prevAppointment,
+          appointment_at: allowAppointmentUpdates ? (data.appointment_at || null) : null,
+          previous_appointment_at: allowAppointmentUpdates ? prevAppointment : null,
           updated_at: new Date().toISOString()
         }
       })

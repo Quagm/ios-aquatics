@@ -126,26 +126,48 @@ export async function fetchOrders() {
 export async function createOrder({ customer, items, totals }) {
   const total = totals?.total ?? 0
   const customerEmail = customer?.email || null
-  // Try insert with customer_email; if column missing, fallback without it
-  let order
-  let orderError
-  {
+  let order = null
+  let orderError = null
+  const customerSnapshot = customer ? {
+    name: customer.name || `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || null,
+    first_name: customer.first_name || null,
+    last_name: customer.last_name || null,
+    email: customer.email || customerEmail,
+    phone: customer.phone || null,
+    address: customer.address || null,
+    city: customer.city || null,
+    province: customer.province || null,
+    postal_code: customer.postal_code || customer.postal || null,
+  } : null
+
+  const attemptedInserts = [
+    { total, status: "processing", customer_email: customerEmail, customer_snapshot: customerSnapshot },
+    { total, status: "processing", customer_email: customerEmail },
+    { total, status: "processing" }
+  ]
+
+  for (const payload of attemptedInserts) {
+    if (order) break
     const res = await supabase
       .from("orders")
-      .insert({ total, status: "processing", customer_email: customerEmail })
+      .insert(payload)
       .select()
       .single()
-    order = res.data
-    orderError = res.error
+    if (!res.error) {
+      order = res.data
+      break
+    }
+    const message = String(res.error?.message || '').toLowerCase()
+    const isColumnMissing = message.includes('column') && message.includes('customer_snapshot')
+    const isEmailMissing = message.includes('column') && message.includes('customer_email')
+    if (!(isColumnMissing || isEmailMissing)) {
+      orderError = res.error
+      break
+    }
   }
-  if (orderError && String(orderError.message || '').toLowerCase().includes('customer_email')) {
-    const res2 = await supabase
-      .from("orders")
-      .insert({ total, status: "processing" })
-      .select()
-      .single()
-    order = res2.data
-    orderError = res2.error
+
+  if (!order && !orderError) {
+    orderError = new Error('Failed to create order')
   }
   if (orderError) throw orderError
 
@@ -158,6 +180,10 @@ export async function createOrder({ customer, items, totals }) {
   
   const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
   if (itemsError) throw itemsError
+
+  if (order && !order.customer_snapshot && customerSnapshot) {
+    order.customer_snapshot = customerSnapshot
+  }
 
   return order
 }
