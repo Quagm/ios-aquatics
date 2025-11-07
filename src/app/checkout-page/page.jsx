@@ -111,7 +111,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <NavigationBar />
       
       <div className="flex-1 w-full pt-28 sm:pt-32 pb-20 sm:pb-24">
@@ -227,7 +227,7 @@ export default function CheckoutPage() {
         </div>
       </div>
       
-      <Footer />
+      <Footer className="mt-20 sm:mt-24" />
     </div>
   )
 }

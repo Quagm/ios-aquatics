@@ -196,15 +196,15 @@ export default function AquascapeForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
-      <div className="space-y-10 px-4 sm:px-6 md:px-8 lg:px-10 max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit} className="w-full max-w-4xl xl:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 pb-12 sm:pb-16 lg:pb-20 flex flex-col items-center">
+      <div className="w-full space-y-12">
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
           <p className="text-red-300 text-sm sm:text-base">{error}</p>
         </div>
       )}
       {/* Delivery Address summary pulled from Account Information */}
-      <div className="space-y-4 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="w-full space-y-6">
         <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Delivery Address
@@ -232,13 +232,13 @@ export default function AquascapeForm() {
         </div>
       </div>
       
-      <div className={`${showInlineFields ? 'space-y-6 px-4 sm:px-6 md:px-8 lg:px-10' : 'hidden'}`}>
+      <div className={`${showInlineFields ? 'w-full space-y-8' : 'hidden'}`}>
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Personal Information
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
           <div className="group space-y-3">
             <label htmlFor="firstName" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               First Name *
@@ -275,13 +275,13 @@ export default function AquascapeForm() {
         </div>
       </div>
 
-      <div className={`${showInlineFields ? 'space-y-6 px-4 sm:px-6 md:px-8 lg:px-10' : 'hidden'}`}>
+      <div className={`${showInlineFields ? 'w-full space-y-8' : 'hidden'}`}>
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Contact Information
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
           <div className="group space-y-3">
             <label htmlFor="contactNo" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Contact Number *
@@ -314,13 +314,13 @@ export default function AquascapeForm() {
         </div>
       </div>
       
-      <div className={`${showInlineFields ? 'space-y-6 px-4 sm:px-6 md:px-8 lg:px-10' : 'hidden'}`}>
+      <div className={`${showInlineFields ? 'w-full space-y-8' : 'hidden'}`}>
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Location Information
         </h3>
         
-        <div className="group space-y-3">
+        <div className="group space-y-4">
           <label htmlFor="address" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
             Full Address *
           </label>
@@ -336,13 +336,13 @@ export default function AquascapeForm() {
         </div>
       </div>
 
-      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="w-full space-y-8">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Aquascape Preferences
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
           <div className="group space-y-3">
             <label htmlFor="aquariumSize" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
               Aquarium Size *
@@ -395,13 +395,13 @@ export default function AquascapeForm() {
         </div>
       </div>
       
-      <div className="space-y-6 px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="w-full space-y-8">
         <h3 className="text-xl font-semibold text-white mb-8 flex items-center gap-3">
           <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
           Additional Preferences
         </h3>
         
-        <div className="group space-y-3">
+        <div className="group space-y-4">
           <label htmlFor="preferences" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
             Preferences/Suggestions
           </label>
@@ -420,7 +420,7 @@ export default function AquascapeForm() {
           ></textarea>
         </div>
         
-        <div className="group space-y-3">
+        <div className="group space-y-4">
           <label htmlFor="imageReference" className="block text-sm font-semibold text-slate-300 mb-2 group-focus-within:text-slate-200 transition-colors text-left">
             Image Reference Attachment
           </label>
@@ -439,7 +439,7 @@ export default function AquascapeForm() {
         </div>
       </div>
       
-      <div className="text-center pt-10">
+      <div className="w-full text-center pt-12">
         <button
           type="submit"
           disabled={submitting || !isSignedIn}
