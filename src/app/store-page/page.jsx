@@ -5,7 +5,7 @@ import ProductCard from "@/components/ProductCard"
 import { useEffect, useMemo, useState } from "react"
 import { fetchProducts } from "@/lib/queries"
 import { supabase } from "@/supabaseClient"
-import { ShoppingCart, AlertTriangle, Search, Sparkles, ArrowDown, Fish, Leaf, Wrench, Utensils, Pill, Palette } from 'lucide-react'
+import { ShoppingCart, AlertTriangle, Search, ArrowDown, Fish, Leaf, Wrench, Utensils, Pill, Palette } from 'lucide-react'
 
 export default function StorePage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
@@ -119,12 +119,14 @@ export default function StorePage() {
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
           <div className="flex flex-col items-center justify-center text-center mb-10 sm:mb-14 bg-white/5 rounded-3xl border border-white/10 px-6 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+            <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-6 sm:mb-8">
               <span className="gradient-text">IOS Aquatics</span> Store
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Discover our wide selection of freshwater fish, plants, equipment, and accessories at the best prices
             </p>
+            <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
           </div>
 
           <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
@@ -285,22 +287,7 @@ export default function StorePage() {
                   <ArrowDown className="w-5 h-5 group-hover:translate-y-1 transition-transform duration-300" />
                 </span>
               </button>
-            ) : (
-              <>
-                <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
-                <div className="h-4 sm:h-6 lg:h-8 w-full"></div>
-                <div className="flex justify-center items-center w-full">
-                  <div className="glass-effect rounded-2xl p-10 sm:p-12 lg:p-16 border border-white/10 max-w-sm mx-auto">
-                    <div className="flex flex-col items-center space-y-6">
-                      <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
-                      <p className="text-slate-300 font-medium text-center text-base sm:text-lg leading-relaxed px-4 py-2">
-                        You've seen all our products!
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

@@ -104,7 +104,12 @@ export default function OrderHistory() {
     }
   }, [])
 
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0)
+  const totalRevenue = orders.reduce((sum, o) => {
+    if (normalizeOrderStatus(o.status) === 'cancelled') {
+      return sum
+    }
+    return sum + (o.total || 0)
+  }, 0)
 
   const handleDeleteOrder = async (orderId) => {
     const confirmed = window.confirm('Are you sure you want to delete this order? This action cannot be undone.')

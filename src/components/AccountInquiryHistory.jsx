@@ -46,6 +46,45 @@ const getCleanMessage = (text) => {
   return cleaned.join('\n').trim()
 }
 
+const formatAppointmentDate = (dateString) => {
+  if (!dateString) return ""
+  try {
+    const appointmentDate = new Date(dateString)
+    const formattedDate = appointmentDate.toLocaleDateString('en-US', { 
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+    const formattedTime = appointmentDate.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    })
+    return `Appointment scheduled for ${formattedDate} at ${formattedTime}`
+  } catch {
+    return `Appointment: ${dateString}`
+  }
+}
+
+const formatTimestamp = (dateString) => {
+  if (!dateString) return ""
+  try {
+    const date = new Date(dateString)
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    const hours = date.getHours()
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    const seconds = String(date.getSeconds()).padStart(2, '0')
+    const ampm = hours >= 12 ? 'pm' : 'am'
+    const hour12 = hours % 12 || 12
+    return `${day}/${month}/${year}, ${hour12}:${minutes}:${seconds} ${ampm}`
+  } catch {
+    return dateString
+  }
+}
+
 export default function AccountInquiryHistory() {
   const [inquiries, setInquiries] = useState([])
   const [loading, setLoading] = useState(true)
@@ -90,11 +129,41 @@ export default function AccountInquiryHistory() {
             message: inq.message || "",
             status: inq.status || "pending",
             created_at: inq.created_at || "",
+            appointment_at: inq.appointment_at || null,
             first_name: inq.first_name || "",
             last_name: inq.last_name || ""
           }))
 
-        setInquiries(mine)
+        const combinedItems = []
+        mine.forEach((inq) => {
+          combinedItems.push({
+            type: 'inquiry',
+            id: inq.id,
+            data: inq,
+            sortDate: inq.created_at
+          })
+          if (inq.appointment_at) {
+            combinedItems.push({
+              type: 'appointment',
+              id: `appointment_${inq.id}`,
+              inquiryId: inq.id,
+              data: {
+                appointment_at: inq.appointment_at,
+                created_at: inq.created_at,
+                subject: inq.subject
+              },
+              sortDate: inq.appointment_at
+            })
+          }
+        })
+
+        combinedItems.sort((a, b) => {
+          const dateA = new Date(a.sortDate || 0)
+          const dateB = new Date(b.sortDate || 0)
+          return dateB - dateA
+        })
+
+        setInquiries(combinedItems)
       } catch (err) {
         if (!mounted) return
         console.error("Failed to load inquiries", err)
@@ -127,13 +196,41 @@ export default function AccountInquiryHistory() {
       )}
 
       <div className="space-y-3">
-        {inquiries.map((inquiry) => {
+        {inquiries.map((item) => {
+          if (item.type === 'appointment') {
+            const appointmentDate = item.data.appointment_at ? new Date(item.data.appointment_at) : null
+            const timestamp = formatTimestamp(item.data.created_at)
+            return (
+              <div
+                key={item.id}
+                className="w-full text-left border border-white/20 rounded-xl p-4 bg-white/5 overflow-hidden"
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-3 min-w-0">
+                    <h3 className="text-sm sm:text-base font-semibold text-white">Appointment Scheduled</h3>
+                    {timestamp && (
+                      <span className="text-xs text-white/60 whitespace-nowrap shrink-0">
+                        {timestamp}
+                      </span>
+                    )}
+                  </div>
+                  {appointmentDate && (
+                    <p className="text-xs text-white/80">
+                      {formatAppointmentDate(item.data.appointment_at)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )
+          }
+
+          const inquiry = item.data
           const labelClass = STATUS_STYLES[inquiry.status?.toLowerCase?.()] || STATUS_STYLES.pending
           const createdAt = inquiry.created_at ? new Date(inquiry.created_at) : null
           const preview = truncate(getCleanMessage(inquiry.message), 120)
           return (
             <button
-              key={inquiry.id}
+              key={item.id}
               type="button"
               className="w-full text-left border border-white/20 rounded-xl p-4 bg-white/5 hover:bg-white/10 transition-colors overflow-hidden"
               onClick={() => setSelectedInquiry(inquiry)}

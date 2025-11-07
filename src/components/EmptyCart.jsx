@@ -3,8 +3,9 @@ import { ShoppingCart, ArrowRight } from 'lucide-react'
 
 export default function EmptyCart() {
   return (
-    <div className="text-center py-20">
-      <div className="glass-effect rounded-3xl p-12 max-w-md mx-auto border border-white/10">
+    <div className="flex flex-col items-center justify-center text-center w-full">
+      <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
+      <div className="glass-effect rounded-3xl p-12 max-w-md mx-auto border border-white/10 flex flex-col items-center justify-center">
         <div className="mb-8 animate-bounce">
           <ShoppingCart className="w-20 h-20 text-blue-400 mx-auto" />
         </div>
@@ -22,6 +23,7 @@ export default function EmptyCart() {
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
         </Link>
       </div>
+      <div className="h-8 sm:h-12 lg:h-16 w-full"></div>
     </div>
   )
 }

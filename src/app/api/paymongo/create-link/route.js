@@ -18,8 +18,16 @@ export async function POST(req) {
     amount = Math.max(1, Math.floor(Number(amount)))
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
-    if (!successUrl && baseUrl) successUrl = `${baseUrl}/store-page?payment=success`
-    if (!cancelUrl && baseUrl) cancelUrl = `${baseUrl}/cart-page?payment=cancelled`
+    if (!successUrl && baseUrl) {
+      successUrl = `${baseUrl}/store-page?payment=success&orderId=${orderId || ''}`
+    } else if (!successUrl) {
+      successUrl = `/store-page?payment=success&orderId=${orderId || ''}`
+    }
+    if (!cancelUrl && baseUrl) {
+      cancelUrl = `${baseUrl}/checkout-page?payment=cancelled`
+    } else if (!cancelUrl) {
+      cancelUrl = `/checkout-page?payment=cancelled`
+    }
 
     let payment_method_types = ['card', 'gcash']
     const method = (paymentMethod || '').toLowerCase()
@@ -36,11 +44,9 @@ export async function POST(req) {
           currency: 'PHP',
           description: description || `Order ${orderId || ''}`.trim(),
           remarks: 'IOS Aquatics Checkout',
-          checkout_url: null,
           payment_method_types,
-
-
-
+          ...(successUrl && { success_url: successUrl }),
+          ...(cancelUrl && { cancel_url: cancelUrl }),
           metadata: {
             orderId: orderId || null,
             customerEmail: email || null,

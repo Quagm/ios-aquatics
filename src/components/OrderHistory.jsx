@@ -218,7 +218,7 @@ export default function OrderHistory() {
                 </div>
 
                 {}
-                {selectedOrder.customer_snapshot && Object.keys(selectedOrder.customer_snapshot).length > 0 && (
+                {(selectedOrder.customer_snapshot && Object.keys(selectedOrder.customer_snapshot).length > 0) && (
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-3">Delivery Address</h3>
                     <div className="bg-white/5 rounded-lg p-4 space-y-2">

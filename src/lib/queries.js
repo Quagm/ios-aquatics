@@ -42,9 +42,47 @@ export async function fetchInquiries() {
 }
 
 export async function createInquiry(inquiry) {
-  const { data, error } = await supabase.from("inquiries").insert(inquiry).select().single()
-  if (error) throw error
-  return data
+  const isColumnMissing = (err) => {
+    const message = String(err?.message || '').toLowerCase()
+    return message.includes('column') && message.includes('customer_snapshot')
+  }
+
+  const inquiryWithSnapshot = { ...inquiry }
+  const inquiryWithoutSnapshot = { ...inquiry }
+  delete inquiryWithoutSnapshot.customer_snapshot
+
+  const attemptedInserts = [inquiryWithSnapshot, inquiryWithoutSnapshot]
+
+  let result = null
+  let lastError = null
+
+  for (const payload of attemptedInserts) {
+    const { data, error } = await supabase.from("inquiries").insert(payload).select().single()
+    if (!error) {
+      result = data
+      break
+    }
+    const message = String(error?.message || '').toLowerCase()
+    if (isColumnMissing(error)) {
+      lastError = error
+      continue
+    }
+    lastError = error
+    break
+  }
+
+  if (!result && lastError) {
+    if (isColumnMissing(lastError)) {
+      throw new Error('The customer_snapshot column is missing from the database. Please run this SQL in Supabase: ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS customer_snapshot JSONB;')
+    }
+    throw lastError
+  }
+
+  if (!result) {
+    throw new Error('Failed to create inquiry')
+  }
+
+  return result
 }
 
 export async function deleteInquiryById(inquiryId) {
@@ -113,10 +151,18 @@ export async function fetchOrders() {
     itemsByOrder.set(item.order_id, list)
   }
 
-  return orderList.map((order) => ({
+  const mapped = orderList.map((order) => ({
     ...order,
-    order_items: itemsByOrder.get(order.id) || []
+    order_items: itemsByOrder.get(order.id) || [],
+    customer_snapshot: order.customer_snapshot || null,
+    customer_email: order.customer_email || null
   }))
+  
+  if (mapped.length > 0) {
+    console.log('[fetchOrders] First order customer_snapshot:', mapped[0]?.customer_snapshot)
+  }
+  
+  return mapped
 }
 
 export async function createOrder({ customer, items, totals }) {

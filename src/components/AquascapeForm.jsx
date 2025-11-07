@@ -11,25 +11,39 @@ export default function AquascapeForm() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [accountInfo, setAccountInfo] = useState({ name: "", email: "", phone: "", address: "", city: "", province: "", postal: "" })
+  const [priceError, setPriceError] = useState("")
+  const [priceMin, setPriceMin] = useState("")
+  const [priceMax, setPriceMax] = useState("")
   const { push } = useToast()
 
   useEffect(() => {
-    try {
-      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('account-info') : null
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        setAccountInfo({
-          name: parsed.name || "",
-          email: parsed.email || "",
-          phone: parsed.phone || "",
-          address: parsed.address || "",
-          city: parsed.city || "",
-          province: parsed.province || "",
-          postal: parsed.postal || ""
+    const loadAccountInfo = async () => {
+      try {
+        const res = await fetch('/api/account', {
+          credentials: 'include'
         })
+        if (res.ok) {
+          const data = await res.json()
+          if (data) {
+            setAccountInfo({
+              name: data.name || "",
+              email: data.email || "",
+              phone: data.phone || "",
+              address: data.address || "",
+              city: data.city || "",
+              province: data.province || "",
+              postal: data.postal || ""
+            })
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load account info:', err)
       }
-    } catch {}
-  }, [])
+    }
+    if (isLoaded && isSignedIn) {
+      loadAccountInfo()
+    }
+  }, [isLoaded, isSignedIn])
 
   const hasCompleteAccountInfo = useMemo(() => {
     const trimmed = Object.fromEntries(
@@ -49,7 +63,9 @@ export default function AquascapeForm() {
   const showInlineFields = !hasCompleteAccountInfo
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault()
+    }
     
     if (!isLoaded) return
     if (!isSignedIn) {
@@ -57,18 +73,62 @@ export default function AquascapeForm() {
       return
     }
 
-    const data = new FormData(e.currentTarget)
+    let currentAccountInfo = accountInfo
+    try {
+      const res = await fetch('/api/account', {
+        credentials: 'include'
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data && typeof data === 'object' && data !== null) {
+          const hasAnyData = Object.values(data).some(v => v && String(v).trim())
+          if (hasAnyData) {
+            currentAccountInfo = {
+              name: data.name || "",
+              email: data.email || "",
+              phone: data.phone || "",
+              address: data.address || "",
+              city: data.city || "",
+              province: data.province || "",
+              postal: data.postal || ""
+            }
+            setAccountInfo(currentAccountInfo)
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch account info during inquiry submission:', err)
+    }
+
+    const formElement = (e && e.currentTarget) || (typeof document !== 'undefined' ? document.querySelector('form') : null)
+    if (!formElement) {
+      setError("Form element not found. Please refresh the page and try again.")
+      return
+    }
+
+    const data = new FormData(formElement)
     const payload = Object.fromEntries(data.entries())
-    const fullName = (accountInfo.name || '').trim()
+    console.log('[AquascapeForm] Account info being used:', currentAccountInfo)
+    const fullName = (currentAccountInfo.name || '').trim()
     const [fname, ...lnameParts] = fullName.split(/\s+/)
     const derivedFirst = fname || payload.firstName || ''
     const derivedLast = (lnameParts.join(' ') || payload.lastName || '').trim()
-    const derivedEmail = (accountInfo.email || payload.email || '').trim()
-    const derivedPhone = (accountInfo.phone || payload.contactNo || '').trim()
-    const derivedAddress = (accountInfo.address || payload.address || '').trim()
-    const derivedCity = (accountInfo.city || payload.city || '').trim()
-    const derivedProvince = (accountInfo.province || payload.province || '').trim()
-    const derivedPostal = (accountInfo.postal || payload.postal || '').trim()
+    const derivedEmail = (currentAccountInfo.email || payload.email || '').trim()
+    const derivedPhone = (currentAccountInfo.phone || payload.contactNo || '').trim()
+    const derivedAddress = (currentAccountInfo.address || payload.address || '').trim()
+    const derivedCity = (currentAccountInfo.city || payload.city || '').trim()
+    const derivedProvince = (currentAccountInfo.province || payload.province || '').trim()
+    const derivedPostal = (currentAccountInfo.postal || payload.postal || '').trim()
+    console.log('[AquascapeForm] Derived customer data:', {
+      first: derivedFirst,
+      last: derivedLast,
+      email: derivedEmail,
+      phone: derivedPhone,
+      address: derivedAddress,
+      city: derivedCity,
+      province: derivedProvince,
+      postal: derivedPostal
+    })
 
     if (!derivedFirst || !derivedLast || !derivedEmail || !derivedPhone || !derivedAddress || !derivedCity || !derivedProvince || !derivedPostal) {
       push({
@@ -80,6 +140,22 @@ export default function AquascapeForm() {
       setSubmitting(false)
       return
     }
+
+    const priceMin = parseFloat(payload.priceMin) || 0
+    const priceMax = parseFloat(payload.priceMax) || 0
+
+    if (priceMin >= priceMax) {
+      push({
+        title: 'Invalid price range',
+        description: 'The minimum price must be lower than the maximum price.',
+        variant: 'error'
+      })
+      setPriceError('Minimum price must be lower than maximum price.')
+      setSubmitting(false)
+      return
+    }
+
+    setPriceError("")
     const imageFiles = data.getAll("imageReference")
     const validImageFiles = imageFiles.filter(file => file instanceof File && file.size > 0).slice(0, 5)
     
@@ -91,27 +167,61 @@ export default function AquascapeForm() {
     
     try {
       const imageUrls = []
+      const uploadErrors = []
       
       for (const imageFile of validImageFiles) {
         if (imageFile instanceof File && imageFile.size > 0) {
-          const uploadData = new FormData()
-          uploadData.append("file", imageFile)
+          try {
+            const uploadData = new FormData()
+            uploadData.append("file", imageFile)
 
-          const uploadRes = await fetch("/api/upload", {
-            method: "POST",
-            body: uploadData,
-            credentials: "include"
-          })
+            const uploadRes = await fetch("/api/upload", {
+              method: "POST",
+              body: uploadData,
+              credentials: "include"
+            })
 
-          const uploadJson = await uploadRes.json()
-          if (!uploadRes.ok) {
-            console.error(`Failed to upload image ${imageFile.name}:`, uploadJson?.error)
+            if (!uploadRes.ok) {
+              let errorMessage = `Failed to upload ${imageFile.name}`
+              try {
+                const uploadJson = await uploadRes.json()
+                errorMessage = uploadJson?.error || errorMessage
+              } catch {
+                errorMessage = `Server error (${uploadRes.status}): ${uploadRes.statusText}`
+              }
+              console.error(`Failed to upload image ${imageFile.name}:`, errorMessage)
+              uploadErrors.push(`${imageFile.name}: ${errorMessage}`)
+              continue
+            }
+
+            const uploadJson = await uploadRes.json()
+            if (uploadJson?.url) {
+              imageUrls.push(uploadJson.url)
+            }
+          } catch (fetchError) {
+            console.error(`Network error uploading ${imageFile.name}:`, fetchError?.message || fetchError)
+            const errorMsg = fetchError?.message || 'Network error'
+            uploadErrors.push(`${imageFile.name}: ${errorMsg}`)
+            if (errorMsg.includes('fetch failed') || errorMsg.includes('Failed to fetch')) {
+              console.error(`Upload API may be unavailable. Check if SUPABASE_SERVICE_ROLE_KEY is set in environment variables.`)
+            }
             continue
           }
-          if (uploadJson?.url) {
-            imageUrls.push(uploadJson.url)
-          }
         }
+      }
+
+      if (uploadErrors.length > 0 && imageUrls.length === 0) {
+        push({
+          title: 'Image upload failed',
+          description: `Could not upload images. The inquiry will be submitted without images. Error: ${uploadErrors[0]}`,
+          variant: 'warning'
+        })
+      } else if (uploadErrors.length > 0) {
+        push({
+          title: 'Some images failed to upload',
+          description: `${uploadErrors.length} image(s) could not be uploaded. The inquiry will be submitted with ${imageUrls.length} image(s).`,
+          variant: 'warning'
+        })
       }
 
       const preferences = typeof payload.preferences === "string" && payload.preferences.trim()
@@ -145,6 +255,8 @@ export default function AquascapeForm() {
         postal_code: derivedPostal
       }
 
+      console.log('[AquascapeForm] Creating inquiry with customer_snapshot:', customerSnapshot)
+
       await createInquiry({
         first_name: derivedFirst,
         last_name: derivedLast,
@@ -156,6 +268,9 @@ export default function AquascapeForm() {
         customer_snapshot: customerSnapshot
       })
       setSubmitted(true)
+      setPriceMin("")
+      setPriceMax("")
+      setPriceError("")
       ;(e.currentTarget).reset()
     } catch (err) {
       setError(err.message || "Failed to submit. Please try again.")
@@ -282,9 +397,21 @@ export default function AquascapeForm() {
                   id="priceMin"
                   name="priceMin"
                   placeholder="Min (₱)"
-                  className="w-full px-4 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
+                  className={`w-full px-4 py-4 bg-slate-800/50 border ${priceError ? 'border-red-500' : 'border-slate-600'} rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm`}
                   min="0"
                   required
+                  value={priceMin}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setPriceMin(value)
+                    const min = parseFloat(value) || 0
+                    const max = parseFloat(priceMax) || 0
+                    if (max > 0 && min >= max) {
+                      setPriceError('Minimum price must be lower than maximum price.')
+                    } else {
+                      setPriceError("")
+                    }
+                  }}
                 />
               </div>
               <div>
@@ -293,12 +420,27 @@ export default function AquascapeForm() {
                   id="priceMax"
                   name="priceMax"
                   placeholder="Max (₱)"
-                  className="w-full px-4 py-4 bg-slate-800/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm"
+                  className={`w-full px-4 py-4 bg-slate-800/50 border ${priceError ? 'border-red-500' : 'border-slate-600'} rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-white placeholder-slate-400 transition-all duration-300 hover:border-slate-500 backdrop-blur-sm`}
                   min="0"
                   required
+                  value={priceMax}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setPriceMax(value)
+                    const max = parseFloat(value) || 0
+                    const min = parseFloat(priceMin) || 0
+                    if (min > 0 && min >= max) {
+                      setPriceError('Minimum price must be lower than maximum price.')
+                    } else {
+                      setPriceError("")
+                    }
+                  }}
                 />
               </div>
             </div>
+            {priceError && (
+              <p className="text-red-400 text-sm mt-1">{priceError}</p>
+            )}
           </div>
         </div>
       </div>

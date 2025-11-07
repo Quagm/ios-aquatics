@@ -267,6 +267,50 @@ useEffect(() => {
     setEditingProduct(null)
   }
 
+  const resetAllStock = async () => {
+    const confirmed = window.confirm('Are you sure you want to reset stock to 0 for ALL products? This action cannot be undone.')
+    if (!confirmed) return
+
+    try {
+      const res = await fetch('/api/products/reset-stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      })
+      
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data?.error || 'Failed to reset stock')
+      }
+
+      const data = await res.json()
+      const updatedCount = data.updatedCount || 0
+      
+      setProducts(prev => prev.map(p => {
+        const minForStatus = typeof p.minStock === 'number' ? p.minStock : (typeof p.min_stock === 'number' ? p.min_stock : 0)
+        const nextStatus = getStockStatus(0, minForStatus)
+        return {
+          ...p,
+          stock: 0,
+          status: nextStatus
+        }
+      }))
+      
+      setStockEdits(prev => {
+        const updated = { ...prev }
+        products.forEach(p => {
+          updated[p.id] = '0'
+        })
+        return updated
+      })
+
+      alert(`Successfully reset stock to 0 for ${updatedCount} product(s).`)
+    } catch (error) {
+      console.error('Error resetting stock:', error)
+      alert(`Failed to reset stock: ${error?.message || 'Unknown error'}`)
+    }
+  }
+
   const categories = ['AQUARIUMS', 'C02', 'SUBSTRATE/HARDSCAPE', 'FERTILIZER/BACTERIA', 'AIR PUMP', 'LIGHTS', 'FILTER', 'HEATER', 'Submersible Pump']
 
   return (
@@ -284,13 +328,22 @@ useEffect(() => {
 
       <div className="flex justify-between items-center">
         <div></div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Add Product
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={resetAllStock}
+            className="flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-orange-500/20"
+          >
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            Reset All Stock
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Add Product
+          </button>
+        </div>
       </div>
 
       <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">

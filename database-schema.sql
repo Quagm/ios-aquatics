@@ -43,6 +43,9 @@ CREATE TABLE IF NOT EXISTS inquiries (
 -- Add appointment_at column if it doesn't exist (for existing databases)
 ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS appointment_at TIMESTAMP WITH TIME ZONE;
 
+-- Add customer_snapshot column if it doesn't exist (for existing databases)
+ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS customer_snapshot JSONB;
+
 -- Orders table
 CREATE TABLE IF NOT EXISTS orders (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -106,3 +109,26 @@ CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON inquiries(created_at);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);
+
+-- User accounts table
+CREATE TABLE IF NOT EXISTS user_accounts (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(20),
+    address TEXT,
+    city VARCHAR(100),
+    province VARCHAR(100),
+    postal_code VARCHAR(10),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_accounts_user_id ON user_accounts(user_id);
+
+ALTER TABLE user_accounts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can read their own account" ON user_accounts FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own account" ON user_accounts FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update their own account" ON user_accounts FOR UPDATE USING (true);

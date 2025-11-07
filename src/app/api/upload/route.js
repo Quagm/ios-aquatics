@@ -6,13 +6,11 @@ export const runtime = 'nodejs'
 
 export async function POST(request) {
   try {
-
     const { userId } = getAuth(request)
     if (!userId) {
       if (process.env.NODE_ENV === 'production') {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
       }
-
       console.warn('[upload] Proceeding without Clerk auth in development')
     }
 
@@ -21,6 +19,11 @@ export async function POST(request) {
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+    }
+
+    const maxSize = 10 * 1024 * 1024
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: `File size exceeds 10MB limit. File size: ${(file.size / 1024 / 1024).toFixed(2)}MB` }, { status: 400 })
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -52,8 +55,24 @@ export async function POST(request) {
 
     return NextResponse.json({ url: publicUrl.publicUrl }, { status: 200 })
   } catch (err) {
-    console.error('Upload failed:', err)
-    const message = err?.message || 'Upload failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('[upload] Upload failed:', err)
+    console.error('[upload] Error details:', {
+      message: err?.message,
+      name: err?.name,
+      stack: err?.stack
+    })
+    
+    let message = 'Upload failed'
+    if (err?.message) {
+      message = err.message
+    } else if (err instanceof Error) {
+      message = err.toString()
+    }
+    
+    const statusCode = err?.status || 500
+    return NextResponse.json({ 
+      error: message,
+      details: process.env.NODE_ENV === 'development' ? err?.stack : undefined
+    }, { status: statusCode })
   }
 }

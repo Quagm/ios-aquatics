@@ -68,28 +68,24 @@ const getStatusIcon = (status) => {
   }
 }
 
-export default function OrderManagement() {
-  const [orders, setOrders] = useState([])
-  const [filteredOrders, setFilteredOrders] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [dateFilter, setDateFilter] = useState('all')
-  const [selectedOrder, setSelectedOrder] = useState(null)
-  const { push } = useToast()
-
 const normalize = (data) => (data || []).map((o) => {
-  const customerRaw = o.customer || {}
   const snapshot = o.customer_snapshot || {}
+  const customerRaw = o.customer || {}
   const merged = { ...snapshot, ...customerRaw }
+  
   const normalizedCustomer = {
-    name: merged.name || `${merged.first_name || ''} ${merged.last_name || ''}`.trim() || '—',
-    email: merged.email || merged.email_address || '—',
-    phone: merged.phone || merged.contact_number || '—',
-    address: merged.address || merged.street || '—',
-    city: merged.city || '—',
-    province: merged.province || merged.state || '—',
-    postal_code: merged.postal_code || merged.postal || '—',
+    name: merged.name || `${merged.first_name || ''} ${merged.last_name || ''}`.trim() || null,
+    first_name: merged.first_name || null,
+    last_name: merged.last_name || null,
+    email: merged.email || merged.email_address || o.customer_email || null,
+    phone: merged.phone || merged.contact_number || null,
+    address: merged.address || merged.street || null,
+    city: merged.city || null,
+    province: merged.province || merged.state || null,
+    postal_code: merged.postal_code || merged.postal || null,
   }
+
+  const hasCustomerData = Object.values(normalizedCustomer).some(v => v && String(v).trim() && v !== '—' && v !== null)
 
   return {
     id: o.id,
@@ -101,14 +97,41 @@ const normalize = (data) => (data || []).map((o) => {
     total: o.total,
     status: normalizeOrderStatus(o.status),
     orderDate: o.created_at?.split('T')[0],
-    customer: normalizedCustomer
+    customer: hasCustomerData ? normalizedCustomer : null,
+    customer_snapshot: (o.customer_snapshot && typeof o.customer_snapshot === 'object') ? o.customer_snapshot : null,
+    customer_email: o.customer_email || null
   }
 })
+
+export default function OrderManagement() {
+  const [orders, setOrders] = useState([])
+  const [filteredOrders, setFilteredOrders] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [dateFilter, setDateFilter] = useState('all')
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const { push } = useToast()
 
   const loadOrders = async () => {
     try {
       const data = await fetchOrders()
+      console.log('[OrderManagement] Fetched orders:', data?.length || 0)
+      if (data && data.length > 0) {
+        console.log('[OrderManagement] First order raw customer_snapshot:', data[0]?.customer_snapshot)
+        console.log('[OrderManagement] First order raw customer_email:', data[0]?.customer_email)
+      }
       const normalized = normalize(data)
+      console.log('[OrderManagement] Normalized orders:', normalized?.length || 0)
+      if (normalized && normalized.length > 0) {
+        const firstOrder = normalized[0]
+        console.log('[OrderManagement] First normalized order:', {
+          id: firstOrder.id,
+          hasCustomer: !!firstOrder.customer,
+          hasCustomerSnapshot: !!firstOrder.customer_snapshot,
+          customer: firstOrder.customer,
+          customer_snapshot: firstOrder.customer_snapshot
+        })
+      }
       setOrders(normalized)
       setFilteredOrders(normalized)
     } catch (e) {
@@ -209,7 +232,6 @@ const normalize = (data) => (data || []).map((o) => {
 
   return (
     <div className="space-y-8 py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12">
-      {}
       <div className="text-center lg:text-left">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
           <Package className="w-4 h-4" />
@@ -221,7 +243,6 @@ const normalize = (data) => (data || []).map((o) => {
         <p className="text-lg text-slate-300 max-w-2xl">Manage customer orders and track fulfillment for your aquatics store.</p>
       </div>
 
-      {}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
           <div className="flex items-center">
@@ -269,7 +290,6 @@ const normalize = (data) => (data || []).map((o) => {
         </div>
       </div>
 
-      {}
       <div className="glass-effect rounded-2xl p-6 border border-white/10">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
@@ -311,7 +331,6 @@ const normalize = (data) => (data || []).map((o) => {
         </div>
       </div>
 
-      {}
       <div>
         <div className="px-1 py-2">
           <h3 className="text-lg font-semibold text-white">Orders ({filteredOrders.length})</h3>
@@ -366,7 +385,6 @@ const normalize = (data) => (data || []).map((o) => {
         </div>
       </div>
 
-      {}
       {selectedOrder && (
         <OrderDetailModal
           order={selectedOrder}
@@ -403,7 +421,6 @@ function OrderDetailModal({ order, onClose }) {
           </div>
         </div>
         <div className="p-6 space-y-6">
-          {}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Order Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -424,44 +441,62 @@ function OrderDetailModal({ order, onClose }) {
             </div>
           </div>
 
-          {}
-          {order.customer && (
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Customer Information</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4">Customer Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <p className="text-sm text-slate-400">Name</p>
-                  <p className="font-medium text-white">{order.customer.name || `${order.customer.first_name || ''} ${order.customer.last_name || ''}`.trim()}</p>
+                  <p className="font-medium text-white">
+                    {order.customer?.name || 
+                     (order.customer?.first_name || order.customer?.last_name 
+                       ? `${order.customer.first_name || ''} ${order.customer.last_name || ''}`.trim() 
+                       : null) ||
+                     order.customer_snapshot?.name ||
+                     (order.customer_snapshot?.first_name || order.customer_snapshot?.last_name
+                       ? `${order.customer_snapshot.first_name || ''} ${order.customer_snapshot.last_name || ''}`.trim()
+                       : null) ||
+                     '—'}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-slate-400">Email</p>
-                  <p className="font-medium text-white">{order.customer.email || '—'}</p>
+                  <p className="font-medium text-white break-all">
+                    {order.customer?.email || order.customer_snapshot?.email || order.customer_email || '—'}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-slate-400">Phone</p>
-                  <p className="font-medium text-white">{order.customer.phone || '—'}</p>
+                  <p className="font-medium text-white">
+                    {order.customer?.phone || order.customer_snapshot?.phone || '—'}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-slate-400">Address</p>
-                  <p className="font-medium text-white">{order.customer.address || '—'}</p>
+                  <p className="font-medium text-white">
+                    {order.customer?.address || order.customer_snapshot?.address || '—'}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-slate-400">City</p>
-                  <p className="font-medium text-white">{order.customer.city || '—'}</p>
+                  <p className="font-medium text-white">
+                    {order.customer?.city || order.customer_snapshot?.city || '—'}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-slate-400">Province</p>
-                  <p className="font-medium text-white">{order.customer.province || '—'}</p>
+                  <p className="font-medium text-white">
+                    {order.customer?.province || order.customer_snapshot?.province || '—'}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-slate-400">Postal Code</p>
-                  <p className="font-medium text-white">{order.customer.postal_code || '—'}</p>
+                  <p className="font-medium text-white">
+                    {order.customer?.postal_code || order.customer_snapshot?.postal_code || '—'}
+                  </p>
                 </div>
               </div>
-            </div>
-          )}
+          </div>
 
-          {}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Order Items</h4>
             <div className="space-y-3">

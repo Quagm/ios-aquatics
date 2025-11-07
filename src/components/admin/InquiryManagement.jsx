@@ -115,6 +115,10 @@ export default function InquiryManagement() {
   const loadInquiries = async () => {
     try {
       const data = await apiFetchInquiries()
+      console.log('[InquiryManagement] Fetched inquiries:', data?.length || 0)
+      if (data && data.length > 0) {
+        console.log('[InquiryManagement] First inquiry customer_snapshot:', data[0]?.customer_snapshot)
+      }
       setInquiries(data)
       setFilteredInquiries(data)
     } catch (e) {

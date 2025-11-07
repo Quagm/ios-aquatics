@@ -9,22 +9,33 @@ export default function AccountForm() {
   const clerkEmail = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || ""
 
   useEffect(() => {
-    try {
-      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('account-info') : null
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        setForm({ 
-          name: parsed.name || "", 
-          email: parsed.email || "", 
-          phone: parsed.phone || "",
-          address: parsed.address || "",
-          city: parsed.city || "",
-          province: parsed.province || "",
-          postal: parsed.postal || ""
+    const loadAccountInfo = async () => {
+      try {
+        const res = await fetch('/api/account', {
+          credentials: 'include'
         })
+        if (res.ok) {
+          const data = await res.json()
+          if (data) {
+            setForm({ 
+              name: data.name || "", 
+              email: data.email || "", 
+              phone: data.phone || "",
+              address: data.address || "",
+              city: data.city || "",
+              province: data.province || "",
+              postal: data.postal || ""
+            })
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load account info:', err)
       }
-    } catch {}
-  }, [])
+    }
+    if (isClerkLoaded && user) {
+      loadAccountInfo()
+    }
+  }, [isClerkLoaded, user])
 
   useEffect(() => {
     if (!isClerkLoaded) return
@@ -38,7 +49,7 @@ export default function AccountForm() {
     setErrors(prev => ({ ...prev, [key]: undefined }))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const nextErrors = {}
 
     const nameRegex = /^(?=.{2,100}$)[A-Za-zÀ-ÿ]+(?:[ '\-][A-Za-zÀ-ÿ]+)*$/
@@ -59,32 +70,66 @@ export default function AccountForm() {
     if (Object.keys(nextErrors).length > 0) return
 
     try {
-      if (typeof window !== 'undefined') {
-        const trimmed = {
-          name: (form.name || '').trim(),
-          email: (clerkEmail || form.email || '').trim(),
-          phone: (form.phone || '').replace(/\s+/g, ''),
-          address: (form.address || '').trim(),
-          city: (form.city || '').trim(),
-          province: (form.province || '').trim(),
-          postal: (form.postal || '').trim()
-        }
-        window.localStorage.setItem('account-info', JSON.stringify(trimmed))
-        alert('Account information updated!')
+      const trimmed = {
+        name: (form.name || '').trim(),
+        email: (clerkEmail || form.email || '').trim(),
+        phone: (form.phone || '').replace(/\s+/g, ''),
+        address: (form.address || '').trim(),
+        city: (form.city || '').trim(),
+        province: (form.province || '').trim(),
+        postal: (form.postal || '').trim()
       }
-    } catch {}
+      
+      const res = await fetch('/api/account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(trimmed)
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data?.error || 'Failed to save account information')
+      }
+
+      alert('Account information updated!')
+    } catch (err) {
+      console.error('Failed to save account info:', err)
+      alert(`Failed to save: ${err?.message || 'Unknown error'}`)
+    }
   }
 
-  const handleReset = () => {
+  const handleReset = async () => {
     const confirmed = window.confirm('Reset all account information?')
     if (!confirmed) return
-    setForm({ name: "", email: "", phone: "", address: "", city: "", province: "", postal: "" })
-    setErrors({})
+    
     try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.removeItem('account-info')
+      const res = await fetch('/api/account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: "",
+          email: clerkEmail || "",
+          phone: "",
+          address: "",
+          city: "",
+          province: "",
+          postal: ""
+        })
+      })
+
+      if (res.ok) {
+        setForm({ name: "", email: clerkEmail || "", phone: "", address: "", city: "", province: "", postal: "" })
+        setErrors({})
+        alert('Account information reset!')
+      } else {
+        throw new Error('Failed to reset account information')
       }
-    } catch {}
+    } catch (err) {
+      console.error('Failed to reset account info:', err)
+      alert(`Failed to reset: ${err?.message || 'Unknown error'}`)
+    }
   }
 
   return (
