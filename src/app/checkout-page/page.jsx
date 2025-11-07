@@ -115,7 +115,7 @@ export default function CheckoutPage() {
       <NavigationBar />
       
       <div className="flex-1 w-full pt-28 sm:pt-32 pb-20 sm:pb-24">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-10 lg:pb-12">
           <div className="flex flex-col items-center justify-center text-center mb-12 sm:mb-16 lg:mb-20 bg-white/5 rounded-3xl border border-white/10 px-10 sm:px-14 lg:px-16 py-14 sm:py-18 lg:py-20">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
               <span className="gradient-text">Checkout</span>
@@ -125,7 +125,7 @@ export default function CheckoutPage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-8 sm:mt-10 lg:mt-12">
             <div className="flex flex-col gap-10">
               <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-10 sm:p-12 lg:p-14 border border-white/20">
                 <h2 className="text-2xl font-semibold text-white mb-10">Your Cart</h2>
