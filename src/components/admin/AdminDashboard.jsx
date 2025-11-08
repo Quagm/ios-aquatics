@@ -141,14 +141,9 @@ export default function AdminDashboard() {
     <div className="py-12 sm:py-16 lg:py-20 px-6 sm:px-8 lg:px-12">
       {}
       <div className="text-center lg:text-left my-8">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
-          <Activity className="w-4 h-4" />
-          Dashboard Overview
-        </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Welcome back!</span>
         </h1>
-        <p className="text-lg text-slate-300 max-w-2xl">Here's what's happening with your aquatics store today.</p>
       </div>
 
       {}
