@@ -1,4 +1,3 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -8,11 +7,11 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "twrgiobaconoezsgstwz.supabase.co", // Supabase Storage
+        hostname: "twrgiobaconoezsgstwz.supabase.co",
       },
       {
         protocol: "https",
-        hostname: "drive.google.com", // Google Drive direct links
+        hostname: "drive.google.com",
       },
     ],
   },

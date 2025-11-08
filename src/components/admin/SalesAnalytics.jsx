@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 import { getSalesAnalytics } from '@/lib/queries'
+import * as XLSX from 'xlsx'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -10,7 +11,6 @@ import {
   Package,
   Calendar,
   Download,
-  Filter,
   BarChart3,
   Activity,
   Target,
@@ -251,7 +251,6 @@ export default function SalesAnalytics() {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Sales and Analytics</span>
         </h1>
-        <p className="text-base sm:text-lg text-slate-300 max-w-2xl mb-2">Track your aquatics store performance with detailed analytics and insights.</p>
       </div>
 
       {}
@@ -266,31 +265,24 @@ export default function SalesAnalytics() {
             <option value="30d" className="bg-slate-800">Last 30 days</option>
             <option value="90d" className="bg-slate-800">Last 90 days</option>
           </select>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition-colors backdrop-blur-sm">
-            <Filter className="w-4 h-4" />
-            Filters
-          </button>
           <button 
             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"
             onClick={() => {
-              const rows = [
-                ['Metric','Value'],
-                ['Total Revenue', String(analytics.totalRevenue)],
-                ['Total Orders', String(analytics.totalOrders)],
-                ['Total Customers', String(analytics.totalCustomers)],
-                ['Average Order Value', String(analytics.averageOrderValue)],
-                ['Revenue Growth %', String(analytics.revenueGrowth)],
-                ['Orders Growth %', String(analytics.ordersGrowth)],
-                ['Customers Growth %', String(analytics.customersGrowth)],
+              const data = [
+                ['Metric', 'Value'],
+                ['Total Revenue', formatCurrency(analytics.totalRevenue)],
+                ['Total Orders', analytics.totalOrders],
+                ['Average Order Value', formatCurrency(analytics.averageOrderValue)],
+                ['Revenue Growth', `${analytics.revenueGrowth}%`],
+                ['Orders Growth', `${analytics.ordersGrowth}%`]
               ]
-              const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
-              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-              const url = URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = `analytics-report.csv`
-              a.click()
-              URL.revokeObjectURL(url)
+              
+              const ws = XLSX.utils.aoa_to_sheet(data)
+              const wb = XLSX.utils.book_new()
+              XLSX.utils.book_append_sheet(wb, ws, 'Sales Report')
+              
+              const fileName = `sales-report-${timeRange}-${new Date().toISOString().split('T')[0]}.xlsx`
+              XLSX.writeFile(wb, fileName)
             }}
           >
             <Download className="w-5 h-5" />
@@ -306,14 +298,16 @@ export default function SalesAnalytics() {
             <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
               <PhilippinePeso className="w-6 h-6 text-white" />
             </div>
-            <div className="flex items-center gap-1 text-green-400 text-sm font-semibold">
-              {analytics.revenueGrowth >= 0 ? (
-                <ArrowUp className="w-4 h-4" />
-              ) : (
-                <ArrowDown className="w-4 h-4" />
-              )}
-              {Math.abs(analytics.revenueGrowth)}%
-            </div>
+            {analytics.revenueGrowth < 100 && (
+              <div className="flex items-center gap-1 text-green-400 text-sm font-semibold">
+                {analytics.revenueGrowth >= 0 ? (
+                  <ArrowUp className="w-4 h-4" />
+                ) : (
+                  <ArrowDown className="w-4 h-4" />
+                )}
+                {Math.abs(analytics.revenueGrowth)}%
+              </div>
+            )}
           </div>
           <div>
             <p className="text-sm font-medium text-slate-400 mb-1">Total Revenue</p>
@@ -329,14 +323,16 @@ export default function SalesAnalytics() {
             <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
               <ShoppingCart className="w-6 h-6 text-white" />
             </div>
-            <div className="flex items-center gap-1 text-blue-400 text-sm font-semibold">
-              {analytics.ordersGrowth >= 0 ? (
-                <ArrowUp className="w-4 h-4" />
-              ) : (
-                <ArrowDown className="w-4 h-4" />
-              )}
-              {Math.abs(analytics.ordersGrowth)}%
-            </div>
+            {analytics.ordersGrowth < 100 && (
+              <div className="flex items-center gap-1 text-blue-400 text-sm font-semibold">
+                {analytics.ordersGrowth >= 0 ? (
+                  <ArrowUp className="w-4 h-4" />
+                ) : (
+                  <ArrowDown className="w-4 h-4" />
+                )}
+                {Math.abs(analytics.ordersGrowth)}%
+              </div>
+            )}
           </div>
           <div>
             <p className="text-sm font-medium text-slate-400 mb-1">Total Orders</p>
@@ -351,10 +347,6 @@ export default function SalesAnalytics() {
           <div className="flex items-center justify-between mb-3">
             <div className="p-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600">
               <Package className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex items-center gap-1 text-yellow-400 text-sm font-semibold">
-              <TrendingUp className="w-4 h-4" />
-              +5.2%
             </div>
           </div>
           <div>
