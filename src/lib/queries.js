@@ -436,7 +436,9 @@ export async function getSalesAnalytics(timeRange = '30d') {
       if (String(order.status || '').toLowerCase() !== 'cancelled') {
         monthlyData[monthKey].revenue += parseFloat(order.total || 0)
       }
+
     }
+
   })
 
   const chartLabels = Object.keys(monthlyData)

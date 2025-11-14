@@ -18,12 +18,48 @@ import {
 } from 'lucide-react'
 
 async function uploadViaApi(file) {
+  if (!file || !(file instanceof File)) {
+    throw new Error('Invalid file provided for upload')
+  }
+
   const formData = new FormData()
   formData.append('file', file)
-  const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data?.error || 'Upload failed')
-  return data.url
+  
+  let res
+  try {
+    res = await fetch('/api/upload', { 
+      method: 'POST', 
+      body: formData, 
+      credentials: 'include'
+    })
+  } catch (fetchError) {
+    // Network error - fetch itself failed
+    const errorMsg = fetchError && typeof fetchError === 'object' && 'message' in fetchError
+      ? fetchError.message
+      : String(fetchError || 'Network error')
+    throw new Error(`Failed to connect to upload server: ${errorMsg}. Please check your connection and try again.`)
+  }
+  
+  if (!res.ok) {
+    let errorMessage = `Upload failed with status ${res.status}`
+    try {
+      const errorData = await res.json()
+      errorMessage = errorData?.error || errorMessage
+    } catch {
+      errorMessage = `${errorMessage}: ${res.statusText}`
+    }
+    throw new Error(errorMessage)
+  }
+  
+  try {
+    const data = await res.json()
+    if (!data?.url) {
+      throw new Error('Upload succeeded but no URL returned')
+    }
+    return data.url
+  } catch (parseError) {
+    throw new Error(`Failed to parse server response: ${parseError && typeof parseError === 'object' && 'message' in parseError ? parseError.message : String(parseError)}`)
+  }
 }
 
 export default function InventoryManagement() {
@@ -35,6 +71,7 @@ export default function InventoryManagement() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [stockEdits, setStockEdits] = useState({})
+  const [isAddingProduct, setIsAddingProduct] = useState(false)
 
   const getStockStatus = (stock = 0, minStock = 0) => {
     if (stock <= 0) return 'out-of-stock'
@@ -209,10 +246,40 @@ useEffect(() => {
   }
 
   const handleAddProduct = async (productData) => {
+    if (isAddingProduct) {
+      return
+    }
+    
+    // Check for duplicate products (same name and category)
+    const duplicateProduct = products.find(p => 
+      p.name.toLowerCase().trim() === productData.name.toLowerCase().trim() &&
+      p.category === productData.category
+    )
+    
+    if (duplicateProduct) {
+      alert(`A product with the name "${productData.name}" already exists in the ${productData.category} category.`)
+      return
+    }
+    
+    setIsAddingProduct(true)
     try {
       let imageUrl = productData.image || '/placeholder-product.jpg'
       if (productData.imageFile) {
-        imageUrl = await uploadViaApi(productData.imageFile)
+        try {
+          imageUrl = await uploadViaApi(productData.imageFile)
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError)
+          const errorMsg = uploadError?.message || String(uploadError) || 'Unknown error'
+          const useFallback = window.confirm(
+            `Image upload failed: ${errorMsg}\n\n` +
+            `Would you like to continue with ${productData.image ? 'the provided image URL' : 'a placeholder image'}?`
+          )
+          if (!useFallback) {
+            setIsAddingProduct(false)
+            return
+          }
+          imageUrl = productData.image || '/placeholder-product.jpg'
+        }
       }
 
       const payload = {
@@ -222,19 +289,32 @@ useEffect(() => {
       }
       delete payload.imageFile
       delete payload.sku
+      
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload)
       })
-      const created = await res.json()
-      if (!res.ok) throw new Error(created?.error || 'Create product failed')
-      setProducts(prev => [created, ...prev])
+      
+      const responseData = await res.json().catch(() => null)
+      
+      if (!res.ok) {
+        const errorMsg = responseData?.error || `Failed to create product: ${res.status}`
+        throw new Error(errorMsg)
+      }
+      
+      if (!responseData) {
+        throw new Error('Server returned empty response')
+      }
+      
+      // Close modal after successful creation
       setShowAddModal(false)
     } catch (error) {
       console.error('Error adding product:', error)
       alert(`Add product failed: ${error?.message || 'Unknown error'}`)
+    } finally {
+      setIsAddingProduct(false)
     }
   }
 
@@ -461,9 +541,14 @@ useEffect(() => {
       {}
       {showAddModal && (
         <AddProductModal
-          onClose={() => setShowAddModal(false)}
+          onClose={() => {
+            if (!isAddingProduct) {
+              setShowAddModal(false)
+            }
+          }}
           onSave={handleAddProduct}
           categories={categories}
+          isSubmitting={isAddingProduct}
         />
       )}
 
@@ -480,7 +565,7 @@ useEffect(() => {
   )
 }
 
-function AddProductModal({ onClose, onSave, categories }) {
+function AddProductModal({ onClose, onSave, categories, isSubmitting = false }) {
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
@@ -493,8 +578,27 @@ function AddProductModal({ onClose, onSave, categories }) {
     imageFile: null
   })
 
+  useEffect(() => {
+    // Reset form when modal component mounts (when opened)
+    setFormData({
+      name: '',
+      sku: '',
+      category: 'AQUARIUMS',
+      price: '',
+      image: '',
+      description: '',
+      stock: '0',
+      minStock: '0',
+      imageFile: null
+    })
+  }, [])
+
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    if (isSubmitting) {
+      return
+    }
 
     if (!formData.imageFile && !String(formData.image || '').trim()) {
       alert('Please provide a product image (upload a file or paste an image URL).')
@@ -641,15 +745,17 @@ function AddProductModal({ onClose, onSave, categories }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 border border-white/20 rounded-xl text-slate-300 hover:bg-white/10 transition-colors backdrop-blur-sm"
+              disabled={isSubmitting}
+              className="px-6 py-3 border border-white/20 rounded-xl text-slate-300 hover:bg-white/10 transition-colors backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 border border-blue-500/20"
+              disabled={isSubmitting}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 border border-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              Add Product
+              {isSubmitting ? 'Adding Product...' : 'Add Product'}
             </button>
           </div>
         </form>

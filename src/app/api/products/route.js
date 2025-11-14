@@ -23,7 +23,7 @@ export async function POST(request) {
 
 
     const body = await request.json()
-    const { name, category, price, image, active, description } = body || {}
+    const { name, category, price, image, active, description, stock, minStock } = body || {}
 
     if (!name || !category || price == null || Number.isNaN(Number(price))) {
       return NextResponse.json({ error: 'Missing required fields: name, category, price' }, { status: 400 })
@@ -44,6 +44,13 @@ export async function POST(request) {
       image: image || null,
       active: typeof active === 'boolean' ? active : true,
       description: description ?? null,
+    }
+
+    if (stock !== undefined && stock !== null) {
+      insertPayload.stock = Number(stock)
+    }
+    if (minStock !== undefined && minStock !== null) {
+      insertPayload.min_stock = Number(minStock)
     }
 
     let { data, error } = await supabase
@@ -74,6 +81,19 @@ export async function POST(request) {
         .single()
       data = retry2.data
       error = retry2.error
+    }
+
+    if (error && (error.message || '').toLowerCase().includes("'stock' column") || (error.message || '').toLowerCase().includes("'min_stock' column")) {
+      const fallbackPayload3 = { ...insertPayload }
+      delete fallbackPayload3.stock
+      delete fallbackPayload3.min_stock
+      const retry3 = await supabase
+        .from('products')
+        .insert(fallbackPayload3)
+        .select()
+        .single()
+      data = retry3.data
+      error = retry3.error
     }
 
     if (error) {

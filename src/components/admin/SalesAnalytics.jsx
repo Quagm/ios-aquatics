@@ -44,6 +44,7 @@ ChartJS.register(
 
 export default function SalesAnalytics() {
   const [timeRange, setTimeRange] = useState('30d')
+  const [chartPeriod, setChartPeriod] = useState('monthly')
   const [analytics, setAnalytics] = useState({
     totalRevenue: 0,
     totalOrders: 0,
@@ -106,16 +107,77 @@ export default function SalesAnalytics() {
     }).format(amount)
   }
 
+  const aggregateChartData = (labels, revenueData, salesData, period) => {
+    if (!labels || labels.length === 0) return { labels: [], revenueData: [], salesData: [] }
+    
+    if (period === 'monthly') {
+      return { labels, revenueData, salesData }
+    }
+
+    const aggregated = {}
+    const periodLabels = []
+
+    labels.forEach((label, index) => {
+      const date = new Date(label)
+      if (isNaN(date.getTime())) {
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        const monthIndex = monthNames.findIndex(m => label.startsWith(m))
+        if (monthIndex !== -1) {
+          const now = new Date()
+          const monthsBack = labels.length - 1 - index
+          date.setFullYear(now.getFullYear(), now.getMonth() - monthsBack, 1)
+        }
+      }
+
+      let periodKey = ''
+      let periodLabel = ''
+
+      if (period === 'quarterly') {
+        const quarter = Math.floor(date.getMonth() / 3) + 1
+        periodKey = `${date.getFullYear()}-Q${quarter}`
+        periodLabel = `Q${quarter} ${date.getFullYear()}`
+      } else if (period === 'semi-annually') {
+        const half = date.getMonth() < 6 ? 'H1' : 'H2'
+        periodKey = `${date.getFullYear()}-${half}`
+        periodLabel = `${half} ${date.getFullYear()}`
+      } else if (period === 'annual') {
+        periodKey = String(date.getFullYear())
+        periodLabel = String(date.getFullYear())
+      }
+
+      if (!aggregated[periodKey]) {
+        aggregated[periodKey] = { revenue: 0, orders: 0, label: periodLabel }
+        periodLabels.push(periodKey)
+      }
+
+      aggregated[periodKey].revenue += revenueData[index] || 0
+      aggregated[periodKey].orders += salesData[index] || 0
+    })
+
+    const sortedKeys = periodLabels.sort()
+    return {
+      labels: sortedKeys.map(key => aggregated[key].label),
+      revenueData: sortedKeys.map(key => aggregated[key].revenue),
+      salesData: sortedKeys.map(key => aggregated[key].orders)
+    }
+  }
+
+  const aggregatedChart = aggregateChartData(
+    analytics.chartLabels || [],
+    analytics.revenueData || [],
+    analytics.salesData || [],
+    chartPeriod
+  )
 
   const chartData = {
-    labels: analytics.chartLabels && analytics.chartLabels.length > 0 
-      ? analytics.chartLabels 
+    labels: aggregatedChart.labels.length > 0 
+      ? aggregatedChart.labels 
       : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     datasets: [
       {
         label: 'Revenue (₱)',
-        data: analytics.revenueData && analytics.revenueData.length > 0 
-          ? analytics.revenueData 
+        data: aggregatedChart.revenueData.length > 0 
+          ? aggregatedChart.revenueData 
           : Array(12).fill(0),
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -129,8 +191,8 @@ export default function SalesAnalytics() {
       },
       {
         label: 'Orders',
-        data: analytics.salesData && analytics.salesData.length > 0 
-          ? analytics.salesData 
+        data: aggregatedChart.salesData.length > 0 
+          ? aggregatedChart.salesData 
           : Array(12).fill(0),
         borderColor: 'rgb(16, 185, 129)',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -365,9 +427,24 @@ export default function SalesAnalytics() {
               <Activity className="w-6 h-6 text-blue-400" />
               Revenue & Orders Trend
             </h3>
-            <p className="text-slate-400 mt-1">Monthly performance overview</p>
+            <p className="text-slate-400 mt-1">
+              {chartPeriod === 'monthly' ? 'Monthly' : 
+               chartPeriod === 'quarterly' ? 'Quarterly' : 
+               chartPeriod === 'semi-annually' ? 'Semi-Annual' : 
+               'Annual'} performance overview
+            </p>
           </div>
           <div className="flex items-center gap-4">
+            <select
+              value={chartPeriod}
+              onChange={(e) => setChartPeriod(e.target.value)}
+              className="px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+            >
+              <option value="monthly" className="bg-slate-800">Monthly</option>
+              <option value="quarterly" className="bg-slate-800">Quarterly</option>
+              <option value="semi-annually" className="bg-slate-800">Semi-Annual</option>
+              <option value="annual" className="bg-slate-800">Annual</option>
+            </select>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
               <span className="text-sm text-slate-300">Revenue</span>
