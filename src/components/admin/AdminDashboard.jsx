@@ -5,7 +5,6 @@ import {
   ShoppingCart,
   Package,
   DollarSign,
-  TrendingUp,
   MessageSquare,
   Eye,
   Clock,
@@ -127,14 +126,6 @@ export default function AdminDashboard() {
       gradient: 'from-red-500 to-red-600',
       bgGradient: 'from-red-500/10 to-red-600/10',
       description: 'Needs attention'
-    },
-    {
-      title: 'Growth Rate',
-      value: '—',
-      icon: TrendingUp,
-      gradient: 'from-indigo-500 to-indigo-600',
-      bgGradient: 'from-indigo-500/10 to-indigo-600/10',
-      description: 'Coming soon'
     }
   ]
 

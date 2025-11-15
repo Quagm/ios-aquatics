@@ -45,6 +45,11 @@ ChartJS.register(
 export default function SalesAnalytics() {
   const [timeRange, setTimeRange] = useState('30d')
   const [chartPeriod, setChartPeriod] = useState('monthly')
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
+  const [dailyOrders, setDailyOrders] = useState([])
   const [analytics, setAnalytics] = useState({
     totalRevenue: 0,
     totalOrders: 0,
@@ -69,6 +74,27 @@ export default function SalesAnalytics() {
         setError('')
 
         const analyticsData = await getSalesAnalytics(timeRange)
+
+        // Fetch daily orders for selected month if daily period is selected
+        if (chartPeriod === 'daily') {
+          try {
+            const allOrders = await fetchOrders()
+            const [year, month] = selectedMonth.split('-').map(Number)
+            const selectedMonthIndex = month - 1 // JavaScript months are 0-indexed
+            
+            const monthOrders = allOrders.filter(order => {
+              const orderDate = new Date(order.created_at)
+              return orderDate.getMonth() === selectedMonthIndex && 
+                     orderDate.getFullYear() === year &&
+                     String(order.status || '').toLowerCase() !== 'cancelled'
+            })
+            
+            setDailyOrders(monthOrders)
+          } catch (err) {
+            console.warn('Failed to fetch daily orders:', err)
+            setDailyOrders([])
+          }
+        }
 
         let totalCustomers = 0
         let customersGrowth = 0
@@ -98,7 +124,7 @@ export default function SalesAnalytics() {
     }
 
     fetchAnalytics()
-  }, [timeRange])
+  }, [timeRange, chartPeriod, selectedMonth])
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
@@ -107,7 +133,40 @@ export default function SalesAnalytics() {
     }).format(amount)
   }
 
-  const aggregateChartData = (labels, revenueData, salesData, period) => {
+  const aggregateChartData = (labels, revenueData, salesData, period, orders = [], monthSelection = '') => {
+    if (period === 'daily') {
+      const [year, month] = monthSelection.split('-').map(Number)
+      const selectedMonthIndex = month - 1 // JavaScript months are 0-indexed
+      const daysInMonth = new Date(year, selectedMonthIndex + 1, 0).getDate()
+      
+      const dailyData = {}
+      
+      // Initialize all days of the month with 0
+      for (let day = 1; day <= daysInMonth; day++) {
+        dailyData[day] = { revenue: 0, orders: 0 }
+      }
+      
+      // Aggregate orders by day
+      orders.forEach(order => {
+        const orderDate = new Date(order.created_at)
+        if (orderDate.getMonth() === selectedMonthIndex && orderDate.getFullYear() === year) {
+          const day = orderDate.getDate()
+          if (dailyData[day]) {
+            dailyData[day].orders += 1
+            dailyData[day].revenue += parseFloat(order.total || 0)
+          }
+        }
+      })
+      
+      const sortedDays = Object.keys(dailyData).map(Number).sort((a, b) => a - b)
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      return {
+        labels: sortedDays.map(day => `${monthNames[selectedMonthIndex]} ${day}`),
+        revenueData: sortedDays.map(day => dailyData[day].revenue),
+        salesData: sortedDays.map(day => dailyData[day].orders)
+      }
+    }
+    
     if (!labels || labels.length === 0) return { labels: [], revenueData: [], salesData: [] }
     
     if (period === 'monthly') {
@@ -166,7 +225,9 @@ export default function SalesAnalytics() {
     analytics.chartLabels || [],
     analytics.revenueData || [],
     analytics.salesData || [],
-    chartPeriod
+    chartPeriod,
+    chartPeriod === 'daily' ? dailyOrders : [],
+    chartPeriod === 'daily' ? selectedMonth : ''
   )
 
   const chartData = {
@@ -596,18 +657,46 @@ export default function SalesAnalytics() {
               Revenue & Orders Trend
             </h3>
             <p className="text-slate-400 mt-1">
-              {chartPeriod === 'monthly' ? 'Monthly' : 
+              {chartPeriod === 'daily' ? 'Daily' :
+               chartPeriod === 'monthly' ? 'Monthly' : 
                chartPeriod === 'quarterly' ? 'Quarterly' : 
                chartPeriod === 'semi-annually' ? 'Semi-Annual' : 
                'Annual'} performance overview
             </p>
           </div>
           <div className="flex items-center gap-4">
+            {chartPeriod === 'daily' && (
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+              >
+                {(() => {
+                  const now = new Date()
+                  const months = []
+                  // Generate options for the last 12 months
+                  for (let i = 11; i >= 0; i--) {
+                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+                    const year = date.getFullYear()
+                    const month = date.getMonth() + 1
+                    const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                    const value = `${year}-${String(month).padStart(2, '0')}`
+                    months.push(
+                      <option key={value} value={value} className="bg-slate-800">
+                        {monthName}
+                      </option>
+                    )
+                  }
+                  return months
+                })()}
+              </select>
+            )}
             <select
               value={chartPeriod}
               onChange={(e) => setChartPeriod(e.target.value)}
               className="px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
             >
+              <option value="daily" className="bg-slate-800">Daily</option>
               <option value="monthly" className="bg-slate-800">Monthly</option>
               <option value="quarterly" className="bg-slate-800">Quarterly</option>
               <option value="semi-annually" className="bg-slate-800">Semi-Annual</option>
@@ -626,6 +715,37 @@ export default function SalesAnalytics() {
         <div className="h-96 mt-2">
           <Line data={chartData} options={chartOptions} />
         </div>
+        {aggregatedChart.labels.length > 0 && (
+          <div className="mt-4 border-t border-white/10 pt-4">
+            <h4 className="text-sm font-semibold text-white mb-3">
+              {chartPeriod === 'daily' ? 'Daily' :
+               chartPeriod === 'monthly' ? 'Monthly' : 
+               chartPeriod === 'quarterly' ? 'Quarterly' : 
+               chartPeriod === 'semi-annually' ? 'Semi-Annual' : 
+               'Annual'} Breakdown
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-2 px-3 text-xs font-semibold text-slate-300">Period</th>
+                    <th className="text-right py-2 px-3 text-xs font-semibold text-slate-300">Revenue</th>
+                    <th className="text-right py-2 px-3 text-xs font-semibold text-slate-300">Orders</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {aggregatedChart.labels.map((label, index) => (
+                    <tr key={index} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td className="py-2 px-3 text-xs text-white">{label}</td>
+                      <td className="py-2 px-3 text-xs text-white text-right font-medium">{formatCurrency(aggregatedChart.revenueData[index] || 0)}</td>
+                      <td className="py-2 px-3 text-xs text-white text-right font-medium">{aggregatedChart.salesData[index] || 0}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
