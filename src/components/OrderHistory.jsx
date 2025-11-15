@@ -115,7 +115,7 @@ export default function OrderHistory() {
         <div className="text-slate-300 text-sm">No orders yet.</div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {orders.map((order) => {
           const statusKey = order.status?.toLowerCase() || 'processing'
           const labelClass = STATUS_STYLES[statusKey] || STATUS_STYLES.processing
@@ -125,7 +125,7 @@ export default function OrderHistory() {
             <button
               key={order.id}
               type="button"
-              className="w-full text-left border border-white/20 rounded-xl p-4 bg-white/5 hover:bg-white/10 transition-colors overflow-hidden"
+              className="w-full text-left border border-white/20 rounded-xl p-3 bg-white/5 hover:bg-white/10 transition-colors overflow-hidden"
               onClick={() => setSelectedOrder(order)}
             >
               <div className="flex items-center justify-between gap-3 min-w-0">

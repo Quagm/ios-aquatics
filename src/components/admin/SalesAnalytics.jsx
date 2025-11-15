@@ -653,13 +653,13 @@ export default function SalesAnalytics() {
 
         {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
-          <div className="p-6 border-b border-white/10">
+          <div className="p-6 border-b border-white/10" style={{ padding: '1.25rem' }}>
             <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-1">
               <Package className="w-5 h-5 text-purple-400" />
               Top Performing Products
             </h3>
           </div>
-          <div className="p-6">
+          <div className="p-6" style={{ padding: '1.25rem' }}>
             <div className="space-y-4">
               {analytics.topProducts.length > 0 ? (
                 analytics.topProducts.map((product, index) => (

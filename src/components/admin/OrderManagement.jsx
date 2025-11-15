@@ -233,10 +233,6 @@ export default function OrderManagement() {
   return (
     <div className="space-y-8 py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12">
       <div className="text-center lg:text-left">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
-          <Package className="w-4 h-4" />
-          Order Management
-        </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Order</span> Management
         </h1>
@@ -244,47 +240,47 @@ export default function OrderManagement() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
-          <div className="flex items-center">
-            <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105 overflow-hidden" style={{ padding: '1rem' }}>
+          <div className="flex items-center min-w-0">
+            <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 shrink-0">
               <Package className="w-6 h-6 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-slate-400">Total Orders</p>
-              <p className="text-2xl font-bold text-white">{stats.total}</p>
+            <div className="ml-4 min-w-0 flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-slate-400 truncate">Total Orders</p>
+              <p className="text-2xl font-bold text-white truncate">{stats.total}</p>
             </div>
           </div>
         </div>
-        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
-          <div className="flex items-center">
-            <div className="p-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105 overflow-hidden" style={{ padding: '1rem' }}>
+          <div className="flex items-center min-w-0">
+            <div className="p-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 shrink-0">
               <Clock className="w-6 h-6 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-slate-400">Processing</p>
-              <p className="text-2xl font-bold text-white">{stats.processing}</p>
+            <div className="ml-4 min-w-0 flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-slate-400 truncate">Processing</p>
+              <p className="text-2xl font-bold text-white truncate">{stats.processing}</p>
             </div>
           </div>
         </div>
-        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
-          <div className="flex items-center">
-            <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105 overflow-hidden" style={{ padding: '1rem' }}>
+          <div className="flex items-center min-w-0">
+            <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 shrink-0">
               <Truck className="w-6 h-6 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-slate-400">In Progress</p>
-              <p className="text-2xl font-bold text-white">{stats.shipped}</p>
+            <div className="ml-4 min-w-0 flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-slate-400 truncate">In Progress</p>
+              <p className="text-2xl font-bold text-white truncate">{stats.shipped}</p>
             </div>
           </div>
         </div>
-        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
-          <div className="flex items-center">
-            <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105 overflow-hidden" style={{ padding: '1rem' }}>
+          <div className="flex items-center min-w-0">
+            <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600 shrink-0">
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-slate-400">Completed</p>
-              <p className="text-2xl font-bold text-white">{stats.completed}</p>
+            <div className="ml-4 min-w-0 flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-slate-400 truncate">Completed</p>
+              <p className="text-2xl font-bold text-white truncate">{stats.completed}</p>
             </div>
           </div>
         </div>
@@ -294,13 +290,12 @@ export default function OrderManagement() {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-300" />
               <input
                 type="text"
                 placeholder="Search orders..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
               />
             </div>
           </div>
@@ -337,33 +332,33 @@ export default function OrderManagement() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOrders.map((order) => (
-            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all" style={{ padding: '1.25rem' }}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-300">#{order.id}</span>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all overflow-hidden" style={{ padding: '1.25rem' }}>
+              <div className="flex items-start justify-between gap-3 min-w-0">
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-slate-300 truncate">#{order.id}</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${getStatusColor(order.status)}`}>
                       {getStatusIcon(order.status)}
-                      <span className="ml-1">{getOrderStatusLabel(order.status)}</span>
+                      <span className="ml-1 whitespace-nowrap">{getOrderStatusLabel(order.status)}</span>
                     </span>
                   </div>
-                  <p className="text-slate-300 text-sm mt-1">{order.orderDate}</p>
+                  <p className="text-slate-300 text-sm mt-1 truncate">{order.orderDate}</p>
                 </div>
                 <button
                   onClick={() => setSelectedOrder(order)}
-                  className="text-blue-300 hover:text-blue-200"
+                  className="text-blue-300 hover:text-blue-200 shrink-0"
                   title="View Details"
                 >
                   <Eye className="w-4 h-4" />
                 </button>
               </div>
-              <div className="mt-4 space-y-1">
+              <div className="mt-4 space-y-1 min-w-0">
                 <p className="text-white text-sm font-medium">{order.items.length} items</p>
-                <p className="text-slate-300 text-sm line-clamp-2">{order.items.map(i => i.name).join(', ')}</p>
+                <p className="text-slate-300 text-sm line-clamp-2 break-words">{order.items.map(i => i.name).join(', ')}</p>
               </div>
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-white font-semibold">₱{order.total.toFixed(2)}</p>
-                <div className="flex items-center gap-2">
+              <div className="mt-4 flex items-center justify-between gap-2 min-w-0">
+                <p className="text-white font-semibold truncate">₱{order.total.toFixed(2)}</p>
+                <div className="flex items-center gap-2 shrink-0">
                   <select
                     value={normalizeOrderStatus(order.status)}
                     onChange={(e) => updateOrderStatus(order.id, e.target.value)}
@@ -400,41 +395,41 @@ function OrderDetailModal({ order, onClose }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
       <div className="glass-effect rounded-2xl border border-white/10 max-w-4xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto">
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h3 className="text-xl font-semibold text-white">Order Details - {order.id}</h3>
-              <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/10 border border-white/10">
-                <span className="text-white/70">Status:</span>
-                <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full ${getStatusColor(order.status)}`}>
+        <div className="px-6 pt-6 border-b border-white/10 pb-6 mb-6">
+          <div className="flex items-center justify-between gap-4 min-w-0">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <h3 className="text-xl font-semibold text-white truncate">Order Details - {order.id}</h3>
+              <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/10 border border-white/10 flex-wrap gap-2">
+                <span className="text-white/70 shrink-0">Status:</span>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full shrink-0 ${getStatusColor(order.status)}`}>
                   {getStatusIcon(order.status)}
-                  <span className="ml-1">{getOrderStatusLabel(order.status)}</span>
+                  <span className="ml-1 whitespace-nowrap">{getOrderStatusLabel(order.status)}</span>
                 </span>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="text-slate-300 hover:text-white"
+              className="text-slate-300 hover:text-white shrink-0"
             >
               ×
             </button>
           </div>
         </div>
-        <div className="p-6 space-y-6">
+        <div className="px-6 pb-6 space-y-6">
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Order Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-5 h-5 text-slate-300" />
-                <div>
-                  <p className="font-medium text-white">{order.orderDate}</p>
+              <div className="flex items-center space-x-3 min-w-0">
+                <Calendar className="w-5 h-5 text-slate-300 shrink-0" />
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <p className="font-medium text-white truncate">{order.orderDate}</p>
                   <p className="text-sm text-slate-300">Order Date</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <Package className="w-5 h-5 text-slate-300" />
-                <div>
-                  <p className="font-medium text-white">{order.id}</p>
+              <div className="flex items-center space-x-3 min-w-0">
+                <Package className="w-5 h-5 text-slate-300 shrink-0" />
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <p className="font-medium text-white truncate">{order.id}</p>
                   <p className="text-sm text-slate-300">Order ID</p>
                 </div>
               </div>
@@ -444,9 +439,9 @@ function OrderDetailModal({ order, onClose }) {
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Customer Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <p className="text-sm text-slate-400">Name</p>
-                  <p className="font-medium text-white">
+                  <p className="font-medium text-white break-words">
                     {order.customer?.name || 
                      (order.customer?.first_name || order.customer?.last_name 
                        ? `${order.customer.first_name || ''} ${order.customer.last_name || ''}`.trim() 
@@ -458,39 +453,39 @@ function OrderDetailModal({ order, onClose }) {
                      '—'}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <p className="text-sm text-slate-400">Email</p>
                   <p className="font-medium text-white break-all">
                     {order.customer?.email || order.customer_snapshot?.email || order.customer_email || '—'}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <p className="text-sm text-slate-400">Phone</p>
-                  <p className="font-medium text-white">
+                  <p className="font-medium text-white break-words">
                     {order.customer?.phone || order.customer_snapshot?.phone || '—'}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <p className="text-sm text-slate-400">Address</p>
-                  <p className="font-medium text-white">
+                  <p className="font-medium text-white break-words">
                     {order.customer?.address || order.customer_snapshot?.address || '—'}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <p className="text-sm text-slate-400">City</p>
-                  <p className="font-medium text-white">
+                  <p className="font-medium text-white break-words">
                     {order.customer?.city || order.customer_snapshot?.city || '—'}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <p className="text-sm text-slate-400">Province</p>
-                  <p className="font-medium text-white">
+                  <p className="font-medium text-white break-words">
                     {order.customer?.province || order.customer_snapshot?.province || '—'}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <p className="text-sm text-slate-400">Postal Code</p>
-                  <p className="font-medium text-white">
+                  <p className="font-medium text-white break-words">
                     {order.customer?.postal_code || order.customer_snapshot?.postal_code || '—'}
                   </p>
                 </div>
@@ -501,17 +496,17 @@ function OrderDetailModal({ order, onClose }) {
             <h4 className="text-lg font-semibold text-white mb-4">Order Items</h4>
             <div className="space-y-3">
               {order.items.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-lg">
-                  <div>
-                    <p className="font-medium text-white">{item.name}</p>
+                <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-lg gap-4 min-w-0">
+                  <div className="min-w-0 flex-1 overflow-hidden">
+                    <p className="font-medium text-white break-words">{item.name}</p>
                     <p className="text-sm text-slate-300">Quantity: {item.quantity}</p>
                   </div>
-                  <p className="font-semibold text-white">₱{item.price.toFixed(2)}</p>
+                  <p className="font-semibold text-white shrink-0">₱{item.price.toFixed(2)}</p>
                 </div>
               ))}
-              <div className="flex items-center justify-between p-4 bg-white/10 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-white/10 rounded-lg gap-4 min-w-0">
                 <p className="text-lg font-semibold text-white">Total</p>
-                <p className="text-lg font-bold text-blue-400">₱{order.total.toFixed(2)}</p>
+                <p className="text-lg font-bold text-blue-400 shrink-0">₱{order.total.toFixed(2)}</p>
               </div>
             </div>
           </div>

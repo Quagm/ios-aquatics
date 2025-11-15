@@ -157,10 +157,6 @@ export default function OrderHistory() {
     <div className="space-y-8 py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12">
       {}
       <div className="text-center lg:text-left">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-300 border border-blue-500/20 mb-4">
-          <Package className="w-4 h-4" />
-          Order History
-        </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Order</span> History
         </h1>
@@ -168,7 +164,7 @@ export default function OrderHistory() {
       </div>
 
       {}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-effect rounded-2xl border border-white/10" style={{ padding: '1rem' }}>
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
@@ -191,11 +187,7 @@ export default function OrderHistory() {
             </div>
           </div>
         </div>
-      </div>
-
-      {}
-      <div className="flex justify-start mb-6">
-        <div className="glass-effect rounded-xl border border-white/10 inline-flex flex-col" style={{ padding: '1rem' }}>
+        <div className="glass-effect rounded-2xl border border-white/10 flex flex-col" style={{ padding: '1rem' }}>
           <div className="flex items-center gap-2 mb-3">
             <Filter className="w-4 h-4 text-slate-300" />
             <h3 className="text-base font-semibold text-white">Filters</h3>
@@ -228,45 +220,45 @@ export default function OrderHistory() {
 
       {}
       <div>
-        <div className="px-1 py-2">
+        <div className="px-1 py-2 mt-8">
           <h3 className="text-lg font-semibold text-white">Archived Orders ({filteredOrders.length})</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOrders.map(order => (
-            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all" style={{ padding: '1.25rem' }}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-300">#{order.id}</span>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all overflow-hidden" style={{ padding: '1.25rem' }}>
+              <div className="flex items-start justify-between gap-3 min-w-0">
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-slate-300 truncate">#{order.id}</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${
                       order.status === 'cancelled' 
                         ? 'bg-red-100 text-red-800' 
                         : 'bg-green-100 text-green-800'
                     }`}>
                       {order.status === 'cancelled' ? (
-                        <AlertCircle className="w-4 h-4" />
+                        <AlertCircle className="w-4 h-4 shrink-0" />
                       ) : (
-                        <CheckCircle className="w-4 h-4" />
+                        <CheckCircle className="w-4 h-4 shrink-0" />
                       )}
-                      <span className="ml-1">{getOrderStatusLabel(order.status)}</span>
+                      <span className="ml-1 whitespace-nowrap">{getOrderStatusLabel(order.status)}</span>
                     </span>
                   </div>
-                  <p className="text-slate-300 text-sm mt-1">{order.orderDate}</p>
+                  <p className="text-slate-300 text-sm mt-1 truncate">{order.orderDate}</p>
                 </div>
                 <button
                   onClick={() => handleDeleteOrder(order.id)}
-                  className="text-red-400 hover:text-red-300 transition-colors p-1 hover:bg-red-500/10 rounded-lg"
+                  className="text-red-400 hover:text-red-300 transition-colors p-1 hover:bg-red-500/10 rounded-lg shrink-0"
                   title="Delete Order"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-              <div className="mt-4 space-y-1">
+              <div className="mt-4 space-y-1 min-w-0">
                 <p className="text-white text-sm font-medium">{order.items.length} items</p>
-                <p className="text-slate-300 text-sm line-clamp-2">{order.items.map(i => i.name).join(', ')}</p>
+                <p className="text-slate-300 text-sm line-clamp-2 break-words">{order.items.map(i => i.name).join(', ')}</p>
               </div>
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-white font-semibold">₱{order.total.toFixed(2)}</p>
+              <div className="mt-4 flex items-center justify-between min-w-0">
+                <p className="text-white font-semibold truncate">₱{order.total.toFixed(2)}</p>
               </div>
             </div>
           ))}

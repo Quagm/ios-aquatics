@@ -286,7 +286,14 @@ export default function InquiryManagement() {
   }
 
   return (
-    <div className="space-y-6 py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12">
+    <div className="space-y-8 py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12">
+      <div className="text-center lg:text-left">
+        <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+          <span className="gradient-text">Inquiry</span> Management
+        </h1>
+        <p className="text-lg text-slate-300 max-w-2xl">Manage customer inquiries and track their status for your aquatics store.</p>
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex-1 relative">
           <input
