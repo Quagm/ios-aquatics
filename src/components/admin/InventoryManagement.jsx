@@ -33,7 +33,6 @@ async function uploadViaApi(file) {
       credentials: 'include'
     })
   } catch (fetchError) {
-    // Network error - fetch itself failed
     const errorMsg = fetchError && typeof fetchError === 'object' && 'message' in fetchError
       ? fetchError.message
       : String(fetchError || 'Network error')
@@ -250,7 +249,6 @@ useEffect(() => {
       return
     }
     
-    // Check for duplicate products (same name and category)
     const duplicateProduct = products.find(p => 
       p.name.toLowerCase().trim() === productData.name.toLowerCase().trim() &&
       p.category === productData.category
@@ -297,12 +295,9 @@ useEffect(() => {
         body: JSON.stringify(payload)
       })
       
-      // Always close modal and reset state after request completes
-      // The product will appear via realtime subscription if creation succeeded
       setShowAddModal(false)
       setIsAddingProduct(false)
     } catch (error) {
-      // Only catch unexpected errors (network failures, etc.) - just log, don't alert
       console.error('Unexpected error adding product:', error)
       setShowAddModal(false)
       setIsAddingProduct(false)
@@ -525,7 +520,6 @@ useEffect(() => {
         ))}
       </div>
 
-      {}
       {showAddModal && (
         <AddProductModal
           onClose={() => setShowAddModal(false)}
@@ -535,7 +529,6 @@ useEffect(() => {
         />
       )}
 
-      {}
       {editingProduct && (
         <EditProductModal
           product={editingProduct}
@@ -562,7 +555,6 @@ function AddProductModal({ onClose, onSave, categories, isSubmitting = false }) 
   })
 
   useEffect(() => {
-    // Reset form when modal component mounts (when opened)
     setFormData({
       name: '',
       sku: '',

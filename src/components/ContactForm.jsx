@@ -10,7 +10,6 @@ export default function ContactForm() {
   const [selectedSubject, setSelectedSubject] = useState("")
   const formRef = useRef(null)
   
-  // Get today's date in YYYY-MM-DD format for min date
   const today = new Date().toISOString().split('T')[0]
 
   const handleSubmit = async (e) => {
@@ -21,7 +20,6 @@ export default function ContactForm() {
     const data = new FormData(form)
     const payload = Object.fromEntries(data.entries())
     
-    // Validate booking date if subject is "booking"
     if (payload.subject === "booking" && !payload.bookingDate) {
       setError("Please select a booking date for your appointment.")
       setSubmitting(false)

@@ -76,12 +76,11 @@ export default function SalesAnalytics() {
 
         const analyticsData = await getSalesAnalytics(timeRange)
 
-        // Fetch daily orders for selected month if daily period is selected
         if (chartPeriod === 'daily') {
           try {
             const allOrders = await fetchOrders()
             const [year, month] = selectedMonth.split('-').map(Number)
-            const selectedMonthIndex = month - 1 // JavaScript months are 0-indexed
+            const selectedMonthIndex = month - 1
             
             const monthOrders = allOrders.filter(order => {
               const orderDate = new Date(order.created_at)
@@ -137,17 +136,15 @@ export default function SalesAnalytics() {
   const aggregateChartData = (labels, revenueData, salesData, period, orders = [], monthSelection = '') => {
     if (period === 'daily') {
       const [year, month] = monthSelection.split('-').map(Number)
-      const selectedMonthIndex = month - 1 // JavaScript months are 0-indexed
+      const selectedMonthIndex = month - 1
       const daysInMonth = new Date(year, selectedMonthIndex + 1, 0).getDate()
       
       const dailyData = {}
       
-      // Initialize all days of the month with 0
       for (let day = 1; day <= daysInMonth; day++) {
         dailyData[day] = { revenue: 0, orders: 0 }
       }
       
-      // Aggregate orders by day
       orders.forEach(order => {
         const orderDate = new Date(order.created_at)
         if (orderDate.getMonth() === selectedMonthIndex && orderDate.getFullYear() === year) {
@@ -370,14 +367,12 @@ export default function SalesAnalytics() {
 
   return (
     <div className="py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12 admin-container-spacing">
-      {}
       <div className="text-center lg:text-left">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Sales and Analytics</span>
         </h1>
       </div>
 
-      {}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 py-4">
         <div className="flex items-center gap-3">
           <select
@@ -397,7 +392,6 @@ export default function SalesAnalytics() {
                 const reportDate = new Date().toLocaleString('en-PH', { dateStyle: 'long', timeStyle: 'short' })
                 const periodLabel = timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 90 days'
                 
-                // Calculate date range for filtering orders
                 const now = new Date()
                 let startDate = new Date()
                 if (timeRange === '7d') {
@@ -408,7 +402,6 @@ export default function SalesAnalytics() {
                   startDate.setDate(now.getDate() - 90)
                 }
                 
-                // Fetch all orders and filter for completed orders only
                 const allOrders = await fetchOrders()
                 
                 const filteredOrders = allOrders.filter(order => {
@@ -422,7 +415,6 @@ export default function SalesAnalytics() {
                   return isInDateRange && isCompleted
                 })
                 
-                // Calculate revenue by status from all orders in date range
                 const allOrdersInRange = allOrders.filter(order => {
                   const orderDate = new Date(order.created_at)
                   return orderDate >= startDate && orderDate <= now
@@ -454,16 +446,13 @@ export default function SalesAnalytics() {
                   }
                 })
                 
-                // Get chart period label
                 const chartPeriodLabel = chartPeriod === 'daily' ? 'Daily' :
                                         chartPeriod === 'monthly' ? 'Monthly' :
                                         chartPeriod === 'quarterly' ? 'Quarterly' :
                                         chartPeriod === 'semi-annually' ? 'Semi-Annual' : 'Annual'
                 
-                // Format date range
                 const dateRangeStr = `${startDate.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })} to ${now.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })}`
                 
-                // Summary Sheet
                 const summaryData = [
                   ['Sales Analytics Report'],
                   [''],
@@ -485,7 +474,6 @@ export default function SalesAnalytics() {
                   ['Period', 'Revenue', 'Orders'],
                 ]
                 
-                // Add trend data to summary
                 if (aggregatedChart.labels && aggregatedChart.labels.length > 0) {
                   aggregatedChart.labels.forEach((label, index) => {
                     summaryData.push([
@@ -517,7 +505,6 @@ export default function SalesAnalytics() {
                 summaryData.push([''])
                 summaryData.push(['Value Range', 'Order Count', 'Total Revenue'])
                 
-                // Calculate order value distribution
                 const valueRanges = [
                   { min: 0, max: 500, label: '₱0 - ₱500' },
                   { min: 500, max: 1000, label: '₱500 - ₱1,000' },
@@ -541,11 +528,9 @@ export default function SalesAnalytics() {
                 summaryData.push([''])
                 summaryData.push(['Order ID', 'Total Spent', 'Products Ordered'])
                 
-                // Get top orders by total spent
                 const ordersWithProducts = filteredOrders.map(order => {
                   const orderId = order.id || 'Unknown'
                   
-                  // Get products from order
                   const orderItems = order.order_items || []
                   const products = orderItems.map(item => {
                     const productName = item.products?.name || 
@@ -575,7 +560,6 @@ export default function SalesAnalytics() {
                   ])
                 })
                 
-                // Orders Sheet
                 const ordersData = [
                   ['Completed Orders List'],
                   [''],
@@ -642,35 +626,31 @@ export default function SalesAnalytics() {
                       ])
                     }
                     
-                    // Add empty row between orders for readability
                     ordersData.push(['', '', '', '', '', '', '', '', '', ''])
                   })
                 } else {
                   ordersData.push(['', '', '', '', '', 'No completed orders found in this period', '', '', '', ''])
                 }
                 
-                // Helper function to calculate column widths
                 const calculateColumnWidths = (data) => {
                   const widths = []
                   if (!data || data.length === 0) return widths
                   
-                  // Find max length in each column
                   const numCols = Math.max(...data.map(row => row ? row.length : 0))
                   
                   for (let col = 0; col < numCols; col++) {
-                    let maxLength = 10 // minimum width
+                    let maxLength = 10
                     for (let row = 0; row < data.length; row++) {
                       if (data[row] && data[row][col] !== undefined && data[row][col] !== null) {
                         const cellValue = String(data[row][col])
                         maxLength = Math.max(maxLength, cellValue.length)
                       }
                     }
-                    widths.push({ wch: Math.min(maxLength + 2, 50) }) // max width 50
+                    widths.push({ wch: Math.min(maxLength + 2, 50) })
                   }
                   return widths
                 }
                 
-                // Helper function to add borders to worksheet
                 const addBorders = (ws, data) => {
                   if (!ws || !data || data.length === 0) return ws
                   
@@ -687,7 +667,6 @@ export default function SalesAnalytics() {
                       for (let C = 0; C <= range.e.c; C++) {
                         const cellAddress = XLSX.utils.encode_cell({ r: R, c: C })
                         
-                        // Only add borders to cells that have data
                         if (data[R] && data[R][C] !== undefined && data[R][C] !== null && String(data[R][C]).trim() !== '') {
                           if (!ws[cellAddress]) {
                             ws[cellAddress] = { t: 's', v: String(data[R][C]) }
@@ -709,18 +688,15 @@ export default function SalesAnalytics() {
                 const ordersWs = XLSX.utils.aoa_to_sheet(ordersData)
                 ordersWs['!cols'] = calculateColumnWidths(ordersData)
                 
-                // Add Summary sheet first
                 const summaryWs = XLSX.utils.aoa_to_sheet(summaryData)
                 summaryWs['!cols'] = calculateColumnWidths(summaryData)
                 XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary')
                 
-                // Add Orders sheet second
                 XLSX.utils.book_append_sheet(wb, ordersWs, 'Orders')
                 
                 let productsWs = null
                 let productsData = null
                 
-                // Top Products Sheet
                 if (analytics.topProducts && analytics.topProducts.length > 0) {
                   productsData = [
                     ['Top Performing Products'],
@@ -752,7 +728,6 @@ export default function SalesAnalytics() {
                 let trendWs = null
                 let trendData = null
                 
-                // Sales Trend Sheet
                 if (aggregatedChart.labels && aggregatedChart.labels.length > 0) {
                   trendData = [
                     ['Sales Trend Data'],
@@ -784,7 +759,6 @@ export default function SalesAnalytics() {
                   XLSX.utils.book_append_sheet(wb, trendWs, 'Sales Trend')
                 }
                 
-                // Add borders after all sheets are created (optional, won't break export if it fails)
                 try {
                   addBorders(summaryWs, summaryData)
                   addBorders(ordersWs, ordersData)
@@ -800,7 +774,6 @@ export default function SalesAnalytics() {
                 
                 const fileName = `sales-report-${timeRange}-${new Date().toISOString().split('T')[0]}.xlsx`
                 
-                // Try using xlsx-js-style for borders, fallback to regular xlsx
                 try {
                   if (typeof XLSXStyle !== 'undefined' && XLSXStyle.writeFile) {
                     XLSXStyle.writeFile(wb, fileName)
@@ -823,7 +796,6 @@ export default function SalesAnalytics() {
         </div>
       </div>
 
-      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1.25rem' }}>
           <div className="flex items-center justify-between mb-3">
@@ -915,7 +887,6 @@ export default function SalesAnalytics() {
                 {(() => {
                   const now = new Date()
                   const months = []
-                  // Generate options for the last 12 months
                   for (let i = 11; i >= 0; i--) {
                     const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
                     const year = date.getFullYear()
@@ -1004,7 +975,6 @@ export default function SalesAnalytics() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300" style={{ padding: '2rem' }}>
           <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-green-400" />
@@ -1026,7 +996,6 @@ export default function SalesAnalytics() {
           </div>
         </div>
 
-        {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
           <div className="p-6 border-b border-white/10" style={{ padding: '1.25rem' }}>
             <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-1">

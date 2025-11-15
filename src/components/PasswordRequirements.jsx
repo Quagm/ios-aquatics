@@ -6,14 +6,12 @@ export function PasswordRequirements() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Check for Clerk sign-up modal
     const checkForSignUpModal = () => {
       const clerkModal = document.querySelector('[data-clerk-element="card"]')
       const passwordInput = clerkModal?.querySelector('input[type="password"]')
       const signUpForm = clerkModal?.querySelector('form')
       
       if (clerkModal && passwordInput && signUpForm) {
-        // Check if it's a sign-up form (has password field and email field)
         const emailInput = clerkModal.querySelector('input[type="email"]')
         if (emailInput) {
           setIsVisible(true)
@@ -23,11 +21,9 @@ export function PasswordRequirements() {
       }
     }
 
-    // Check immediately and then periodically
     checkForSignUpModal()
     const interval = setInterval(checkForSignUpModal, 300)
 
-    // Also listen for DOM mutations (when modal opens/closes)
     const observer = new MutationObserver(checkForSignUpModal)
     observer.observe(document.body, {
       childList: true,
