@@ -107,6 +107,7 @@ export default function InquiryManagement() {
   const [filteredInquiries, setFilteredInquiries] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
   const [selectedInquiry, setSelectedInquiry] = useState(null)
   const { push } = useToast()
   const [schedulingInquiryId, setSchedulingInquiryId] = useState(null)
@@ -153,8 +154,23 @@ export default function InquiryManagement() {
       filtered = filtered.filter(inquiry => inquiry.status === statusFilter)
     }
 
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(inquiry => {
+        const subject = (inquiry.subject || '').toLowerCase()
+        if (typeFilter === 'aquascape') {
+          return subject.includes('aquascape')
+        } else if (typeFilter === 'order-status') {
+          return subject.includes('order-status') || subject.includes('order status')
+        } else if (typeFilter === 'booking') {
+          return subject === 'booking' || subject.includes('booking')
+        } else {
+          return subject === typeFilter
+        }
+      })
+    }
+
     setFilteredInquiries(filtered)
-  }, [searchTerm, statusFilter, inquiries])
+  }, [searchTerm, statusFilter, typeFilter, inquiries])
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -304,17 +320,33 @@ export default function InquiryManagement() {
             className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
           />
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
-        >
-          <option value="all" className="bg-slate-800">All Status</option>
-          <option value="accepted" className="bg-slate-800">Accepted</option>
-          <option value="in_progress" className="bg-slate-800">In Progress</option>
-          <option value="completed" className="bg-slate-800">Completed</option>
-          <option value="cancelled" className="bg-slate-800">Cancelled</option>
-        </select>
+        <div className="flex items-center gap-4">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+          >
+            <option value="all" className="bg-slate-800">All Types</option>
+            <option value="aquascape" className="bg-slate-800">Aquascape Inquiry</option>
+            <option value="order-status" className="bg-slate-800">Order Status</option>
+            <option value="booking" className="bg-slate-800">Booking</option>
+            <option value="product-inquiry" className="bg-slate-800">Product Inquiry</option>
+            <option value="shipping" className="bg-slate-800">Shipping Information</option>
+            <option value="return" className="bg-slate-800">Return/Exchange</option>
+            <option value="other" className="bg-slate-800">Other</option>
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+          >
+            <option value="all" className="bg-slate-800">All Status</option>
+            <option value="accepted" className="bg-slate-800">Accepted</option>
+            <option value="in_progress" className="bg-slate-800">In Progress</option>
+            <option value="completed" className="bg-slate-800">Completed</option>
+            <option value="cancelled" className="bg-slate-800">Cancelled</option>
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -378,6 +410,14 @@ export default function InquiryManagement() {
               <div className="mt-3 text-slate-400 text-xs">
                 {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : ''}
               </div>
+              {selectedInquiry.appointment_at && (
+                <div className="mt-4">
+                  <div className="text-slate-400 text-sm">Appointment Date</div>
+                  <div className="text-white font-medium">
+                    {new Date(selectedInquiry.appointment_at).toLocaleString()}
+                  </div>
+                </div>
+              )}
             </div>
 
             {}
@@ -401,30 +441,6 @@ export default function InquiryManagement() {
                   <div className="text-slate-400 text-sm">Phone Number</div>
                   <div className="text-white">
                     {selectedInquiry.customer_snapshot?.phone || selectedInquiry.phone || '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-slate-400 text-sm">Address</div>
-                  <div className="text-white">
-                    {selectedInquiry.customer_snapshot?.address || '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-slate-400 text-sm">City</div>
-                  <div className="text-white">
-                    {selectedInquiry.customer_snapshot?.city || '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-slate-400 text-sm">Province</div>
-                  <div className="text-white">
-                    {selectedInquiry.customer_snapshot?.province || '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-slate-400 text-sm">Postal Code</div>
-                  <div className="text-white">
-                    {selectedInquiry.customer_snapshot?.postal_code || '—'}
                   </div>
                 </div>
               </div>

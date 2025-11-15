@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { getSalesAnalytics, fetchOrders } from '@/lib/queries'
 import * as XLSX from 'xlsx'
+import * as XLSXStyle from 'xlsx-js-style'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -421,35 +422,165 @@ export default function SalesAnalytics() {
                   return isInDateRange && isCompleted
                 })
                 
+                // Calculate revenue by status from all orders in date range
+                const allOrdersInRange = allOrders.filter(order => {
+                  const orderDate = new Date(order.created_at)
+                  return orderDate >= startDate && orderDate <= now
+                })
+                
+                const revenueByStatus = {
+                  Processing: { count: 0, revenue: 0 },
+                  Shipped: { count: 0, revenue: 0 },
+                  Completed: { count: 0, revenue: 0 },
+                  Cancelled: { count: 0, revenue: 0 }
+                }
+                
+                allOrdersInRange.forEach(order => {
+                  const status = String(order.status || '').toLowerCase().trim()
+                  const total = order.total || 0
+                  
+                  if (status === 'processing') {
+                    revenueByStatus.Processing.count++
+                    revenueByStatus.Processing.revenue += total
+                  } else if (status === 'shipped' || status === 'in progress') {
+                    revenueByStatus.Shipped.count++
+                    revenueByStatus.Shipped.revenue += total
+                  } else if (status === 'completed' || status === 'delivered' || status.includes('completed')) {
+                    revenueByStatus.Completed.count++
+                    revenueByStatus.Completed.revenue += total
+                  } else if (status === 'cancelled' || status.includes('cancel')) {
+                    revenueByStatus.Cancelled.count++
+                    revenueByStatus.Cancelled.revenue += total
+                  }
+                })
+                
+                // Get chart period label
+                const chartPeriodLabel = chartPeriod === 'daily' ? 'Daily' :
+                                        chartPeriod === 'monthly' ? 'Monthly' :
+                                        chartPeriod === 'quarterly' ? 'Quarterly' :
+                                        chartPeriod === 'semi-annually' ? 'Semi-Annual' : 'Annual'
+                
+                // Format date range
+                const dateRangeStr = `${startDate.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })} to ${now.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })}`
+                
                 // Summary Sheet
                 const summaryData = [
                   ['Sales Analytics Report'],
                   [''],
+                  ['Report Information'],
                   ['Report Generated:', reportDate],
-                  ['Time Period:', periodLabel],
+                  ['Date Range:', dateRangeStr],
+                  ['Time Period Filter:', periodLabel],
+                  ['Chart Period:', chartPeriodLabel],
                   [''],
-                  ['SUMMARY METRICS'],
+                  ['Summary Metrics'],
                   [''],
                   ['Metric', 'Value'],
                   ['Total Revenue', formatCurrency(analytics.totalRevenue)],
                   ['Total Orders', analytics.totalOrders],
                   ['Average Order Value', formatCurrency(analytics.averageOrderValue)],
-                  ['Total Customers', analytics.totalCustomers || 'N/A'],
-                  ['Revenue Growth', `${analytics.revenueGrowth}%`],
-                  ['Orders Growth', `${analytics.ordersGrowth}%`],
                   [''],
-                  ['ORDERS BY STATUS'],
+                  ['Revenue & Orders Trend'],
                   [''],
-                  ['Status', 'Count'],
-                  ['Processing', analytics.ordersByStatus?.Processing || 0],
-                  ['Shipped', analytics.ordersByStatus?.Shipped || 0],
-                  ['Completed', analytics.ordersByStatus?.Delivered || analytics.ordersByStatus?.Completed || 0],
-                  ['Cancelled', analytics.ordersByStatus?.Cancelled || 0]
+                  ['Period', 'Revenue', 'Orders'],
                 ]
                 
-                // Orders Sheet - Create this FIRST so it appears as the second tab
+                // Add trend data to summary
+                if (aggregatedChart.labels && aggregatedChart.labels.length > 0) {
+                  aggregatedChart.labels.forEach((label, index) => {
+                    summaryData.push([
+                      label,
+                      formatCurrency(aggregatedChart.revenueData[index] || 0),
+                      aggregatedChart.salesData[index] || 0
+                    ])
+                  })
+                }
+                
+                summaryData.push([''])
+                summaryData.push(['Orders by Status'])
+                summaryData.push([''])
+                summaryData.push(['Status', 'Count'])
+                summaryData.push(['Processing', analytics.ordersByStatus?.Processing || 0])
+                summaryData.push(['Shipped', analytics.ordersByStatus?.Shipped || 0])
+                summaryData.push(['Completed', analytics.ordersByStatus?.Delivered || analytics.ordersByStatus?.Completed || 0])
+                summaryData.push(['Cancelled', analytics.ordersByStatus?.Cancelled || 0])
+                summaryData.push([''])
+                summaryData.push(['Revenue by Status'])
+                summaryData.push([''])
+                summaryData.push(['Status', 'Order Count', 'Total Revenue', 'Average Revenue per Order'])
+                summaryData.push(['Processing', revenueByStatus.Processing.count, formatCurrency(revenueByStatus.Processing.revenue), formatCurrency(revenueByStatus.Processing.count > 0 ? revenueByStatus.Processing.revenue / revenueByStatus.Processing.count : 0)])
+                summaryData.push(['Shipped', revenueByStatus.Shipped.count, formatCurrency(revenueByStatus.Shipped.revenue), formatCurrency(revenueByStatus.Shipped.count > 0 ? revenueByStatus.Shipped.revenue / revenueByStatus.Shipped.count : 0)])
+                summaryData.push(['Completed', revenueByStatus.Completed.count, formatCurrency(revenueByStatus.Completed.revenue), formatCurrency(revenueByStatus.Completed.count > 0 ? revenueByStatus.Completed.revenue / revenueByStatus.Completed.count : 0)])
+                summaryData.push(['Cancelled', revenueByStatus.Cancelled.count, formatCurrency(revenueByStatus.Cancelled.revenue), formatCurrency(revenueByStatus.Cancelled.count > 0 ? revenueByStatus.Cancelled.revenue / revenueByStatus.Cancelled.count : 0)])
+                summaryData.push([''])
+                summaryData.push(['Order Value Distribution'])
+                summaryData.push([''])
+                summaryData.push(['Value Range', 'Order Count', 'Total Revenue'])
+                
+                // Calculate order value distribution
+                const valueRanges = [
+                  { min: 0, max: 500, label: '₱0 - ₱500' },
+                  { min: 500, max: 1000, label: '₱500 - ₱1,000' },
+                  { min: 1000, max: 2000, label: '₱1,000 - ₱2,000' },
+                  { min: 2000, max: 5000, label: '₱2,000 - ₱5,000' },
+                  { min: 5000, max: Infinity, label: '₱5,000+' }
+                ]
+                
+                valueRanges.forEach(range => {
+                  const ordersInRange = filteredOrders.filter(order => {
+                    const total = order.total || 0
+                    return total >= range.min && total < range.max
+                  })
+                  const count = ordersInRange.length
+                  const revenue = ordersInRange.reduce((sum, o) => sum + (o.total || 0), 0)
+                  summaryData.push([range.label, count, formatCurrency(revenue)])
+                })
+                
+                summaryData.push([''])
+                summaryData.push(['Top Orders'])
+                summaryData.push([''])
+                summaryData.push(['Order ID', 'Total Spent', 'Products Ordered'])
+                
+                // Get top orders by total spent
+                const ordersWithProducts = filteredOrders.map(order => {
+                  const orderId = order.id || 'Unknown'
+                  
+                  // Get products from order
+                  const orderItems = order.order_items || []
+                  const products = orderItems.map(item => {
+                    const productName = item.products?.name || 
+                                       item.product?.name || 
+                                       item.product_name ||
+                                       'Unknown Product'
+                    const quantity = Number(item.quantity) || 0
+                    return `${productName} (x${quantity})`
+                  }).join(', ') || 'No items'
+                  
+                  return {
+                    id: orderId,
+                    total: order.total || 0,
+                    products: products
+                  }
+                })
+                
+                const topOrders = ordersWithProducts
+                  .sort((a, b) => b.total - a.total) // Sort by total spent
+                  .slice(0, 10)
+                
+                topOrders.forEach(order => {
+                  summaryData.push([
+                    order.id,
+                    formatCurrency(order.total),
+                    order.products
+                  ])
+                })
+                
+                // Orders Sheet
                 const ordersData = [
                   ['Completed Orders List'],
+                  [''],
+                  ['Date Range:', dateRangeStr],
+                  ['Total Orders:', filteredOrders.length],
                   [''],
                   ['Order ID', 'Date', 'Customer Name', 'Email', 'Status', 'Product Name', 'Quantity', 'Unit Price', 'Subtotal', 'Order Total']
                 ]
@@ -518,21 +649,87 @@ export default function SalesAnalytics() {
                   ordersData.push(['', '', '', '', '', 'No completed orders found in this period', '', '', '', ''])
                 }
                 
+                // Helper function to calculate column widths
+                const calculateColumnWidths = (data) => {
+                  const widths = []
+                  if (!data || data.length === 0) return widths
+                  
+                  // Find max length in each column
+                  const numCols = Math.max(...data.map(row => row ? row.length : 0))
+                  
+                  for (let col = 0; col < numCols; col++) {
+                    let maxLength = 10 // minimum width
+                    for (let row = 0; row < data.length; row++) {
+                      if (data[row] && data[row][col] !== undefined && data[row][col] !== null) {
+                        const cellValue = String(data[row][col])
+                        maxLength = Math.max(maxLength, cellValue.length)
+                      }
+                    }
+                    widths.push({ wch: Math.min(maxLength + 2, 50) }) // max width 50
+                  }
+                  return widths
+                }
+                
+                // Helper function to add borders to worksheet
+                const addBorders = (ws, data) => {
+                  if (!ws || !data || data.length === 0) return ws
+                  
+                  try {
+                    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1')
+                    const borderStyle = {
+                      top: { style: 'thin', color: { rgb: '000000' } },
+                      bottom: { style: 'thin', color: { rgb: '000000' } },
+                      left: { style: 'thin', color: { rgb: '000000' } },
+                      right: { style: 'thin', color: { rgb: '000000' } }
+                    }
+                    
+                    for (let R = 0; R <= range.e.r; R++) {
+                      for (let C = 0; C <= range.e.c; C++) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C })
+                        
+                        // Only add borders to cells that have data
+                        if (data[R] && data[R][C] !== undefined && data[R][C] !== null && String(data[R][C]).trim() !== '') {
+                          if (!ws[cellAddress]) {
+                            ws[cellAddress] = { t: 's', v: String(data[R][C]) }
+                          }
+                          
+                          if (!ws[cellAddress].s) {
+                            ws[cellAddress].s = {}
+                          }
+                          ws[cellAddress].s.border = borderStyle
+                        }
+                      }
+                    }
+                  } catch (error) {
+                    console.warn('[Export] Border styling failed, continuing without borders:', error)
+                  }
+                  return ws
+                }
+                
                 const ordersWs = XLSX.utils.aoa_to_sheet(ordersData)
+                ordersWs['!cols'] = calculateColumnWidths(ordersData)
                 
                 // Add Summary sheet first
                 const summaryWs = XLSX.utils.aoa_to_sheet(summaryData)
+                summaryWs['!cols'] = calculateColumnWidths(summaryData)
                 XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary')
                 
                 // Add Orders sheet second
                 XLSX.utils.book_append_sheet(wb, ordersWs, 'Orders')
                 
+                let productsWs = null
+                let productsData = null
+                
                 // Top Products Sheet
                 if (analytics.topProducts && analytics.topProducts.length > 0) {
-                  const productsData = [
+                  productsData = [
                     ['Top Performing Products'],
                     [''],
-                    ['Rank', 'Product Name', 'Sales Count', 'Revenue']
+                    ['Date Range:', dateRangeStr],
+                    ['Total Products Listed:', analytics.topProducts.length],
+                    [''],
+                    ['Rank', 'Product Name', 'Sales Count', 'Revenue'],
+                    ['', '', '', '']
                   ]
                   
                   analytics.topProducts.forEach((product, index) => {
@@ -544,16 +741,28 @@ export default function SalesAnalytics() {
                     ])
                   })
                   
-                  const productsWs = XLSX.utils.aoa_to_sheet(productsData)
+                  productsData.push(['', '', '', ''])
+                  productsData.push(['', 'Total', analytics.topProducts.reduce((sum, p) => sum + p.sales, 0), formatCurrency(analytics.topProducts.reduce((sum, p) => sum + p.revenue, 0))])
+                  
+                  productsWs = XLSX.utils.aoa_to_sheet(productsData)
+                  productsWs['!cols'] = calculateColumnWidths(productsData)
                   XLSX.utils.book_append_sheet(wb, productsWs, 'Top Products')
                 }
                 
+                let trendWs = null
+                let trendData = null
+                
                 // Sales Trend Sheet
                 if (aggregatedChart.labels && aggregatedChart.labels.length > 0) {
-                  const trendData = [
+                  trendData = [
                     ['Sales Trend Data'],
                     [''],
-                    ['Period', 'Revenue', 'Orders']
+                    ['Chart Period:', chartPeriodLabel],
+                    ['Date Range:', dateRangeStr],
+                    ['Total Periods:', aggregatedChart.labels.length],
+                    [''],
+                    ['Period', 'Revenue', 'Orders'],
+                    ['', '', '']
                   ]
                   
                   aggregatedChart.labels.forEach((label, index) => {
@@ -564,15 +773,47 @@ export default function SalesAnalytics() {
                     ])
                   })
                   
-                  const trendWs = XLSX.utils.aoa_to_sheet(trendData)
+                  trendData.push(['', '', ''])
+                  trendData.push(['Total', 
+                    formatCurrency(aggregatedChart.revenueData.reduce((sum, val) => sum + (val || 0), 0)),
+                    aggregatedChart.salesData.reduce((sum, val) => sum + (val || 0), 0)
+                  ])
+                  
+                  trendWs = XLSX.utils.aoa_to_sheet(trendData)
+                  trendWs['!cols'] = calculateColumnWidths(trendData)
                   XLSX.utils.book_append_sheet(wb, trendWs, 'Sales Trend')
                 }
                 
+                // Add borders after all sheets are created (optional, won't break export if it fails)
+                try {
+                  addBorders(summaryWs, summaryData)
+                  addBorders(ordersWs, ordersData)
+                  if (productsWs && productsData) {
+                    addBorders(productsWs, productsData)
+                  }
+                  if (trendWs && trendData) {
+                    addBorders(trendWs, trendData)
+                  }
+                } catch (borderError) {
+                  console.warn('[Export] Could not add borders, continuing:', borderError)
+                }
+                
                 const fileName = `sales-report-${timeRange}-${new Date().toISOString().split('T')[0]}.xlsx`
-                XLSX.writeFile(wb, fileName)
+                
+                // Try using xlsx-js-style for borders, fallback to regular xlsx
+                try {
+                  if (typeof XLSXStyle !== 'undefined' && XLSXStyle.writeFile) {
+                    XLSXStyle.writeFile(wb, fileName)
+                  } else {
+                    XLSX.writeFile(wb, fileName)
+                  }
+                } catch (styleError) {
+                  console.warn('[Export] xlsx-js-style failed, using regular xlsx:', styleError)
+                  XLSX.writeFile(wb, fileName)
+                }
               } catch (error) {
                 console.error('[Export] Export failed:', error)
-                alert('Failed to export report. Please try again.')
+                alert(`Failed to export report: ${error.message || 'Unknown error'}. Please try again.`)
               }
             }}
           >
@@ -714,6 +955,20 @@ export default function SalesAnalytics() {
         </div>
         <div className="h-96 mt-2">
           <Line data={chartData} options={chartOptions} />
+        </div>
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <p className="text-sm text-slate-400 leading-relaxed">
+            {chartPeriod === 'daily' 
+              ? 'Daily revenue and order trends for the selected month.'
+              : chartPeriod === 'monthly'
+              ? 'Monthly revenue and order trends over the past 12 months.'
+              : chartPeriod === 'quarterly'
+              ? 'Quarterly revenue and order trends grouped into three-month periods.'
+              : chartPeriod === 'semi-annually'
+              ? 'Semi-annual revenue and order trends across six-month periods.'
+              : 'Annual revenue and order trends over multiple years.'
+            }
+          </p>
         </div>
         {aggregatedChart.labels.length > 0 && (
           <div className="mt-4 border-t border-white/10 pt-4">
