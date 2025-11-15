@@ -15,7 +15,7 @@ import {
   Target,
   Zap
 } from 'lucide-react'
-import { fetchProducts, fetchOrders } from '@/lib/queries'
+import { fetchProducts, fetchOrders, getSalesAnalytics } from '@/lib/queries'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -32,9 +32,10 @@ export default function AdminDashboard() {
     let mounted = true
     const load = async () => {
       try {
-        const [products, orders] = await Promise.all([
+        const [products, orders, analytics] = await Promise.all([
           fetchProducts({ includeInactive: true }).catch(() => []),
-          fetchOrders().catch(() => [])
+          fetchOrders().catch(() => []),
+          getSalesAnalytics('30d').catch(() => ({ topProducts: [] }))
         ])
 
         let pendingInquiries = 0
@@ -78,7 +79,7 @@ export default function AdminDashboard() {
           totalRevenue,
           pendingInquiries,
           recentOrders,
-          topProducts: []
+          topProducts: analytics.topProducts || []
         })
       } catch { }
     }
@@ -140,18 +141,11 @@ export default function AdminDashboard() {
   return (
     <div className="py-12 sm:py-16 lg:py-20 px-6 sm:px-8 lg:px-12">
       {}
-      <div className="text-center lg:text-left my-8">
-        <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-          <span className="gradient-text">Welcome back!</span>
-        </h1>
-      </div>
-
-      {}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-6 my-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-6" style={{ marginTop: '3rem', marginBottom: '3rem' }}>
         {statCards.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <div key={index} className="glass-effect rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+            <div key={index} className="glass-effect rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1.25rem' }}>
               <div className="flex items-center justify-between mb-3">
                 <div className={`p-2 rounded-lg bg-gradient-to-r ${stat.gradient}`}>
                   <Icon className="w-5 h-5 text-white" />
@@ -173,10 +167,10 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ml-6 my-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ml-6" style={{ marginBottom: '3rem' }}>
         {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
-          <div className="p-6 border-b border-white/10">
+          <div className="p-6 border-b border-white/10" style={{ padding: '1.5rem' }}>
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Clock className="w-5 h-5 text-blue-400" />
@@ -191,7 +185,7 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
-          <div className="p-6">
+          <div className="p-6" style={{ padding: '1.5rem' }}>
             <div className="space-y-4">
               {stats.recentOrders.map((order, index) => (
                 <div key={index} className="flex items-center justify-between py-4 border-b border-white/5 last:border-b-0 group hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors">
@@ -221,7 +215,7 @@ export default function AdminDashboard() {
 
         {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
-          <div className="p-6 border-b border-white/10">
+          <div className="p-6 border-b border-white/10" style={{ padding: '1.5rem' }}>
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Target className="w-5 h-5 text-purple-400" />
@@ -236,7 +230,7 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
-          <div className="p-6">
+          <div className="p-6" style={{ padding: '1.5rem' }}>
             <div className="space-y-4">
               {stats.topProducts.length === 0 && (
                 <div className="text-slate-300 text-sm">No top products yet.</div>
@@ -253,11 +247,20 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-white text-lg">₱{product.revenue}</p>
-                    <div className="w-16 h-2 bg-slate-700 rounded-full mt-1">
+                    <p className="font-bold text-white text-lg mb-1">
+                      {new Intl.NumberFormat('en-PH', {
+                        style: 'currency',
+                        currency: 'PHP'
+                      }).format(product.revenue)}
+                    </p>
+                    <div className="w-20 h-2 bg-slate-700 rounded-full mt-1">
                       <div
                         className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500"
-                        style={{ width: `${(product.sales / 78) * 100}%` }}
+                        style={{ 
+                          width: `${stats.topProducts.length > 0 && Math.max(...stats.topProducts.map(p => p.sales)) > 0 
+                            ? (product.sales / Math.max(...stats.topProducts.map(p => p.sales))) * 100 
+                            : 0}%` 
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -269,14 +272,7 @@ export default function AdminDashboard() {
       </div>
 
       {}
-      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-8 my-8">
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold text-white flex items-center justify-center gap-2 mb-2">
-            <Zap className="w-6 h-6 text-yellow-400" />
-            Quick Actions
-          </h3>
-          <p className="text-slate-400">Manage your store efficiently</p>
-        </div>
+      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 ml-6" style={{ padding: '2rem' }}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <button
             className="group glass-effect rounded-xl p-6 border border-white/10 hover:border-blue-500/30 transition-all duration-300 hover:scale-105 hover:shadow-xl"

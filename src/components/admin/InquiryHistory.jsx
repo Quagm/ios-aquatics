@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useToast } from '@/components/ui/ToastProvider'
+import { Filter } from 'lucide-react'
 
 async function apiFetchInquiries() {
   const res = await fetch('/api/inquiries', { method: 'GET', credentials: 'include' })
@@ -25,6 +26,7 @@ export default function InquiryHistory() {
   const [inquiries, setInquiries] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedInquiry, setSelectedInquiry] = useState(null)
+  const [selectedDate, setSelectedDate] = useState('')
   const { push } = useToast()
 
   const extractImageUrls = (text) => {
@@ -61,7 +63,18 @@ export default function InquiryHistory() {
     apiFetchInquiries()
       .then((data) => {
         if (!mounted) return
-        const archived = (data || []).filter(i => i.status === 'completed' || i.status === 'cancelled')
+        const archived = (data || [])
+          .filter(i => i.status === 'completed' || i.status === 'cancelled')
+          .map(i => ({
+            ...i,
+            inquiryDate: i.created_at?.split('T')[0],
+            createdAt: i.created_at
+          }))
+          .sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.inquiryDate || 0)
+            const dateB = new Date(b.createdAt || b.inquiryDate || 0)
+            return dateB - dateA
+          })
         setInquiries(archived)
         if (archived.length === 0) {
           push({ title: 'No archived inquiries', description: 'No completed or cancelled inquiries found.', variant: 'default' })
@@ -74,6 +87,11 @@ export default function InquiryHistory() {
     return () => { mounted = false }
   }, [])
 
+  const filteredInquiries = useMemo(() => {
+    if (!selectedDate) return inquiries
+    return inquiries.filter(inquiry => inquiry.inquiryDate === selectedDate)
+  }, [inquiries, selectedDate])
+
   return (
     <div className="space-y-8 py-8 sm:py-12 lg:py-16 px-6 sm:px-8 lg:px-12">
       <div className="text-center lg:text-left">
@@ -83,15 +101,35 @@ export default function InquiryHistory() {
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
           <span className="gradient-text">Inquiry</span> History
         </h1>
-        <p className="text-lg text-slate-300 max-w-2xl">Archived inquiries (completed or cancelled).</p>
+      </div>
+
+      {}
+      <div className="flex justify-start mb-6">
+        <div className="glass-effect rounded-xl border border-white/10 p-5 inline-flex flex-col">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="w-4 h-4 text-slate-300" />
+            <h3 className="text-base font-semibold text-white">Filters</h3>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-slate-300">Date:</label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div>
         <div className="px-1 py-2">
-          <h3 className="text-lg font-semibold text-white">Archived Inquiries ({inquiries.length})</h3>
+          <h3 className="text-lg font-semibold text-white">Archived Inquiries ({filteredInquiries.length})</h3>
         </div>
         <div className="space-y-3">
-          {inquiries.map(inq => (
+          {filteredInquiries.map(inq => (
             <div
               key={inq.id}
               className="w-full glass-effect rounded-xl border border-white/10 p-4 hover:border-white/20 hover:bg-white/5 transition-colors"
@@ -132,8 +170,10 @@ export default function InquiryHistory() {
               </div>
             </div>
           ))}
-          {(!loading && inquiries.length === 0) && (
-            <div className="text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No archived inquiries.</div>
+          {(!loading && filteredInquiries.length === 0) && (
+            <div className="text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">
+              {selectedDate ? `No inquiries found for ${selectedDate}.` : 'No archived inquiries.'}
+            </div>
           )}
         </div>
       </div>

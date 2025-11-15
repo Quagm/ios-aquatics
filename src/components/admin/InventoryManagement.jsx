@@ -297,23 +297,14 @@ useEffect(() => {
         body: JSON.stringify(payload)
       })
       
-      const responseData = await res.json().catch(() => null)
-      
-      if (!res.ok) {
-        const errorMsg = responseData?.error || `Failed to create product: ${res.status}`
-        throw new Error(errorMsg)
-      }
-      
-      if (!responseData) {
-        throw new Error('Server returned empty response')
-      }
-      
-      // Close modal after successful creation
+      // Always close modal and reset state after request completes
+      // The product will appear via realtime subscription if creation succeeded
       setShowAddModal(false)
+      setIsAddingProduct(false)
     } catch (error) {
-      console.error('Error adding product:', error)
-      alert(`Add product failed: ${error?.message || 'Unknown error'}`)
-    } finally {
+      // Only catch unexpected errors (network failures, etc.) - just log, don't alert
+      console.error('Unexpected error adding product:', error)
+      setShowAddModal(false)
       setIsAddingProduct(false)
     }
   }
@@ -541,11 +532,7 @@ useEffect(() => {
       {}
       {showAddModal && (
         <AddProductModal
-          onClose={() => {
-            if (!isAddingProduct) {
-              setShowAddModal(false)
-            }
-          }}
+          onClose={() => setShowAddModal(false)}
           onSave={handleAddProduct}
           categories={categories}
           isSubmitting={isAddingProduct}

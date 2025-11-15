@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { fetchOrders, deleteOrderById } from '@/lib/queries'
-import { Package, CheckCircle, Calendar, DollarSign, AlertCircle, Trash2 } from 'lucide-react'
+import { Package, CheckCircle, Calendar, DollarSign, AlertCircle, Trash2, X, Filter } from 'lucide-react'
 import { useToast } from '@/components/ui/ToastProvider'
 import { supabase } from '@/supabaseClient'
 
@@ -32,6 +32,8 @@ const getOrderStatusLabel = (status) => {
 export default function OrderHistory() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedDate, setSelectedDate] = useState('')
+  const [selectedStatus, setSelectedStatus] = useState('all')
   const { push } = useToast()
 
   useEffect(() => {
@@ -57,8 +59,14 @@ export default function OrderHistory() {
               total: o.total,
               status: normalizeOrderStatus(o.status),
               orderDate: o.created_at?.split('T')[0],
+              createdAt: o.created_at,
               customer: { ...snapshot, ...customer }
             }
+          })
+          .sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.orderDate || 0)
+            const dateB = new Date(b.createdAt || b.orderDate || 0)
+            return dateB - dateA
           })
         setOrders(completed)
         if (completed.length === 0) {
@@ -92,8 +100,14 @@ export default function OrderHistory() {
                 total: o.total,
                 status: normalizeOrderStatus(o.status),
                 orderDate: o.created_at?.split('T')[0],
+                createdAt: o.created_at,
                 customer: { ...snapshot, ...customer }
               }
+            })
+            .sort((a, b) => {
+              const dateA = new Date(a.createdAt || a.orderDate || 0)
+              const dateB = new Date(b.createdAt || b.orderDate || 0)
+              return dateB - dateA
             })
           setOrders(archived)
         } catch {}
@@ -104,7 +118,21 @@ export default function OrderHistory() {
     }
   }, [])
 
-  const totalRevenue = orders.reduce((sum, o) => {
+  const filteredOrders = useMemo(() => {
+    let filtered = orders
+    
+    if (selectedDate) {
+      filtered = filtered.filter(order => order.orderDate === selectedDate)
+    }
+    
+    if (selectedStatus !== 'all') {
+      filtered = filtered.filter(order => order.status === selectedStatus)
+    }
+    
+    return filtered
+  }, [orders, selectedDate, selectedStatus])
+
+  const totalRevenue = filteredOrders.reduce((sum, o) => {
     if (normalizeOrderStatus(o.status) === 'cancelled') {
       return sum
     }
@@ -140,7 +168,7 @@ export default function OrderHistory() {
       </div>
 
       {}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="glass-effect rounded-2xl p-6 border border-white/10">
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
@@ -148,7 +176,7 @@ export default function OrderHistory() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-slate-400">Archived Orders</p>
-              <p className="text-2xl font-bold text-white">{orders.length}</p>
+              <p className="text-2xl font-bold text-white">{filteredOrders.length}</p>
             </div>
           </div>
         </div>
@@ -166,12 +194,45 @@ export default function OrderHistory() {
       </div>
 
       {}
+      <div className="flex justify-start mb-6">
+        <div className="glass-effect rounded-xl border border-white/10 p-5 inline-flex flex-col">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="w-4 h-4 text-slate-300" />
+            <h3 className="text-base font-semibold text-white">Filters</h3>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-slate-300">Date:</label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-slate-300">Status:</label>
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+              >
+                <option value="all" className="bg-slate-800">All Status</option>
+                <option value="completed" className="bg-slate-800">Completed</option>
+                <option value="cancelled" className="bg-slate-800">Cancelled</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {}
       <div>
         <div className="px-1 py-2">
-          <h3 className="text-lg font-semibold text-white">Archived Orders ({orders.length})</h3>
+          <h3 className="text-lg font-semibold text-white">Archived Orders ({filteredOrders.length})</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {orders.map(order => (
+          {filteredOrders.map(order => (
             <div key={order.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -209,8 +270,10 @@ export default function OrderHistory() {
               </div>
             </div>
           ))}
-          {(!loading && orders.length === 0) && (
-            <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">No archived orders yet.</div>
+          {(!loading && filteredOrders.length === 0) && (
+            <div className="col-span-full text-center text-slate-300 py-12 border border-dashed border-white/20 rounded-xl">
+              {selectedDate ? `No orders found for ${selectedDate}.` : 'No archived orders yet.'}
+            </div>
           )}
         </div>
       </div>

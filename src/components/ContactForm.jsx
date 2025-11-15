@@ -1,17 +1,33 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { createInquiry } from "@/lib/queries"
-import { CheckCircle, ArrowRight } from 'lucide-react'
+import { CheckCircle, ArrowRight, Calendar } from 'lucide-react'
 
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [selectedSubject, setSelectedSubject] = useState("")
+  const formRef = useRef(null)
+  
+  // Get today's date in YYYY-MM-DD format for min date
+  const today = new Date().toISOString().split('T')[0]
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const data = new FormData(e.currentTarget)
+    const form = e.currentTarget || formRef.current
+    if (!form) return
+    
+    const data = new FormData(form)
     const payload = Object.fromEntries(data.entries())
+    
+    // Validate booking date if subject is "booking"
+    if (payload.subject === "booking" && !payload.bookingDate) {
+      setError("Please select a booking date for your appointment.")
+      setSubmitting(false)
+      return
+    }
+    
     setSubmitting(true)
     setError("")
     try {
@@ -22,10 +38,14 @@ export default function ContactForm() {
         phone: payload.phone || null,
         subject: payload.subject,
         message: payload.message,
-        status: "pending"
+        status: "pending",
+        appointment_at: payload.bookingDate ? new Date(payload.bookingDate).toISOString() : null
       })
       setSubmitted(true)
-      ;(e.currentTarget).reset()
+      setSelectedSubject("")
+      if (form && typeof form.reset === 'function') {
+        form.reset()
+      }
     } catch (err) {
       setError(err.message || "Failed to submit. Please try again.")
     } finally {
@@ -53,7 +73,8 @@ export default function ContactForm() {
   }
 
   return (
-    <form className="space-y-8" onSubmit={handleSubmit}>
+    <div className="w-full">
+      <form ref={formRef} className="w-full" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {error && (
         <div className="glass-effect rounded-xl p-4 border border-red-500/20 bg-red-500/10">
           <p className="text-red-300 font-medium">{error}</p>
@@ -61,7 +82,7 @@ export default function ContactForm() {
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-white mb-3">
+          <label htmlFor="firstName" className="block text-sm font-medium text-white mb-4">
             First Name
           </label>
           <input
@@ -74,7 +95,7 @@ export default function ContactForm() {
         </div>
         
         <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-white mb-3">
+          <label htmlFor="lastName" className="block text-sm font-medium text-white mb-4">
             Last Name
           </label>
           <input
@@ -88,37 +109,39 @@ export default function ContactForm() {
       </div>
       
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-white mb-3">
+        <label htmlFor="email" className="block text-sm font-medium text-white mb-4">
           Email Address
         </label>
         <input
           type="email"
           id="email"
           name="email"
-          className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
+          className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50 text-white placeholder-slate-400 transition-all duration-300"
           required
         />
       </div>
       
       <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-white mb-3">
+        <label htmlFor="phone" className="block text-sm font-medium text-white mb-4">
           Phone Number
         </label>
         <input
           type="tel"
           id="phone"
           name="phone"
-          className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
+          className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50 text-white placeholder-slate-400 transition-all duration-300"
         />
       </div>
       
       <div>
-        <label htmlFor="subject" className="block text-sm font-medium text-white mb-3">
+        <label htmlFor="subject" className="block text-sm font-medium text-white mb-4">
           Subject
         </label>
         <select
           id="subject"
           name="subject"
+          value={selectedSubject}
+          onChange={(e) => setSelectedSubject(e.target.value)}
           className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50 text-white transition-all duration-300"
           required
         >
@@ -127,33 +150,56 @@ export default function ContactForm() {
           <option value="order-status" className="bg-[#051C29] text-white">Order Status</option>
           <option value="shipping" className="bg-[#051C29] text-white">Shipping Information</option>
           <option value="return" className="bg-[#051C29] text-white">Return/Exchange</option>
+          <option value="booking" className="bg-[#051C29] text-white">Booking</option>
           <option value="other" className="bg-[#051C29] text-white">Other</option>
         </select>
       </div>
       
+      {selectedSubject === "booking" && (
+        <div>
+          <label htmlFor="bookingDate" className="block text-sm font-medium text-white mb-4">
+            <span className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Preferred Booking Date
+            </span>
+          </label>
+          <input
+            type="date"
+            id="bookingDate"
+            name="bookingDate"
+            min={today}
+            className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50 text-white transition-all duration-300"
+            required
+          />
+          <p className="text-xs text-slate-400 mt-2">Select a future date for your appointment or consultation</p>
+        </div>
+      )}
+      
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-white mb-3">
+        <label htmlFor="message" className="block text-sm font-medium text-white mb-4">
           Message
         </label>
         <textarea
           id="message"
           name="message"
           rows={8}
-          className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6c47ff] text-white placeholder-white/70"
+          className="w-full px-4 py-4 glass-effect border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50 text-white placeholder-slate-400 transition-all duration-300"
           placeholder="Please describe your inquiry in detail..."
           required
         ></textarea>
       </div>
       
-      <div className="text-center pt-4">
+      <div className="text-center pt-8">
         <button
           type="submit"
           disabled={submitting}
-          className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white px-12 py-4 rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20 text-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20 text-base sm:text-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap"
+          style={{ padding: '0.75rem 1.5rem' }}
         >
           {submitting ? "Sending..." : "Send Inquiry"}
         </button>
       </div>
     </form>
+    </div>
   )
 }

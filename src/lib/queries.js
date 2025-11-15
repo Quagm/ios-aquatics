@@ -1,8 +1,11 @@
 import { supabase } from "@/supabaseClient"
 
-export async function fetchProducts({ category } = {}) {
+export async function fetchProducts({ category, includeInactive } = {}) {
   let query = supabase.from("products").select("*").order("created_at", { ascending: false })
   if (category && category !== "all") query = query.eq("category", category)
+  if (!includeInactive) {
+    query = query.eq("active", true)
+  }
   const { data, error } = await query
   if (error) throw error
   return data || []

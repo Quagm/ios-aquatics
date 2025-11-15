@@ -3,9 +3,10 @@ import { useState, useEffect } from "react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Waves, Fish, Leaf, Wrench, Utensils, Pill, Palette, MapPin, Phone, Mail, Clock, Truck, ShoppingCart, CheckCircle, AlertTriangle, Search, Sparkles, Lightbulb, FileText, ArrowRight } from 'lucide-react'
+import { Waves, Fish, Leaf, Wrench, Utensils, Pill, Palette, MapPin, Phone, Mail, Clock, Truck, ShoppingCart, CheckCircle, AlertTriangle, Search, Sparkles, Lightbulb, FileText, ArrowRight, MessageSquare } from 'lucide-react'
 import Footer from '@/components/Footer'
 import NavigationBar from "@/components/navigation-bar"
+import ContactForm from '@/components/ContactForm'
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -203,7 +204,7 @@ export default function HomePage() {
             <Link href="/inquiry-form">
               <button className="group w-full sm:w-auto my-2 glass-effect text-white px-24 py-9 text-sm sm:text-base rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30" style={{padding: '10px 18px'}}>
                 <span className="flex items-center justify-center gap-3">
-                  Inqure Aquascape
+                  Inquire Aquascape
                   <Lightbulb className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
                 </span>
               </button>
@@ -415,32 +416,18 @@ export default function HomePage() {
             </div>
 
             <div className="space-y-8">
-              <div className="glass-effect rounded-2xl p-12 sm:p-14 md:p-16 border border-white/10 text-center" style={{padding: '20px 56px'}}>
-                <div className="px-8 sm:px-12 lg:px-16 py-4 sm:py-5">
-                  <h3 className="text-2xl font-bold text-white mb-5">Ready to Get Started?</h3>
-                  <p className="text-slate-300 mb-6 leading-relaxed">
-                    Whether you're a beginner or an experienced aquarist, we have everything you need to create beautiful underwater ecosystems.
-                  </p>
-
-                  <div className="space-y-5">
-                    <a href="https://web.facebook.com/iosaquatics" target="_blank" rel="noopener noreferrer">
-                      <button className="group w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-5 text-lg rounded-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-2xl font-semibold border border-blue-500/20">
-                        <span className="flex items-center justify-center gap-3">
-                          Message us on Facebook
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                        </span>
-                      </button>
-                    </a>
-
-                    <Link href="/store-page">
-                      <button className="group w-full glass-effect text-white px-10 py-5 text-lg rounded-xl transition-all duration-300 hover:bg-white/30 hover:scale-105 hover:shadow-xl font-semibold border border-white/30">
-                        <span className="flex items-center justify-center gap-3">
-                          Browse Store
-                          <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-                        </span>
-                      </button>
-                    </Link>
+              <div className="glass-effect rounded-2xl border border-white/10 mt-12 sm:mt-16 md:mt-20 lg:mt-24" style={{ padding: '3rem 4rem' }}>
+                <div className="flex items-center gap-3 mb-12">
+                  <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                    <MessageSquare className="w-6 h-6 text-blue-400" />
                   </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">Feedback & Contact</h3>
+                    <p className="text-slate-300 text-sm">We'd love to hear from you!</p>
+                  </div>
+                </div>
+                <div className="w-full mt-8">
+                  <ContactForm />
                 </div>
               </div>
             </div>
