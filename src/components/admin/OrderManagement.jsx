@@ -244,7 +244,7 @@ export default function OrderManagement() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
               <Package className="w-6 h-6 text-white" />
@@ -255,7 +255,7 @@ export default function OrderManagement() {
             </div>
           </div>
         </div>
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600">
               <Clock className="w-6 h-6 text-white" />
@@ -266,7 +266,7 @@ export default function OrderManagement() {
             </div>
           </div>
         </div>
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
               <Truck className="w-6 h-6 text-white" />
@@ -277,7 +277,7 @@ export default function OrderManagement() {
             </div>
           </div>
         </div>
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
               <CheckCircle className="w-6 h-6 text-white" />
@@ -290,7 +290,7 @@ export default function OrderManagement() {
         </div>
       </div>
 
-      <div className="glass-effect rounded-2xl p-6 border border-white/10">
+      <div className="glass-effect rounded-2xl border border-white/10" style={{ padding: '2rem' }}>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -337,7 +337,7 @@ export default function OrderManagement() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOrders.map((order) => (
-            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
+            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all" style={{ padding: '1.25rem' }}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">

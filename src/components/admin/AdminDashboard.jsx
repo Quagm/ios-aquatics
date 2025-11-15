@@ -145,7 +145,7 @@ export default function AdminDashboard() {
         {statCards.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <div key={index} className="glass-effect rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1.25rem' }}>
+            <div key={index} className="glass-effect rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1rem' }}>
               <div className="flex items-center justify-between mb-3">
                 <div className={`p-2 rounded-lg bg-gradient-to-r ${stat.gradient}`}>
                   <Icon className="w-5 h-5 text-white" />
@@ -170,7 +170,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ml-6" style={{ marginBottom: '3rem' }}>
         {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
-          <div className="p-6 border-b border-white/10" style={{ padding: '1.5rem' }}>
+          <div className="p-6 border-b border-white/10" style={{ padding: '1.25rem' }}>
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Clock className="w-5 h-5 text-blue-400" />
@@ -185,7 +185,7 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
-          <div className="p-6" style={{ padding: '1.5rem' }}>
+          <div className="p-6" style={{ padding: '1.25rem' }}>
             <div className="space-y-4">
               {stats.recentOrders.map((order, index) => (
                 <div key={index} className="flex items-center justify-between py-4 border-b border-white/5 last:border-b-0 group hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors">
@@ -215,7 +215,7 @@ export default function AdminDashboard() {
 
         {}
         <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
-          <div className="p-6 border-b border-white/10" style={{ padding: '1.5rem' }}>
+          <div className="p-6 border-b border-white/10" style={{ padding: '1.25rem' }}>
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Target className="w-5 h-5 text-purple-400" />
@@ -230,7 +230,7 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
-          <div className="p-6" style={{ padding: '1.5rem' }}>
+          <div className="p-6" style={{ padding: '1.25rem' }}>
             <div className="space-y-4">
               {stats.topProducts.length === 0 && (
                 <div className="text-slate-300 text-sm">No top products yet.</div>

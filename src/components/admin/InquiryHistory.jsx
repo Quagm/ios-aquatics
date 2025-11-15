@@ -105,7 +105,7 @@ export default function InquiryHistory() {
 
       {}
       <div className="flex justify-start mb-6">
-        <div className="glass-effect rounded-xl border border-white/10 p-5 inline-flex flex-col">
+        <div className="glass-effect rounded-xl border border-white/10 inline-flex flex-col" style={{ padding: '1rem' }}>
           <div className="flex items-center gap-2 mb-3">
             <Filter className="w-4 h-4 text-slate-300" />
             <h3 className="text-base font-semibold text-white">Filters</h3>
@@ -132,7 +132,8 @@ export default function InquiryHistory() {
           {filteredInquiries.map(inq => (
             <div
               key={inq.id}
-              className="w-full glass-effect rounded-xl border border-white/10 p-4 hover:border-white/20 hover:bg-white/5 transition-colors"
+              className="w-full glass-effect rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-colors"
+              style={{ padding: '0.875rem' }}
             >
               <div className="flex items-start justify-between gap-3">
                 <button

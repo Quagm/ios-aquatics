@@ -417,7 +417,7 @@ useEffect(() => {
         </div>
       </div>
 
-      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
+      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300" style={{ padding: '2rem' }}>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">

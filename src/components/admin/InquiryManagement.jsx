@@ -312,7 +312,7 @@ export default function InquiryManagement() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredInquiries.map((inq) => (
-          <div key={inq.id} className="glass-effect rounded-2xl border border-white/10 mb-2 hover:border-white/20 transition-all shadow-lg p-4 sm:p-6 md:p-8">
+          <div key={inq.id} className="glass-effect rounded-2xl border border-white/10 mb-2 hover:border-white/20 transition-all shadow-lg" style={{ padding: '1.25rem' }}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <h3

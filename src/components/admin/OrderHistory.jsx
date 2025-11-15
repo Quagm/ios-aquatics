@@ -169,7 +169,7 @@ export default function OrderHistory() {
 
       {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="glass-effect rounded-2xl p-6 border border-white/10">
+        <div className="glass-effect rounded-2xl border border-white/10" style={{ padding: '1rem' }}>
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
               <CheckCircle className="w-6 h-6 text-white" />
@@ -180,7 +180,7 @@ export default function OrderHistory() {
             </div>
           </div>
         </div>
-        <div className="glass-effect rounded-2xl p-6 border border-white/10">
+        <div className="glass-effect rounded-2xl border border-white/10" style={{ padding: '1rem' }}>
           <div className="flex items-center">
             <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
               <DollarSign className="w-6 h-6 text-white" />
@@ -195,7 +195,7 @@ export default function OrderHistory() {
 
       {}
       <div className="flex justify-start mb-6">
-        <div className="glass-effect rounded-xl border border-white/10 p-5 inline-flex flex-col">
+        <div className="glass-effect rounded-xl border border-white/10 inline-flex flex-col" style={{ padding: '1rem' }}>
           <div className="flex items-center gap-2 mb-3">
             <Filter className="w-4 h-4 text-slate-300" />
             <h3 className="text-base font-semibold text-white">Filters</h3>
@@ -233,7 +233,7 @@ export default function OrderHistory() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOrders.map(order => (
-            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all">
+            <div key={order.id} className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all" style={{ padding: '1.25rem' }}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">

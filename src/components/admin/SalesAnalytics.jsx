@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
-import { getSalesAnalytics } from '@/lib/queries'
+import { getSalesAnalytics, fetchOrders } from '@/lib/queries'
 import * as XLSX from 'xlsx'
 import { 
   TrendingUp, 
@@ -329,22 +329,190 @@ export default function SalesAnalytics() {
           </select>
           <button 
             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 hover:shadow-xl border border-blue-500/20"
-            onClick={() => {
-              const data = [
-                ['Metric', 'Value'],
-                ['Total Revenue', formatCurrency(analytics.totalRevenue)],
-                ['Total Orders', analytics.totalOrders],
-                ['Average Order Value', formatCurrency(analytics.averageOrderValue)],
-                ['Revenue Growth', `${analytics.revenueGrowth}%`],
-                ['Orders Growth', `${analytics.ordersGrowth}%`]
-              ]
-              
-              const ws = XLSX.utils.aoa_to_sheet(data)
-              const wb = XLSX.utils.book_new()
-              XLSX.utils.book_append_sheet(wb, ws, 'Sales Report')
-              
-              const fileName = `sales-report-${timeRange}-${new Date().toISOString().split('T')[0]}.xlsx`
-              XLSX.writeFile(wb, fileName)
+            onClick={async () => {
+              try {
+                const wb = XLSX.utils.book_new()
+                const reportDate = new Date().toLocaleString('en-PH', { dateStyle: 'long', timeStyle: 'short' })
+                const periodLabel = timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 90 days'
+                
+                // Calculate date range for filtering orders
+                const now = new Date()
+                let startDate = new Date()
+                if (timeRange === '7d') {
+                  startDate.setDate(now.getDate() - 7)
+                } else if (timeRange === '30d') {
+                  startDate.setDate(now.getDate() - 30)
+                } else if (timeRange === '90d') {
+                  startDate.setDate(now.getDate() - 90)
+                }
+                
+                // Fetch all orders and filter for completed orders only
+                const allOrders = await fetchOrders()
+                
+                const filteredOrders = allOrders.filter(order => {
+                  const orderDate = new Date(order.created_at)
+                  const isInDateRange = orderDate >= startDate && orderDate <= now
+                  const status = String(order.status || '').toLowerCase().trim()
+                  const isCompleted = status === 'completed' || 
+                                     status === 'delivered' || 
+                                     status === 'delivered (completed)' ||
+                                     (status.includes('completed') && !status.includes('cancelled'))
+                  return isInDateRange && isCompleted
+                })
+                
+                // Summary Sheet
+                const summaryData = [
+                  ['Sales Analytics Report'],
+                  [''],
+                  ['Report Generated:', reportDate],
+                  ['Time Period:', periodLabel],
+                  [''],
+                  ['SUMMARY METRICS'],
+                  [''],
+                  ['Metric', 'Value'],
+                  ['Total Revenue', formatCurrency(analytics.totalRevenue)],
+                  ['Total Orders', analytics.totalOrders],
+                  ['Average Order Value', formatCurrency(analytics.averageOrderValue)],
+                  ['Total Customers', analytics.totalCustomers || 'N/A'],
+                  ['Revenue Growth', `${analytics.revenueGrowth}%`],
+                  ['Orders Growth', `${analytics.ordersGrowth}%`],
+                  [''],
+                  ['ORDERS BY STATUS'],
+                  [''],
+                  ['Status', 'Count'],
+                  ['Processing', analytics.ordersByStatus?.Processing || 0],
+                  ['Shipped', analytics.ordersByStatus?.Shipped || 0],
+                  ['Completed', analytics.ordersByStatus?.Delivered || analytics.ordersByStatus?.Completed || 0],
+                  ['Cancelled', analytics.ordersByStatus?.Cancelled || 0]
+                ]
+                
+                // Orders Sheet - Create this FIRST so it appears as the second tab
+                const ordersData = [
+                  ['Completed Orders List'],
+                  [''],
+                  ['Order ID', 'Date', 'Customer Name', 'Email', 'Status', 'Product Name', 'Quantity', 'Unit Price', 'Subtotal', 'Order Total']
+                ]
+                
+                if (filteredOrders && filteredOrders.length > 0) {
+                  filteredOrders.forEach((order, orderIndex) => {
+                    const customerName = order.customer_snapshot?.name || 
+                                       (order.customer_snapshot?.first_name && order.customer_snapshot?.last_name 
+                                         ? `${order.customer_snapshot.first_name} ${order.customer_snapshot.last_name}` 
+                                         : 'N/A')
+                    const email = order.customer_email || order.customer_snapshot?.email || 'N/A'
+                    const orderDate = new Date(order.created_at).toLocaleDateString('en-PH', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })
+                    const status = order.status || 'N/A'
+                    const orderTotal = formatCurrency(order.total || 0)
+                    
+                    const orderItems = order.order_items || []
+                    
+                    if (orderItems && orderItems.length > 0) {
+                      orderItems.forEach((item, itemIndex) => {
+                        const productName = item.products?.name || 
+                                          item.product?.name || 
+                                          item.product_name ||
+                                          'Unknown Product'
+                        const quantity = Number(item.quantity) || 0
+                        const unitPrice = Number(item.price) || 0
+                        const subtotal = quantity * unitPrice
+                        
+                        ordersData.push([
+                          itemIndex === 0 ? order.id : '',
+                          itemIndex === 0 ? orderDate : '',
+                          itemIndex === 0 ? customerName : '',
+                          itemIndex === 0 ? email : '',
+                          itemIndex === 0 ? status : '',
+                          productName,
+                          quantity,
+                          formatCurrency(unitPrice),
+                          formatCurrency(subtotal),
+                          itemIndex === 0 ? orderTotal : ''
+                        ])
+                      })
+                    } else {
+                      ordersData.push([
+                        order.id,
+                        orderDate,
+                        customerName,
+                        email,
+                        status,
+                        'No items',
+                        0,
+                        formatCurrency(0),
+                        formatCurrency(0),
+                        orderTotal
+                      ])
+                    }
+                    
+                    // Add empty row between orders for readability
+                    ordersData.push(['', '', '', '', '', '', '', '', '', ''])
+                  })
+                } else {
+                  ordersData.push(['', '', '', '', '', 'No completed orders found in this period', '', '', '', ''])
+                }
+                
+                const ordersWs = XLSX.utils.aoa_to_sheet(ordersData)
+                
+                // Add Summary sheet first
+                const summaryWs = XLSX.utils.aoa_to_sheet(summaryData)
+                XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary')
+                
+                // Add Orders sheet second
+                XLSX.utils.book_append_sheet(wb, ordersWs, 'Orders')
+                
+                // Top Products Sheet
+                if (analytics.topProducts && analytics.topProducts.length > 0) {
+                  const productsData = [
+                    ['Top Performing Products'],
+                    [''],
+                    ['Rank', 'Product Name', 'Sales Count', 'Revenue']
+                  ]
+                  
+                  analytics.topProducts.forEach((product, index) => {
+                    productsData.push([
+                      index + 1,
+                      product.name,
+                      product.sales,
+                      formatCurrency(product.revenue)
+                    ])
+                  })
+                  
+                  const productsWs = XLSX.utils.aoa_to_sheet(productsData)
+                  XLSX.utils.book_append_sheet(wb, productsWs, 'Top Products')
+                }
+                
+                // Sales Trend Sheet
+                if (aggregatedChart.labels && aggregatedChart.labels.length > 0) {
+                  const trendData = [
+                    ['Sales Trend Data'],
+                    [''],
+                    ['Period', 'Revenue', 'Orders']
+                  ]
+                  
+                  aggregatedChart.labels.forEach((label, index) => {
+                    trendData.push([
+                      label,
+                      formatCurrency(aggregatedChart.revenueData[index] || 0),
+                      aggregatedChart.salesData[index] || 0
+                    ])
+                  })
+                  
+                  const trendWs = XLSX.utils.aoa_to_sheet(trendData)
+                  XLSX.utils.book_append_sheet(wb, trendWs, 'Sales Trend')
+                }
+                
+                const fileName = `sales-report-${timeRange}-${new Date().toISOString().split('T')[0]}.xlsx`
+                XLSX.writeFile(wb, fileName)
+              } catch (error) {
+                console.error('[Export] Export failed:', error)
+                alert('Failed to export report. Please try again.')
+              }
             }}
           >
             <Download className="w-5 h-5" />
@@ -355,7 +523,7 @@ export default function SalesAnalytics() {
 
       {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1.25rem' }}>
           <div className="flex items-center justify-between mb-3">
             <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
               <PhilippinePeso className="w-6 h-6 text-white" />
@@ -380,7 +548,7 @@ export default function SalesAnalytics() {
           </div>
         </div>
 
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1.25rem' }}>
           <div className="flex items-center justify-between mb-3">
             <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600">
               <ShoppingCart className="w-6 h-6 text-white" />
@@ -405,7 +573,7 @@ export default function SalesAnalytics() {
           </div>
         </div>
 
-        <div className="glass-effect rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105" style={{ padding: '1.25rem' }}>
           <div className="flex items-center justify-between mb-3">
             <div className="p-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600">
               <Package className="w-6 h-6 text-white" />
@@ -420,7 +588,7 @@ export default function SalesAnalytics() {
       </div>
 
       {}
-      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
+      <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300" style={{ padding: '2rem' }}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 mb-1">
@@ -462,7 +630,7 @@ export default function SalesAnalytics() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {}
-        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 p-6">
+        <div className="glass-effect rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300" style={{ padding: '2rem' }}>
           <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-green-400" />
             Orders by Status
