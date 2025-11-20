@@ -1,3 +1,0 @@
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_snapshot JSONB;
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email VARCHAR(255);
-

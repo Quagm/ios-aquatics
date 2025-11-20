@@ -362,26 +362,26 @@ export default function NavigationBar() {
           <div className="ml-2 lg:ml-4 flex gap-2">
             <SignedOut>
               <SignInButton mode="modal">
-                <button
-                  className={`px-4 lg:px-5 xl:px-6 py-2.5 lg:py-3 rounded-lg font-semibold text-sm lg:text-base transition-all duration-300 backdrop-blur-sm ${
+                <span
+                  className={`px-4 lg:px-5 xl:px-6 py-2.5 lg:py-3 rounded-lg font-semibold text-sm lg:text-base transition-all duration-300 backdrop-blur-sm cursor-pointer ${
                     isScrolled
                       ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/25"
                       : "bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 hover:shadow-lg hover:shadow-white/10"
                   }`}
                 >
                   Login
-                </button>
+                </span>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button
-                  className={`px-4 lg:px-5 xl:px-6 py-2.5 lg:py-3 rounded-lg font-semibold text-sm lg:text-base transition-all duration-300 backdrop-blur-sm ${
+                <span
+                  className={`px-4 lg:px-5 xl:px-6 py-2.5 lg:py-3 rounded-lg font-semibold text-sm lg:text-base transition-all duration-300 backdrop-blur-sm cursor-pointer ${
                     isScrolled
                       ? "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg shadow-emerald-500/25"
                       : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10"
                   }`}
                 >
                   Register
-                </button>
+                </span>
               </SignUpButton>
             </SignedOut>
             <SignedIn>
@@ -539,14 +539,14 @@ export default function NavigationBar() {
             <SignedOut>
               <div className="space-y-3">
                 <SignInButton mode="modal">
-                  <button className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-4 px-6 font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30">
+                  <div className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-4 px-6 font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 cursor-pointer text-center">
                     Login
-                  </button>
+                  </div>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <button className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 py-4 px-6 font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30">
+                  <div className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 py-4 px-6 font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30 cursor-pointer text-center">
                     Register
-                  </button>
+                  </div>
                 </SignUpButton>
               </div>
             </SignedOut>
